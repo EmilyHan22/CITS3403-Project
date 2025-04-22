@@ -1,1 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Podcast Log</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        form {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
 
+<body>
+    <h1>Log Your Entry</h1>
+    <p> 👋 Hey there! Listened to a podcast? Tell us about it!</p>
+    <form>
+        <label for="title">What Podcast did you listen to?:</label>
+        <input type="text" id="title" name="title" placeholder="Enter podcast title" required>
+
+        <label for="series">Who is the Podcaster?:</label>
+        <input type="text" id="series" name="series" placeholder="Enter podcaster name" required>
+
+        <label for="time">How long did you listen for? (Minutes):</label>
+        <input type="number" id="time" name="time" min="1" placeholder="Enter minutes listened" required>
+
+        <label for="genre">What is the Genre?</label>
+        <select id="genre" name="genre" required>
+            <option value="">Select a genre</option>
+            <option value="comedy">Comedy</option>
+            <option value="romance">Romance</option>
+            <option value="crime">Crime</option>
+            <option value="education">Education</option>
+            <option value="news">News</option>
+            <option value="technology">Technology</option>
+            <option value="other">Other</option>
+        </select>
+
+        <label for="platform">What Platform did you use?:</label>
+        <input type="text" id="platform" name="platform" placeholder="Enter platform name" required>
+
+        <label for="rating">Did you enjoy the podcast? Rate it from 1 to 5 (1: Horrid! 5: Loved It!):</label>
+        <input type="number" id="rating" name="rating" min="1" max="5" placeholder="Rate 1 to 5" required>
+
+        <button type="submit">Log It!</button>
+    </form>
+</body>
+</html>
