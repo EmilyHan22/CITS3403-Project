@@ -1,1 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Podcast Log – Podfolio{% endblock %}
+
+{% block content %}
+  <div class="form-container">
+    <h1>Log Your Entry</h1>
+    <p class="lead">👋 Hey there! Listened to a podcast? Tell us about it!</p>
+
+    <form action="{{ url_for('main.podcast_log') }}" method="post">
+      <div class="field">
+        <label for="title">Which podcast did you listen to?</label>
+        <input type="text" id="title" name="title" placeholder="Enter podcast title" required />
+      </div>
+
+      <div class="field">
+        <label for="series">Who is the podcaster?</label>
+        <input type="text" id="series" name="series" placeholder="Enter podcaster name" required />
+      </div>
+
+      <div class="field">
+        <label for="time">How long did you listen? (minutes)</label>
+        <input type="number" id="time" name="time" min="1" placeholder="e.g. 45" required />
+      </div>
+
+      <div class="field">
+        <label for="genre">Genre</label>
+        <select id="genre" name="genre" required>
+          <option value="">— Select —</option>
+          <option value="comedy">Comedy</option>
+          <option value="romance">Romance</option>
+          <option value="crime">Crime</option>
+          <option value="education">Education</option>
+          <option value="news">News</option>
+          <option value="technology">Technology</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="platform">Which platform did you use?</label>
+        <input type="text" id="platform" name="platform" placeholder="e.g. Spotify" required />
+      </div>
+
+      <div class="field">
+        <label for="rating">Rate it 1–5 (1 = Horrid, 5 = Loved it!)</label>
+        <input type="number" id="rating" name="rating" min="1" max="5" placeholder="1–5" required />
+      </div>
+
+      <button type="submit">Log It!</button>
+    </form>
+  </div>
+{% endblock %}
 
