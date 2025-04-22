@@ -3,13 +3,16 @@ Repo for CITS3403 group project.
 
 ### A description of the purpose of the application, explaining its design and use.
 **Application name:**
-Name of App or Website
+Podfolio
 
 **Purpose:**
-This application is designed for
+This application is designed for users to visualize the podcasts they listen to in an organized manner, their top listened to genres and authors, and able to share their visualized dashboard with friends.
 
 **Functions:** 
 It has the following functions:
+Users log the podcast they listened to. 
+Application will analyse the data, and present it in forms of genere pie-chart, listened time line chart, and top podcast rank list. 
+User can share their dashboard with their friends.
 
 ### A table with each row containing the i) UWA ID ii) name and iii) Github user name of the group members.
 
