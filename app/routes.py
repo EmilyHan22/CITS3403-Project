@@ -7,7 +7,7 @@ bp = Blueprint("main", __name__)
 def index():
     return render_template("index.html", current_year=datetime.date.today().year)
 
-@bp.route("/share")
+@bp.route("/shareview")
 def share():
     return render_template("shareview.html", current_year=datetime.date.today().year)
 
