@@ -6,15 +6,16 @@ Repo for CITS3403 group project.
 Podfolio
 
 **Purpose:**
-This application is designed for users to visualize the podcasts they listen to in an organized manner, their top listened to genres and authors, and able to share their visualized dashboard with friends.
+This application is designed for users to visualize the podcasts they listen to in an organized manner, their top listened to genres and authors, learn more about their own preferences, and able to share their visualized dashboard with friends.
 
 **Functions:** 
 It has the following functions:
-Users log the podcast they listened to. 
-Application will analyse the data, and present it in forms of genere pie-chart, listened time line chart, and top podcast rank list. 
-User can share their dashboard with their friends.
+- Invites user to create an account: username and password, sign up and sign in, forgot password, and agreement to privacy statement and policies.
+- Users log the podcast they listened to on the logger page.
+- The application will analyse the data and display it on the dashboard page. In the form of a genre pie chart, a listened-time line chart, a top podcast rank list, and a best-rated podcast.
+- User can share their dashboard with their friends.
 
-### A table with each row containing the i) UWA ID ii) name and iii) Github user name of the group members.
+### Group 63 Members:
 
 | Name            | UWA ID   | Github username |
 | --------------- |:--------:| ---------------:|
@@ -24,5 +25,10 @@ User can share their dashboard with their friends.
 | Aagney Singh    | 23739771 | aagney2         |
 
 ### Instructions for how to launch the application.
+Using 'flask run' command, then copy the IP address into the browser to see the active website.
 
 ### Instructions for how to run the tests for the application.
+- Using dummy data entries to test the logger and visualise functions. 
+- Using dummy accounts to test the share feed function. 
+- Purposely entering invalid entries, to test the invalid input responses. 
+
