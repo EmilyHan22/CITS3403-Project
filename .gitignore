@@ -1,1 +1,7 @@
+# ignore virtual environment 
+# can remove io_venv at the end
+io_venv/ 
+venv/
+
+# OS files 
 .DS_Store
