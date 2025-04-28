@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Friend's Dashboard – Podfolio{% endblock %}
+
+{% block content %}
+<h1>Friends Dashboard</h1>
+<div id="podcast-chart" style="display: flex; justify-content: center; margin: 0 auto;">
+  <img src="{{ url_for('static', filename='assets/Genre-chart.png') }}" style="width: 500px; height: 500px; margin:50px;" alt="Pie chart breaking down genres listened to.">
+  <img src="{{ url_for('static', filename='assets/Time-graph.png') }}"  style="width: 500px; height: 500px; margin:50px;" alt="A line graph of minutes watched at weekly intervals.">
+</div>
+<div id="podcast-chart" style="display: flex; justify-content: center; margin: 0 auto;">
+  <img src="{{ url_for('static', filename='assets/Top5-podcasts.png') }}" style="width: 500px; height: 500px; margin:50px;" alt="A graphic showing your top five most listened to podcasts.">
+  <img src="{{ url_for('static', filename='assets/Most-interesting.png') }}"  style="width: 500px; height: 300px; margin:50px;" alt="A line graph of minutes watched at weekly intervals.">
+</div>
+{% endblock %}
