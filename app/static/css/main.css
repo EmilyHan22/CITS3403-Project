@@ -58,7 +58,7 @@ nav a:hover {
 
 /* --- Desktop Sidebar Navigation --- */
 .desktop-nav {
-  background-color: #8A2BE2;
+  background-color: #000a14;
   min-height: calc(100vh - 56px);
   display: none; /* hidden on mobile */
 }
@@ -83,7 +83,7 @@ nav a:hover {
 }
 
 .card {
-  background-color:	#892AE0 !important;
+  background-color:	#fff !important;
   border: none;
   color: #ffffff;
 }
@@ -91,13 +91,13 @@ nav a:hover {
 .card-header {
   background-color: transparent !important;
   border-bottom: none;
-  color: #ffffff;
+  color: #000;
 }
 
 .list-group-item {
   background-color: transparent;
   border: none;
-  color: #ffffff;
+  color: #000;
 }
 
 
@@ -171,6 +171,7 @@ footer {
   background-color: #191970;
   color:#191970;
   margin-top: 40px;
+  margin-bottom: 0px;
 }
 @keyframes gradientMove {
   0% {
