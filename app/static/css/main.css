@@ -7,17 +7,28 @@
 
 /* --- Global body style --- */
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f8f9fa;
-  color: #000000;
+  font-family: 'Poppins',Arial, sans-serif;
+  background: linear-gradient(135deg, #CFA8F3 15%,#AB67EA 25%, #8A2BE2 60%);
+  background-color: 	#B274EC;
+  color: #ffffff;
   padding-top: 56px; /* Space for mobile nav */
+  animation: gradientMove 15s ease infinite;
 }
 
 /* --- Header (if you ever use one separately) --- */
 header {
-  background: #333;
+  background: #8A2BE2;
   color: #fff;
   padding: 10px 20px;
+}
+
+
+a {
+  color: inherit;
+}
+
+a:hover {
+  color: #B274EC; /* Optional: nice hover color */
 }
 
 /* --- Navbar links --- */
@@ -38,7 +49,7 @@ nav a:hover {
   left: 0;
   right: 0;
   z-index: 1000;
-  background-color: #212529;
+  background-color: #8A2BE2;
   height: 56px;
   display: flex;
   align-items: center;
@@ -47,7 +58,7 @@ nav a:hover {
 
 /* --- Desktop Sidebar Navigation --- */
 .desktop-nav {
-  background-color: #212529;
+  background-color: #8A2BE2;
   min-height: calc(100vh - 56px);
   display: none; /* hidden on mobile */
 }
@@ -71,15 +82,35 @@ nav a:hover {
   justify-content: center;
 }
 
+.card {
+  background-color:	#892AE0 !important;
+  border: none;
+  color: #ffffff;
+}
+
+.card-header {
+  background-color: transparent !important;
+  border-bottom: none;
+  color: #ffffff;
+}
+
+.list-group-item {
+  background-color: transparent;
+  border: none;
+  color: #ffffff;
+}
+
+
 /* --- Lists (user lists, friends lists) --- */
 .user-list, .friends-list {
+  
   max-height: 300px;
   overflow-y: auto;
 }
 
 .main-screen {
   min-height: 300px;
-  background-color: white;
+  background-color: #8A2BE2;
 }
 
 /* --- Custom scrollbar for lists --- */
@@ -90,7 +121,7 @@ nav a:hover {
 
 .user-list::-webkit-scrollbar-thumb,
 .friends-list::-webkit-scrollbar-thumb {
-  background-color: #adb5bd;
+  background-color: #9B9CF2;
   border-radius: 4px;
 }
 
@@ -137,6 +168,18 @@ main {
 footer {
   text-align: center;
   font-size: 0.8rem;
-  color: #666;
+  background-color: #191970;
+  color:#191970;
   margin-top: 40px;
+}
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }

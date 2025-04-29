@@ -29,3 +29,7 @@ def podcast_log():
         return redirect(url_for("main.podcast_log"))
 
     return render_template("PodcastLog.html", current_year=datetime.date.today().year)
+
+@bp.route("/frienddash")
+def frienddash():
+    return render_template("frienddash.html", current_year=datetime.date.today().year)
