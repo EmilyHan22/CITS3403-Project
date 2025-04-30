@@ -10,7 +10,7 @@ body {
 	font-family: 'Poppins', Arial, sans-serif;
 	
 	/* remove if using animated bg*/
-	background: radial-gradient(circle at center, #360068 0%, #6814b7 40%, #b077e5 75%, #e0c2ef 100%);
+	/*background: radial-gradient(circle at center, #360068 0%, #6814b7 40%, #b077e5 75%, #e0c2ef 100%);*/
 	
 	color: #ffffff;
 	padding-top: 56px;
@@ -19,7 +19,7 @@ body {
 }
 
 /* --- Full-page background with animated gradient and GIF --- */
-/*body::before {
+body::before {
 	content: "";
 	position: fixed;
 	top: 0;
@@ -40,7 +40,7 @@ body {
 	background-repeat: no-repeat;
 	background-position: center;
 	opacity: 1;
-}*/
+}
 
 /* --- Header (if you ever use one separately) --- */
 header {
