@@ -5,74 +5,80 @@ Podcast Log – Podfolio
 {% endblock %}
 
 {% block content %}
-<h2 class="mb-4">Log Your Entry</h2>
-<p> <span style="font-size: 4rem;">👋</span> <strong> Welcome Back! Listened to another podcast? Tell us about it!
-	</strong></p>
 
-<form>
-	<!-- TODO: Add AutoFill for podcast name, episode, and platform -->
-	<div class="mb-3">
-		<label for="podcastName" class="form-label">Which Podcast did you listen to?</label>
-		<input type="text" class="form-control" id="podcastName" placeholder="Enter Podcast Name">
-	</div>
+<!-- Greeting -->
+<div class="greeting">
+	<h1>👋 Welcome Back!</h1>
+	<p>Listened to another podcast? Tell us about it!</p>
+</div>
 
-	<div class="mb-3">
-		<label for="podcastEp" class="form-label">Which episode?</label>
-		<input type="text" class="form-control" id="podcastEp" placeholder="Enter Podcast Episode Title">
-	</div>
+<!-- Form Centered -->
+<div class="form-container">
+	<form class="podcast-form">
 
-	<div class="mb-3">
-		<label for="platform" class="form-label">Which platform did you use?</label>
-		<input type="text" class="form-control" id="platform" placeholder="e.g. Spotify">
-	</div>
-
-	<div class="mb-3">
-		<label for="listenTime" class="form-label">How many minutes did you listen for?</label>
-		<input type="number" class="form-control" id="listenTime" placeholder="E.g. 45">
-	</div>
-
-	<div class="mb-3">
-		<label for="genre" class="form-label">What Genre is the Podcast?</label>
-		<select class="form-select" id="genre">
-			<option selected disabled>Select</option>
-			<option value="Educational">Educational</option>
-			<option value="News">News</option>
-			<option value="Interview">Interview</option>
-			<option value="Politics">Politics</option>
-			<option value="Society and Culture">Society and Culture</option>
-			<option value="Sports">Sports</option>
-			<option value="Musical">Musical</option>
-			<option value="Comedy">Comedy</option>
-			<option value="Narrative">Narrative</option>
-			<option value="Crime and Mystery">Crime and Mystery</option>
-			<option value="Business and Economy">Business and Economy</option>
-			<option value="Lifestyle and Health">Lifestyle and Health</option>
-			<option value="Technology and Development">Technology and Development</option>
-			<option value="Other">Other</option>
-		</select>
-	</div>
-	
-	<div class="mb-3">
-		<label class="form-label">Rate it!</label>
-		<div class="star-rating" style="direction: rtl; font-size: 2rem; unicode-bidi: bidi-override;">
-			<input type="radio" id="star5" name="rating" value="5" hidden />
-			<label for="star5">★</label>
-
-			<input type="radio" id="star4" name="rating" value="4" hidden />
-			<label for="star4">★</label>
-
-			<input type="radio" id="star3" name="rating" value="3" hidden />
-			<label for="star3">★</label>
-
-			<input type="radio" id="star2" name="rating" value="2" hidden />
-			<label for="star2">★</label>
-
-			<input type="radio" id="star1" name="rating" value="1" hidden />
-			<label for="star1">★</label>
+		<div class="mb-3">
+			<label for="podcastName" class="form-label">Which Podcast did you listen to?</label>
+			<input type="text" class="form-control" id="podcastName" placeholder="Enter Podcast Name">
 		</div>
-	</div>
 
-	<button type="submit" class="btn btn-primary">Log It!</button>
-</form>
+		<div class="mb-3">
+			<label for="podcastEp" class="form-label">Which episode?</label>
+			<input type="text" class="form-control" id="podcastEp" placeholder="Enter Podcast Episode Title">
+		</div>
+
+		<div class="mb-3">
+			<label for="platform" class="form-label">Which platform did you use?</label>
+			<input type="text" class="form-control" id="platform" placeholder="e.g. Spotify">
+		</div>
+
+		<div class="mb-3">
+			<label for="listenTime" class="form-label">How many minutes did you listen for?</label>
+			<input type="number" class="form-control" id="listenTime" placeholder="E.g. 45">
+		</div>
+
+		<div class="mb-3">
+			<label for="genre" class="form-label">What Genre is the Podcast?</label>
+			<select class="form-select" id="genre">
+				<option selected disabled>Select</option>
+				<option value="Educational">Educational</option>
+				<option value="News">News</option>
+				<option value="Interview">Interview</option>
+				<option value="Politics">Politics</option>
+				<option value="Society and Culture">Society and Culture</option>
+				<option value="Sports">Sports</option>
+				<option value="Musical">Musical</option>
+				<option value="Comedy">Comedy</option>
+				<option value="Narrative">Narrative</option>
+				<option value="Crime and Mystery">Crime and Mystery</option>
+				<option value="Business and Economy">Business and Economy</option>
+				<option value="Lifestyle and Health">Lifestyle and Health</option>
+				<option value="Technology and Development">Technology and Development</option>
+				<option value="Other">Other</option>
+			</select>
+		</div>
+
+		<div class="mb-3">
+			<label class="form-label">Rate it!</label>
+			<div class="star-rating">
+				<input type="radio" id="star5" name="rating" value="5" hidden />
+				<label for="star5">★</label>
+
+				<input type="radio" id="star4" name="rating" value="4" hidden />
+				<label for="star4">★</label>
+
+				<input type="radio" id="star3" name="rating" value="3" hidden />
+				<label for="star3">★</label>
+
+				<input type="radio" id="star2" name="rating" value="2" hidden />
+				<label for="star2">★</label>
+
+				<input type="radio" id="star1" name="rating" value="1" hidden />
+				<label for="star1">★</label>
+			</div>
+		</div>
+
+		<button type="submit" class="btn-log">Log It!</button>
+	</form>
+</div>
 
 {% endblock %}
