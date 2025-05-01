@@ -10,7 +10,6 @@ def create_app():
     )
     # Secret key for sessions; override in instance/config.py if needed
     app.config.from_mapping(SECRET_KEY="dev")
-
     # simple route blueprint
     from .routes import bp as main_bp
     app.register_blueprint(main_bp)
