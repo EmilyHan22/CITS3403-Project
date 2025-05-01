@@ -85,7 +85,7 @@ nav a:hover {
 .card {
   background-color:	#fff !important;
   border: none;
-  color: #ffffff;
+  color: #333333;
 }
 
 .card-header {
@@ -172,7 +172,26 @@ footer {
   color:#191970;
   margin-top: 40px;
   margin-bottom: 0px;
+
 }
+/* make the page a column flex container */
+html, body {
+    height: 100%;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* let <main> grow to fill the available space */
+  main {
+    flex: 1 0 auto;
+  }
+  
+  /* override your fixed 40px top-margin and pin footer to bottom */
+  footer {
+    margin-top: auto;
+  }
 @keyframes gradientMove {
   0% {
     background-position: 0% 50%;
@@ -183,4 +202,7 @@ footer {
   100% {
     background-position: 0% 50%;
   }
+}
+.landing-page{
+  margin-left: 0px !important;
 }
