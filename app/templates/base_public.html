@@ -26,8 +26,12 @@
       <span class="fs-5 fw-bold">Podfolio</span>
     </a>
     <div>
-      <a href="{{ url_for('main.login') }}" class="btn btn-outline-light btn-sm me-2">Log In</a>
-      <a href="#" class="btn btn-light btn-sm">Sign Up</a>
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('main.logout') }}" class="btn btn-outline-secondary btn-sm">Log Out</a>
+      {% else %}
+        <a href="{{ url_for('main.login') }}"  class="btn btn-outline-light   btn-sm me-2">Log In</a>
+        <a href="{{ url_for('main.signup') }}" class="btn btn-light          btn-sm">Sign Up</a>
+      {% endif %}
     </div>
   </nav>
 
