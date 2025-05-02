@@ -1,55 +1,137 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import (
+    Blueprint, render_template, request,
+    redirect, url_for, flash
+)
+from flask_login import (
+    login_user, logout_user,
+    current_user, login_required
+)
+from app.db import db
+from app.models import User, Podcast
 import datetime
+import sys
 
 bp = Blueprint("main", __name__)
 
+# ─── Public routes ────────────────────────────────────────────
+
 @bp.route("/")
 def index():
-    return render_template("index.html", current_year=datetime.date.today().year)
-
-@bp.route("/shareview")
-def share():
-    return render_template("shareview.html", current_year=datetime.date.today().year)
-
-@bp.route("/visualise")
-def visualise():
-    return render_template("visualise.html", current_year=datetime.date.today().year)
-
-@bp.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        # for now, accept anything and go to the podcast-logging page
+    # If already logged in, send straight to podcast-log
+    if current_user.is_authenticated:
         return redirect(url_for("main.podcast_log"))
-    return render_template("login.html", current_year=datetime.date.today().year)
-
-@bp.route("/podcast-log", methods=["GET", "POST"])
-def podcast_log():
-    if request.method == "POST":
-        # grab form data (you can save to DB here later)
-        title    = request.form.get("title")
-        series   = request.form.get("series")
-        time     = request.form.get("time")
-        genre    = request.form.get("genre")
-        platform = request.form.get("platform")
-        rating   = request.form.get("rating")
-        # for now, just redirect back to the form
-        return redirect(url_for("main.podcast_log"))
-
-    return render_template("PodcastLog.html", current_year=datetime.date.today().year)
-
-@bp.route("/frienddash")
-def frienddash():
-    return render_template("frienddash.html", current_year=datetime.date.today().year)
+    return render_template(
+        "index.html",
+        current_year=datetime.date.today().year
+    )
 
 @bp.route("/signup", methods=["GET", "POST"])
 def signup():
-    if request.method == "POST":
-        # grab form data if you want:
-        first = request.form["first_name"]
-        last  = request.form["last_name"]
-        user  = request.form["username"]
-        email = request.form["email"]
-        pwd   = request.form["password"]
-        # for now, ignore and just send them into the app:
+    # Redirect logged-in users away
+    if current_user.is_authenticated:
         return redirect(url_for("main.podcast_log"))
-    return render_template("signup.html", current_year=datetime.date.today().year)
+
+    if request.method == "POST":
+        # debug print to stderr
+        print("🟢 SIGNUP POST received:", request.form, file=sys.stderr)
+        data = request.form
+
+        # 1) Prevent duplicate usernames
+        if User.query.filter_by(username=data["username"]).first():
+            flash("Username already taken.", "warning")
+            return redirect(url_for("main.signup"))
+
+        # 2) Prevent duplicate emails
+        if User.query.filter_by(email=data["email"]).first():
+            flash("Email already registered.", "warning")
+            return redirect(url_for("main.signup"))
+
+        # 3) Create & commit the new user
+        user = User(
+            username     = data["username"],
+            email        = data["email"],
+            display_name = f"{data['first_name']} {data['last_name']}"
+        )
+        user.set_password(data["password"])
+        db.session.add(user)
+        db.session.commit()
+
+        # 4) Log them in and redirect to dashboard
+        login_user(user)
+        return redirect(url_for("main.podcast_log"))
+
+    # GET → show sign-up form
+    return render_template(
+        "signup.html",
+        current_year=datetime.date.today().year
+    )
+
+@bp.route("/login", methods=["GET", "POST"])
+def login():
+    # Redirect logged-in users away
+    if current_user.is_authenticated:
+        return redirect(url_for("main.podcast_log"))
+
+    if request.method == "POST":
+        email    = request.form.get("email", "")
+        password = request.form.get("password", "")
+
+        user = User.query.filter_by(email=email).first()
+        if user and user.check_password(password):
+            login_user(user)
+            # honor ?next=… if provided
+            next_page = request.args.get("next")
+            return redirect(next_page or url_for("main.podcast_log"))
+
+        flash("Invalid credentials.", "danger")
+        return redirect(url_for("main.login"))
+
+    # GET → show login form
+    return render_template(
+        "login.html",
+        current_year=datetime.date.today().year
+    )
+
+# ─── Protected routes ─────────────────────────────────────────
+
+@bp.route("/podcast-log", methods=["GET", "POST"])
+@login_required
+def podcast_log():
+    if request.method == "POST":
+        # TODO: handle form submission for logging a podcast
+        return redirect(url_for("main.podcast_log"))
+
+    return render_template(
+        "PodcastLog.html",
+        current_year=datetime.date.today().year
+    )
+
+@bp.route("/shareview")
+@login_required
+def share():
+    return render_template(
+        "shareview.html",
+        current_year=datetime.date.today().year
+    )
+
+@bp.route("/visualise")
+@login_required
+def visualise():
+    return render_template(
+        "visualise.html",
+        current_year=datetime.date.today().year
+    )
+
+@bp.route("/frienddash")
+@login_required
+def frienddash():
+    return render_template(
+        "frienddash.html",
+        current_year=datetime.date.today().year
+    )
+
+@bp.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("main.index"))

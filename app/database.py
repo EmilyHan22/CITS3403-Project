@@ -1,5 +1,5 @@
 from app.db import db
-from app.models import User, Podcast, PodcastLo
+from app.models import User, Podcast, PodcastLog
 import csv
 import json
 
