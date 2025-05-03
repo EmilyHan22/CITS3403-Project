@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}
-ShareFeeds – Podfolio
-{% endblock %}
+{% block title %}ShareFeeds – Podfolio{% endblock %}
 
 {% block content %}
 <h2 class="mb-4">ShareFeeds</h2>
@@ -11,89 +9,67 @@ ShareFeeds – Podfolio
 <div class="row mb-4">
   <div class="col-12">
     <div class="input-group">
-      <input type="text" id="userSearch" class="form-control" placeholder="Search for users to share...">
+      <input type="text" id="userSearch" class="form-control" placeholder="Search by username...">
       <button class="btn btn-primary" type="button" id="addUserBtn">
-        <i class="bi bi-plus-lg me-2"></i>Add User
+        <i class="bi bi-plus-lg me-2"></i>Add Friend
       </button>
     </div>
   </div>
 </div>
 
-<!-- Your Friends List -->
+<!-- People I've Added -->
 <div class="row mb-4">
   <div class="col-12">
     <div class="card">
       <div class="card-header bg-white">
-        <h5 class="mb-0">Your Friends</h5>
+        <h5 class="mb-0">People I Added</h5>
       </div>
       <div class="card-body p-0">
-        <ul class="list-group list-group-flush user-list" id="userList">
-          <!-- Users will be populated here -->
+        <ul class="list-group list-group-flush" id="followingList">
+          {% for friend in current_user.people_i_added %}
           <li class="list-group-item d-flex justify-content-between align-items-center">
-            John Doe
-            <button class="btn btn-sm btn-outline-danger remove-user"><i class="bi bi-trash"></i> Remove</button>
+            {{ friend.username }}
+            <button class="btn btn-sm btn-outline-danger remove-friend" 
+                    data-user-id="{{ friend.id }}">
+              <i class="bi bi-trash"></i> Remove
+            </button>
           </li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            Jane Smith
-            <button class="btn btn-sm btn-outline-danger remove-user"><i class="bi bi-trash"></i> Remove</button>
-          </li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            Robert Johnson
-            <button class="btn btn-sm btn-outline-danger remove-user"><i class="bi bi-trash"></i> Remove</button>
-          </li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            John Doe
-            <button class="btn btn-sm btn-outline-danger remove-user"><i class="bi bi-trash"></i> Remove</button>
-          </li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            John Doe
-            <button class="btn btn-sm btn-outline-danger remove-user"><i class="bi bi-trash"></i> Remove</button>
-          </li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            John Doe
-            <button class="btn btn-sm btn-outline-danger remove-user"><i class="bi bi-trash"></i> Remove</button>
-          </li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            John Doe
-            <button class="btn btn-sm btn-outline-danger remove-user"><i class="bi bi-trash"></i> Remove</button>
-          </li>
+          {% else %}
+          <li class="list-group-item text-muted">You haven't added anyone yet</li>
+          {% endfor %}
         </ul>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Friends Who Added You -->
-<div class="row mb-4">
+<!-- People Who Added Me -->
+<div class="row">
   <div class="col-12">
     <div class="card">
       <div class="card-header bg-white">
-        <h5 class="mb-0">Friends Who Added You</h5>
+        <h5 class="mb-0">People Who Added me</h5>
       </div>
       <div class="card-body p-0">
-        <ul class="list-group list-group-flush friends-list" id="friendsList">
-          <!-- Friends will be populated here -->
-          <li class="list-group-item friend-item" data-user-id="4">
-            <a href="{{ url_for('main.frienddash') }}" target="_blank" class="text-decoration-none flex-grow-1 friend-item">
-            Emma Wilson
-            <span class="badge bg-primary">View Dashboard</span>
-          </a>
+        <ul class="list-group list-group-flush" id="followersList">
+          {% for follower in current_user.people_added_me %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <a href="{{ url_for('main.frienddash', friend_id=follower.id) }}" 
+               class="text-decoration-none flex-grow-1">
+              {{ follower.username }}
+              <span class="badge bg-primary">View Dashboard</span>
+            </a>
           </li>
-          <li class="list-group-item friend-item" data-user-id="5">
-            <a href="{{ url_for('main.frienddash') }}" target="_blank" class="text-decoration-none flex-grow-1 friend-item">
-            Michael Brown
-            <span class="badge bg-primary">View Dashboard</span>
-          </a>
-          </li>
-          <li class="list-group-item friend-item" data-user-id="6">
-            <a href="{{ url_for('main.frienddash') }}" target="_blank" class="text-decoration-none flex-grow-1 friend-item">
-            Sarah Johnson
-            <span class="badge bg-primary">View Dashboard</span>
-          </a>
-          </li>
+          {% else %}
+          <li class="list-group-item text-muted">No one has added you yet</li>
+          {% endfor %}
         </ul>
       </div>
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/shareview.js') }}"></script>
 {% endblock %}
