@@ -38,8 +38,8 @@ def create_app():
         return User.query.get(int(user_id))
 
     with app.app_context():
-        from app.models import Podcast, User, PodcastLog
-        db.create_all()
+        from app.models import Podcast, User, PodcastLog,Friendship
+       
 
 
      # where to redirect if login_required fails
