@@ -5,31 +5,35 @@ Home – Podfolio
 {% endblock %}
 
 {% block content %}
+
 <div class="container text-center my-5">
     <h1 class="display-4 mb-4">Welcome to Podfolio</h1>
     <p class="lead mb-4">Track your podcast journey, discover your listening trends, and share your favorites with friends.</p>
     
     <hr class="my-5" />
 
-    <section class="landing-intro">
-        <div class="container">
-            <h2 class="mb-4">With Podfolio, you can:</h2>
-            <ul class="list-unstyled text-start mx-auto" style="max-width: 600px;">
-                <li class="mb-3">
-                    <strong>Create an account</strong> and start logging the podcasts you listen to.
-                </li>
-                <li class="mb-3">
-                    <strong>View detailed visualizations</strong> of your listening history with tables and graphs.
-                </li>
-                <li class="mb-3">
-                    <strong>Learn more</strong> about your favorite genres, podcasters, and platforms over time.
-                </li>
-                <li class="mb-3">
-                    <strong>Share your personalized dashboard</strong> in a community feed and explore what others are loving too.
-                </li>
-            </ul>
-        </div>
-    </section>
+	<hr class="my-5" />
+  
+	<section class="landing-intro">
+		<div class="container">
+			<h2 class="mb-4">With Podfolio, you can:</h2>
+			<ul class="list-unstyled text-start mx-auto" style="max-width: 600px;">
+				<li class="mb-3">
+					<strong>Create an account</strong> and start logging the podcasts you listen to.
+				</li>
+				<li class="mb-3">
+					<strong>View detailed visualizations</strong> of your listening history with tables and graphs.
+				</li>
+				<li class="mb-3">
+					<strong>Learn more</strong> about your favorite genres, podcasters, and platforms over time.
+				</li>
+				<li class="mb-3">
+					<strong>Share your personalized dashboard</strong> in a community feed and explore what others are
+					loving too.
+				</li>
+			</ul>
+		</div>
+	</section>
 
     <a class="btn btn-primary btn-lg" href="{{ url_for('main.login') }}" role="button">Get Started</a>
 </div>
