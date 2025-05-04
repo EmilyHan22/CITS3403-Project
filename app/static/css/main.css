@@ -88,8 +88,7 @@ nav a:hover {
 .desktop-nav {
 	background-color: #09012a;
 	min-height: calc(100vh - 56px);
-	display: none;
-	/* hidden on mobile */
+	display: none; /* hidden on mobile */
 }
 
 /* --- Logo Styling --- */
@@ -306,4 +305,26 @@ footer {
 	.podcast-form {
 		padding: 1.5rem;
 	}
+  
+/* make the page a column flex container */
+html, body {
+    height: 100%;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* let <main> grow to fill the available space */
+  main {
+    flex: 1 0 auto;
+  }
+  
+  /* override your fixed 40px top-margin and pin footer to bottom */
+  footer {
+    margin-top: auto;
+  }
+
+.landing-page{
+  margin-left: 0px !important;
 }
