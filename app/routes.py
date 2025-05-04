@@ -1,6 +1,6 @@
 from flask import (
     Blueprint, render_template, request,
-    redirect, url_for, flash, current_app
+    redirect, url_for, flash,jsonify, current_app
 )
 from flask_mail import Message
 from itsdangerous import SignatureExpired, BadSignature
@@ -10,7 +10,7 @@ from flask_login import (
     current_user, login_required
 )
 from app.db import db
-from app.models import User, Podcast
+from app.models import User, Podcast, Friendship
 from datetime import datetime, date
 import sys
 
