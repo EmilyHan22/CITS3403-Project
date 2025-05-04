@@ -210,3 +210,53 @@ def frienddash():
 def logout():
     logout_user()
     return redirect(url_for("main.index"))
+
+@bp.route('/add_friend', methods=['POST'])
+@login_required
+def add_friend():
+    username = request.json.get('username')
+    friend = User.query.filter_by(username=username).first()
+    
+    if not friend:
+        return jsonify({'error': 'User not found'}), 404
+        
+    if current_user.id == friend.id:
+        return jsonify({'error': 'Cannot add yourself'}), 400
+        
+    # Check if friendship already exists
+    existing = Friendship.query.filter_by(
+        user_id=current_user.id,
+        friend_id=friend.id
+    ).first()
+    
+    if existing:
+        return jsonify({'error': 'Already friends'}), 400
+        
+    # Create relationship
+    friendship = Friendship(user_id=current_user.id, friend_id=friend.id)
+    db.session.add(friendship)
+    db.session.commit()
+    
+    return jsonify({
+        'message': f'Added {username} as friend',
+        'friend': {
+            'id': friend.id,
+            'username': friend.username
+        }
+    })
+@bp.route('/remove_friend/<int:friend_id>', methods=['DELETE'])
+@login_required
+def remove_friend(friend_id):
+    # Remove only your following (one-way)
+    friendship = Friendship.query.filter_by(
+        user_id=current_user.id,
+        friend_id=friend_id
+    ).first()
+    
+    if not friendship:
+        return jsonify({'error': 'Not currently following this user'}), 404
+        
+    db.session.delete(friendship)
+    db.session.commit()
+    
+    return jsonify({'message': 'Removed from your following'})
