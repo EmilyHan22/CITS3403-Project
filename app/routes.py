@@ -1,17 +1,92 @@
 from flask import (
     Blueprint, render_template, request,
-    redirect, url_for, flash
+    redirect, url_for, flash, current_app
 )
+from flask_mail import Message
+from itsdangerous import SignatureExpired, BadSignature
+from app import mail, make_serializer
 from flask_login import (
     login_user, logout_user,
     current_user, login_required
 )
 from app.db import db
 from app.models import User, Podcast
-import datetime
+from datetime import datetime, date
 import sys
 
 bp = Blueprint("main", __name__)
+
+@bp.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
+    if current_user.is_authenticated:
+        return redirect(url_for("main.podcast_log"))
+
+    if request.method == "POST":
+        email = request.form.get("email", "").strip()
+        user  = User.query.filter_by(email=email).first()
+        if not user:
+            flash("That email address isn’t registered.", "danger")
+            return redirect(url_for("main.forgot_password"))
+
+        token = make_serializer(current_app).dumps(user.email)
+        link  = url_for("main.reset_password", token=token, _external=True)
+
+        msg = Message(
+            subject="Podfolio Password Reset",
+            recipients=[user.email],
+            body=(
+                f"Hi {user.username},\n\n"
+                f"Click here to reset your password:\n{link}\n\n"
+                "If you didn’t request this, just ignore this email."
+            )
+        )
+        try:
+            mail.send(msg)
+        except Exception as e:
+            current_app.logger.error("Failed to send reset email", exc_info=e)
+            flash("Error sending reset email. Please try again later.", "danger")
+            return redirect(url_for("main.forgot_password"))
+
+        flash("Check your inbox for a reset link.", "success")
+        # stay on this page so the success message is shown here
+        return redirect(url_for("main.forgot_password"))
+
+    return render_template("forgot_password.html", current_year=date.today().year)
+
+@bp.route("/reset-password/<token>", methods=["GET", "POST"])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for("main.podcast_log"))
+
+    try:
+        email = make_serializer(current_app).loads(token, max_age=3600)
+    except SignatureExpired:
+        flash("This reset link has expired.", "warning")
+        return redirect(url_for("main.forgot_password"))
+    except BadSignature:
+        flash("Invalid reset link.", "danger")
+        return redirect(url_for("main.login"))
+
+    if request.method == "POST":
+        new_pw = request.form.get("password", "")
+        cpw = request.form.get("confirm_password", "")
+        if new_pw != cpw:
+            flash("Passwords do not match.", "danger")
+            return redirect(url_for("main.reset_password", token=token))
+        user = User.query.filter_by(email=email).first()
+        if user:
+            user.set_password(new_pw)
+            db.session.commit()
+            flash("Your password has been reset. You can now log in.", "success")
+            return redirect(url_for("main.login"))
+        flash("User account not found.", "danger")
+        return redirect(url_for("main.signup"))
+
+    return render_template(
+        "reset_password.html",
+        token=token,
+        current_year=date.today().year
+    )
 
 # ─── Public routes ────────────────────────────────────────────
 
@@ -22,7 +97,7 @@ def index():
         return redirect(url_for("main.podcast_log"))
     return render_template(
         "index.html",
-        current_year=datetime.date.today().year
+        current_year=date.today().year
     )
 
 @bp.route("/signup", methods=["GET", "POST"])
@@ -32,10 +107,10 @@ def signup():
         return redirect(url_for("main.podcast_log"))
 
     if request.method == "POST":
-        # debug print to stderr
-        print("🟢 SIGNUP POST received:", request.form, file=sys.stderr)
         data = request.form
-
+        if data["password"] != data["confirm_password"]:
+            flash("Passwords do not match.", "danger")
+            return redirect(url_for("main.signup"))
         # 1) Prevent duplicate usernames
         if User.query.filter_by(username=data["username"]).first():
             flash("Username already taken.", "warning")
@@ -63,7 +138,7 @@ def signup():
     # GET → show sign-up form
     return render_template(
         "signup.html",
-        current_year=datetime.date.today().year
+        current_year=date.today().year
     )
 
 @bp.route("/login", methods=["GET", "POST"])
@@ -89,7 +164,7 @@ def login():
     # GET → show login form
     return render_template(
         "login.html",
-        current_year=datetime.date.today().year
+        current_year=date.today().year
     )
 
 # ─── Protected routes ─────────────────────────────────────────
@@ -103,7 +178,7 @@ def podcast_log():
 
     return render_template(
         "PodcastLog.html",
-        current_year=datetime.date.today().year
+        current_year=date.today().year
     )
 
 @bp.route("/shareview")
@@ -111,7 +186,7 @@ def podcast_log():
 def share():
     return render_template(
         "shareview.html",
-        current_year=datetime.date.today().year
+        current_year=date.today().year
     )
 
 @bp.route("/visualise")
@@ -119,7 +194,7 @@ def share():
 def visualise():
     return render_template(
         "visualise.html",
-        current_year=datetime.date.today().year
+        current_year=date.today().year
     )
 
 @bp.route("/frienddash")
@@ -127,7 +202,7 @@ def visualise():
 def frienddash():
     return render_template(
         "frienddash.html",
-        current_year=datetime.date.today().year
+        current_year=date.today().year
     )
 
 @bp.route("/logout")
