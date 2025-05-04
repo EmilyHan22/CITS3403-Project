@@ -14,34 +14,6 @@ class User(db.Model, UserMixin):
     display_name = db.Column(db.String(64))
     created_at   = db.Column(db.DateTime, default=datetime.utcnow)
 
-# People I've added
-    friends_added = db.relationship(
-        'Friendship',
-        foreign_keys='Friendship.user_id',
-        backref=db.backref('adder', lazy='joined'),
-        lazy='dynamic'
-    )
-    
-    # People who added me
-    added_by = db.relationship(
-        'Friendship',
-        foreign_keys='Friendship.friend_id',
-        backref=db.backref('added_friend', lazy='joined'),
-        lazy='dynamic'
-    )
-    
-    @property
-    def people_i_added(self):
-        """Users I've added to my friends list"""
-        return User.query.join(Friendship, User.id == Friendship.friend_id)\
-                        .filter(Friendship.user_id == self.id)
-    
-    @property
-    def people_added_me(self):
-        """Users who have me in their friends list"""
-        return User.query.join(Friendship, User.id == Friendship.user_id)\
-                        .filter(Friendship.friend_id == self.id)
-
     def set_password(self, password):
         # bcrypt imported below
         self.pw_hash = bcrypt.generate_password_hash(password).decode('utf-8')
@@ -49,15 +21,7 @@ class User(db.Model, UserMixin):
     def check_password(self, password):
         return bcrypt.check_password_hash(self.pw_hash, password)
     
-class Friendship(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    friend_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    __table_args__ = (
-        db.UniqueConstraint('user_id', 'friend_id', name='unique_friendship'),
-    )
 
 class Podcast(db.Model):
     __tablename__ = 'podcast'  # Explicit table name
