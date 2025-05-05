@@ -7,7 +7,7 @@ function genreBarChart() {
         y: yArray,
         type: "bar",
         orientation: "h",
-        marker: {color:"rgba(136, 6, 116, 0.6)"}
+        marker: {color:"rgba(136, 6, 116, 0.7)"}
     }];
     const layout = { title: "Genre Breakdown"};
     Plotly.newPlot("horizontal-barchart", genreData, layout)
@@ -32,7 +32,7 @@ function listenLineGraph() {
           },
           marker: {
             color: "rgba(136, 6, 116, 1)",
-            size: 10,
+            size: 7,
             symbol: "circle", // many marker shapes
 
           }
@@ -41,7 +41,9 @@ function listenLineGraph() {
     const layout = {
         xaxis: {range: [0, 8], title: "Time (Weeks)"},
         yaxis: {range: [0, 100], title: "ListenTime (Min)"},
-        title: "Listening Times Over the Weeks"
+        title: "Listening Times Over the Weeks",
+        plot_bgcolor: 'rgba(0, 187, 255, 0.3)',
+        paper_bgcolor: 'rgba(0, 0, 0, 0)',
     };
 
     Plotly.newPlot("listen-line-graph", listenData, layout)
