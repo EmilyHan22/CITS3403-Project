@@ -14,31 +14,33 @@ Podcast Log – Podfolio
 
 <!-- Form Centered -->
 <div class="form-container">
-	<form class="podcast-form">
+	<form class="podcast-form" id="podcastLogForm">
 
-		<div class="mb-3">
+		<div class="mb-3" style="position: relative;">
 			<label for="podcastName" class="form-label">Which Podcast did you listen to?</label>
-			<input type="text" class="form-control" id="podcastName" placeholder="Enter Podcast Name">
+			<input type="text" class="form-control" id="podcastName" name="podcast_name" placeholder="Start typing podcast name..." autocomplete="off">
+			<input type="hidden" id="selectedPodcastId" name="podcast_id">
+			<div id="podcastSuggestions" class="autocomplete-dropdown"></div>
 		</div>
 
 		<div class="mb-3">
 			<label for="podcastEp" class="form-label">Which episode?</label>
-			<input type="text" class="form-control" id="podcastEp" placeholder="Enter Podcast Episode Title">
+			<input type="text" class="form-control" id="podcastEp" name="episode" placeholder="Enter Podcast Episode Title">
 		</div>
 
 		<div class="mb-3">
 			<label for="platform" class="form-label">Which platform did you use?</label>
-			<input type="text" class="form-control" id="platform" placeholder="e.g. Spotify">
+			<input type="text" class="form-control" id="platform" name="platform" placeholder="e.g. Spotify">
 		</div>
 
 		<div class="mb-3">
 			<label for="listenTime" class="form-label">How many minutes did you listen for?</label>
-			<input type="number" class="form-control" id="listenTime" placeholder="E.g. 45">
+			<input type="number" class="form-control" id="listenTime"  name="duration"  placeholder="E.g. 45">
 		</div>
 
 		<div class="mb-3">
 			<label for="genre" class="form-label">What Genre is the Podcast?</label>
-			<select class="form-select" id="genre">
+			<select class="form-select" id="genre" name="genre">
 				<option selected disabled>Select</option>
 				<option value="Educational">Educational</option>
 				<option value="News">News</option>
@@ -81,4 +83,110 @@ Podcast Log – Podfolio
 	</form>
 </div>
 
+	
+	<script>
+	document.addEventListener('DOMContentLoaded', function() {
+		const podcastInput = document.getElementById('podcastName');
+		const podcastIdInput = document.getElementById('selectedPodcastId');
+		const suggestionsContainer = document.getElementById('podcastSuggestions');
+		let debounceTimer;
+	
+		podcastInput.addEventListener('input', function() {
+			clearTimeout(debounceTimer);
+			const query = this.value.trim();
+			
+			if (query.length < 2) {
+				suggestionsContainer.style.display = 'none';
+				return;
+			}
+			
+			debounceTimer = setTimeout(() => {
+				fetch(`/search_podcast_names?q=${encodeURIComponent(query)}`)
+					.then(response => response.json())
+					.then(podcasts => {
+						suggestionsContainer.innerHTML = '';
+						
+						if (podcasts.length === 0) {
+							suggestionsContainer.style.display = 'none';
+							return;
+						}
+						
+						podcasts.forEach(podcast => {
+							const item = document.createElement('div');
+							item.className = 'autocomplete-item';
+							item.textContent = podcast.name;
+							item.addEventListener('click', () => {
+								podcastInput.value = podcast.name;
+								podcastIdInput.value = podcast.id;
+								suggestionsContainer.style.display = 'none';
+							});
+							suggestionsContainer.appendChild(item);
+						});
+						
+						suggestionsContainer.style.display = 'block';
+					});
+			}, 300);
+		});
+	
+		// Hide dropdown when clicking outside
+		document.addEventListener('click', function(e) {
+			if (e.target !== podcastInput) {
+				suggestionsContainer.style.display = 'none';
+			}
+		});
+	
+		// Form submission remains exactly the same
+		document.getElementById('podcastLogForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Validate required fields
+        if (!document.getElementById('selectedPodcastId').value) {
+            alert('Please select a podcast from the suggestions');
+            return;
+        }
+        
+        // Get form data
+        const formData = {
+            podcast_id: document.getElementById('selectedPodcastId').value,
+            episode: document.getElementById('podcastEp').value,
+            platform: document.getElementById('platform').value,
+            duration: document.getElementById('listenTime').value,
+            genre: document.getElementById('genre').value,
+            rating: document.querySelector('input[name="rating"]:checked')?.value
+        };
+        
+
+        
+        // Send to server
+        fetch('/log_podcast', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert('Podcast logged successfully!');
+                // Reset form
+                this.reset();
+                document.getElementById('selectedPodcastId').value = '';
+            } else {
+                alert('Error: ' + (data.message || 'Failed to log podcast'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to log podcast. Please try again.');
+        });
+    });
+	});
+	</script>
+	
 {% endblock %}

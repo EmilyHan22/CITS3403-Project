@@ -10,7 +10,7 @@ from flask_login import (
     current_user, login_required
 )
 from app.db import db
-from app.models import User, Podcast, Friendship
+from app.models import User, Podcast, Friendship,PodcastLog
 from datetime import datetime, date
 import sys
 
@@ -260,3 +260,54 @@ def remove_friend(friend_id):
     db.session.commit()
     
     return jsonify({'message': 'Removed from your following'})
+
+@bp.route('/search_podcast_names')
+@login_required
+def search_podcast_names():
+    query = request.args.get('q', '').strip()
+    if not query:
+        return jsonify([])
+    
+    podcasts = Podcast.query.filter(
+        Podcast.name.ilike(f'%{query}%')
+    ).with_entities(Podcast.id, Podcast.name).limit(10).all()
+    
+    return jsonify([{'id': p.id, 'name': p.name} for p in podcasts])
+
+@bp.route('/log_podcast', methods=['POST'])
+@login_required
+def log_podcast():
+    if not request.is_json:
+        return jsonify({'success': False, 'message': 'Invalid content type'}), 400
+    
+    data = request.get_json()
+    
+    # Validate required fields
+    if not data.get('podcast_id'):
+        return jsonify({'success': False, 'message': 'Podcast is required'}), 400
+    
+    try:
+        podcast_log = PodcastLog(
+            user_id=current_user.id,
+            podcast_id=data['podcast_id'],
+            notes=data.get('episode'),
+            tags=data.get('platform'),
+            duration=int(data.get('duration', 0)) * 60 if data.get('duration') else None,
+            rating=float(data['rating']) if data.get('rating') else None
+        )
+        
+        db.session.add(podcast_log)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Podcast logged successfully'
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error logging podcast: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': str(e)  # Be cautious about exposing errors in production
+        }), 500
