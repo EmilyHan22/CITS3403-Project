@@ -385,3 +385,39 @@ footer {
   margin: 0;
   padding: 0;
 }
+
+#top-5-podcasts{
+  margin: 5px auto;
+}
+
+#most-loved {
+  background-color: #FFF;
+  border-radius: 50px;
+  padding: 30px;
+  /* margin: 40px auto; */
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  max-width: 40%;
+  margin: 5px auto;
+  max-height: 50%;
+}
+
+.star {
+  display: inline-block;
+}
+
+.star.filled {
+  color: #F4C542;
+}
+
+.star{
+  color: #ccc; /* empty star color */
+}
+
+.most-loved-title {
+  color: #333;
+}
+
+.most-loved-text {
+  color: #333;
+}
