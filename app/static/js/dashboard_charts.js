@@ -14,7 +14,30 @@ function genreBarChart() {
 
 }
 
+function listenLineGraph() {
+    "Creates a line graph for total weekly time"
+    // Data
+    const xTimeStamp = [1, 2, 3, 4, 5, 6];
+    const yListenTime = [20, 40, 30, 27, 90, 92];
+
+    const listenData = [{
+        x: xTimeStamp,
+        y: yListenTime,
+        modes: "lines",
+        type: "scatter"
+    }];
+
+    const layout = {
+        xaxis: {range: [0, 10], title: "Time (Weeks)"},
+        yaxis: {range: [0, 100], title: "ListenTime (Min)"},
+        title: "Listening Times Over the Weeks"
+    };
+
+    Plotly.newPlot("listen-line-graph", listenData, layout)
+}
+
 // Call the charts to when DOM is ready 
 document.addEventListener('DOMContentLoaded', () => {
     genreBarChart();
+    listenLineGraph();
 });
