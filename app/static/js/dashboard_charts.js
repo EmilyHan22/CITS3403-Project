@@ -24,11 +24,22 @@ function listenLineGraph() {
         x: xTimeStamp,
         y: yListenTime,
         modes: "lines",
-        type: "scatter"
+        type: "scatter",
+        line: {
+            color: "rgba(136, 6, 116, 0.6)",
+            width: 3,
+            //dash: 'dashdot'  // solid, dot, dash, dashdot
+          },
+          marker: {
+            color: "rgba(136, 6, 116, 1)",
+            size: 10,
+            symbol: "circle", // many marker shapes
+
+          }
     }];
 
     const layout = {
-        xaxis: {range: [0, 10], title: "Time (Weeks)"},
+        xaxis: {range: [0, 8], title: "Time (Weeks)"},
         yaxis: {range: [0, 100], title: "ListenTime (Min)"},
         title: "Listening Times Over the Weeks"
     };
