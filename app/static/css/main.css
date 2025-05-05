@@ -337,3 +337,8 @@ footer {
 		margin-left: 0px !important;
 	}
 }
+
+/* For visualising the top row graphs */
+.top-row-graphs {
+  margin: auto;
+}
