@@ -6,3 +6,5 @@ venv/
 # OS files 
 .DS_Store
 app/podfolio.db
+
+__pycache__
