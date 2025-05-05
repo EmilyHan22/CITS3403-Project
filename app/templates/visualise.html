@@ -7,16 +7,51 @@
 <script src="/static/js/dashboard_charts.js"></script>
 <h1>Your listening insights</h1>
 
-<div id="my-charts" style="background-color: plum; border-radius: 50px;">
+<div id="my-charts" style="background-color: plum; border-radius: 50px; margin-bottom: 50px; padding: 20px 7px;">
 	<div id="podcast-chart-row-1" class="top-row-graphs" style="display: flex; justify-content: center; margin: 0 auto;">
 		<div id="horizontal-barchart" style="max-width: 30pc;"></div>
 		<div id="listen-line-graph" style="max-width: 30pc;"></div>
 	</div>
 
 	<div id="podcast-chart-row-2" style="display: flex; justify-content: center; margin: 0 auto;">
-		<img src="{{ url_for('static', filename='assets/Top5-podcasts.png') }}"
-			style="width: 500px; height: 500px; margin:50px;"
-			alt="A graphic showing your top five most listened to podcasts.">
+		<div id="top-5-podcasts">
+			<!-- add first hardcoded to get idea -->
+			<h4 id="top5-title" class="top5-titles-group">Your Top 5 Podcasts</h4>
+			<p id="top5-subtitle" class="top5-titles-group">Here are your top 5 podcasts of the month!</p>
+			<ul class="top5-list">
+				<li class="top5-list-item">
+					<div class="list-div">
+						<span class="top5-podcast-name">Diary of a CEO</span>
+						<span class="top5-podcast-arrow">▲</span>
+					</div>
+				</li>
+				<li class="top5-list-item">
+					<div class="list-div">
+						<span class="top5-podcast-name">The Daily</span>
+						<span class="top5-podcast-arrow">▲</span>
+					</div>
+				</li>
+				<li class="top5-list-item">
+					<div class="list-div">
+						<span class="top5-podcast-name">Stuff you Should Know</span>
+						<span class="top5-podcast-arrow">▲</span>
+					</div>
+				</li>
+				<li class="top5-list-item">
+					<div class="list-div">
+						<span class="top5-podcast-name">The Tennis Podcast</span>
+						<span class="top5-podcast-arrow">▲</span>
+					</div>
+				</li>
+				<li class="top5-list-item">
+					<div class="list-div">
+						<span class="top5-podcast-name">Speaking of Psychology</span>
+						<span class="top5-podcast-arrow">▲</span>
+					</div>
+				</li>
+				
+			</ul>
+		</div>
 		<img src="{{ url_for('static', filename='assets/Most-interesting.png') }}"
 			style="width: 500px; height: 300px; margin:50px;" alt="A line graph of minutes watched at weekly intervals."> 
 	</div>

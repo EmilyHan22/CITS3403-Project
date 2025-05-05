@@ -342,3 +342,46 @@ footer {
 .top-row-graphs {
   margin: auto;
 }
+
+
+.top5-titles-group {
+  color: #333;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+
+.top5-podcast-arrow {
+  text-align: right;
+}
+
+
+.list-div {
+  justify-content: space-between;
+  background: white;
+  color: black;
+  margin: 10px 0;
+  padding: 15px 20px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+}
+
+
+ .top5-list-item {
+  justify-content: space-between;
+  align-items: center;
+} 
+
+.list-div::before {
+  content: counter(rank) ".";
+  font-weight: bold;
+  margin-right: 15px;
+  font-size: 1.2rem;
+}
+
+.top5-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
