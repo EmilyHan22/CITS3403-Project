@@ -201,6 +201,11 @@ footer {
 	background-color: #191970;
 	color: #191970;
 	margin-top: 40px;
+  position: fixed;
+  bottom: 0px;
+  width: 100%;
+  z-index: 20;
+
 }
 
 @keyframes gradientMove {
