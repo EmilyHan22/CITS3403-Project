@@ -260,3 +260,16 @@ def remove_friend(friend_id):
     db.session.commit()
     
     return jsonify({'message': 'Removed from your following'})
+
+@bp.route('/search_podcast_names')
+@login_required
+def search_podcast_names():
+    query = request.args.get('q', '').strip()
+    if not query:
+        return jsonify([])
+    
+    podcasts = Podcast.query.filter(
+        Podcast.name.ilike(f'%{query}%')
+    ).with_entities(Podcast.id, Podcast.name).limit(10).all()
+    
+    return jsonify([{'id': p.id, 'name': p.name} for p in podcasts])
