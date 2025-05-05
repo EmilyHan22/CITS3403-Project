@@ -3,18 +3,21 @@
 {% block title %}Visualise – Podfolio{% endblock %}
 
 {% block content %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="/static/js/dashboard_charts.js"></script>
 <h1>Your listening insights</h1>
-<div id="podcast-chart" style="display: flex; justify-content: center; margin: 0 auto;">
-	<img src="{{ url_for('static', filename='assets/Genre-BarGraph.png') }}"
-		style="width: 500px; height: 500px; margin:50px;" alt="Bar graph breaking down genres listened to.">
-	<img src="{{ url_for('static', filename='assets/Time-graph.png') }}"
-		style="width: 500px; height: 500px; margin:50px;" alt="A line graph of minutes watched at weekly intervals.">
+
+<div id="podcast-chart-row-1" style="display: flex; justify-content: center; margin: 0 auto;">
+	<div id="horizontal-barchart" style="max-width: 30pc;"></div>
 </div>
-<div id="podcast-chart" style="display: flex; justify-content: center; margin: 0 auto;">
+
+<div id="podcast-chart-row-2" style="display: flex; justify-content: center; margin: 0 auto;">
 	<img src="{{ url_for('static', filename='assets/Top5-podcasts.png') }}"
 		style="width: 500px; height: 500px; margin:50px;"
 		alt="A graphic showing your top five most listened to podcasts.">
 	<img src="{{ url_for('static', filename='assets/Most-interesting.png') }}"
-		style="width: 500px; height: 300px; margin:50px;" alt="A line graph of minutes watched at weekly intervals.">
+		style="width: 500px; height: 300px; margin:50px;" alt="A line graph of minutes watched at weekly intervals."> 
 </div>
+
+
 {% endblock %}
