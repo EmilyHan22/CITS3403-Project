@@ -5,6 +5,18 @@ venv/
 
 # OS files 
 .DS_Store
-app/podfolio.db
 
+#local database
+*.db
+
+#byte-compiled / cache files
 __pycache__/
+*.py[cod]
+
+#SSL keys
+*.pem
+
+#Environment varaible files
+.env
+
+
