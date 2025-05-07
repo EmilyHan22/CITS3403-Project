@@ -40,8 +40,8 @@ def create_app():
         "MAIL_SERVER":       os.environ.get("MAIL_SERVER", "smtp.gmail.com"),
         "MAIL_PORT":         int(os.environ.get("MAIL_PORT", 587)),
         "MAIL_USE_TLS":      os.environ.get("MAIL_USE_TLS", "True") == "True",
-        "MAIL_USERNAME":     os.environ["MAIL_USERNAME"],            # e.g. podfolio.noreply@gmail.com
-        "MAIL_PASSWORD":     os.environ["MAIL_PASSWORD"],            # your 16-char App Password
+        "MAIL_USERNAME":     os.environ["MAIL_USERNAME"],            
+        "MAIL_PASSWORD":     os.environ["MAIL_PASSWORD"],               
         "MAIL_DEFAULT_SENDER": os.environ.get(
             "MAIL_DEFAULT_SENDER",
             f"Podfolio Support <{os.environ['MAIL_USERNAME']}>"
