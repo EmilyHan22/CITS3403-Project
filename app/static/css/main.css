@@ -421,3 +421,11 @@ footer {
 .most-loved-text {
   color: #333;
 }
+
+/* --- Fix landing, login, and signup centering issue on wider screens --- */
+@media (min-width: 768px) {
+	.landing-page {
+	  margin-left: 0 !important;
+	}
+  }
+  
