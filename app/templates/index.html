@@ -7,34 +7,66 @@ Home – Podfolio
 {% block content %}
 
 <div class="container text-center my-5">
-    <h1 class="display-4 mb-4">Welcome to Podfolio</h1>
-    <p class="lead mb-4">Track your podcast journey, discover your listening trends, and share your favorites with friends.</p>
-    
-    <hr class="my-5" />
+	<h1 class="display-4 mb-4">Welcome to Podfolio</h1>
+	<p class="lead mb-4">Track your podcast journey, discover your listening trends, and share your favorites with
+		friends.</p>
 
-	<hr class="my-5" />
-  
-	<section class="landing-intro">
+	<section class="landing-intro my-5">
 		<div class="container">
-			<h2 class="mb-4">With Podfolio, you can:</h2>
-			<ul class="list-unstyled text-start mx-auto" style="max-width: 600px;">
-				<li class="mb-3">
-					<strong>Create an account</strong> and start logging the podcasts you listen to.
-				</li>
-				<li class="mb-3">
-					<strong>View detailed visualizations</strong> of your listening history with tables and graphs.
-				</li>
-				<li class="mb-3">
-					<strong>Learn more</strong> about your favorite genres, podcasters, and platforms over time.
-				</li>
-				<li class="mb-3">
-					<strong>Share your personalized dashboard</strong> in a community feed and explore what others are
-					loving too.
-				</li>
-			</ul>
+			<h2 class="text-center mb-5">With Podfolio, you can:</h2>
+
+			<!-- Log -->
+			<div class="row align-items-center py-5">
+				<div class="col-md-6 d-flex align-items-start">
+					<div class="display-4 me-4">🎧</div>
+					<div class="text-start">
+						<h4 class="fw-bold mb-1">Log</h4>
+						<p class="mb-0">Create an account and start logging the podcasts you listen to.</p>
+					</div>
+				</div>
+				<div class="col-md-6 d-none d-md-block"></div>
+			</div>
+
+			<!-- View -->
+			<div class="row align-items-center py-5 flex-md-row-reverse">
+				<div class="col-md-6 d-flex align-items-start justify-content-md-end">
+					<div class="display-4 me-4">📊</div>
+					<div class="text-start">
+						<h4 class="fw-bold mb-1">View</h4>
+						<p class="mb-0">See detailed visualizations of your listening history with graphs and stats.</p>
+					</div>
+				</div>
+				<div class="col-md-6 d-none d-md-block"></div>
+			</div>
+
+			<!-- Learn -->
+			<div class="row align-items-center py-5">
+				<div class="col-md-6 d-flex align-items-start">
+					<div class="display-4 me-4">💡</div>
+					<div class="text-start">
+						<h4 class="fw-bold mb-1">Learn</h4>
+						<p class="mb-0">Understand your favorite genres, platforms, and podcast behavior.</p>
+					</div>
+				</div>
+				<div class="col-md-6 d-none d-md-block"></div>
+			</div>
+
+			<!-- Share -->
+			<div class="row align-items-center py-5 flex-md-row-reverse">
+				<div class="col-md-6 d-flex align-items-start justify-content-md-end">
+					<div class="display-4 me-4">🔗</div>
+					<div class="text-start">
+						<h4 class="fw-bold mb-1">Share</h4>
+						<p class="mb-0">Share your dashboard with friends and explore their favorites too.</p>
+					</div>
+				</div>
+				<div class="col-md-6 d-none d-md-block"></div>
+			</div>
 		</div>
 	</section>
 
-    <a class="btn btn-primary btn-lg" href="{{ url_for('main.login') }}" role="button">Get Started</a>
+
+	<a class="btn btn-primary btn-lg mb-5" href="{{ url_for('main.login') }}" role="button">Get Started</a>
 </div>
+
 {% endblock %}
