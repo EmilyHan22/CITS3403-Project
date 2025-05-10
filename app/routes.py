@@ -1,10 +1,11 @@
+import os
 from flask import (
     Blueprint, render_template, request,
     redirect, url_for, flash,jsonify, current_app
 )
 from flask_mail import Message
 from itsdangerous import SignatureExpired, BadSignature
-from app import mail, make_serializer
+from app import mail, make_serializer, oauth
 from flask_login import (
     login_user, logout_user,
     current_user, login_required
@@ -15,6 +16,37 @@ from datetime import datetime, date
 import sys
 
 bp = Blueprint("main", __name__)
+
+# ── Google Login ──────────────────────────────────────────────────
+@bp.route("/login/google")
+def login_google():
+    redirect_uri = url_for("main.authorize", _external=True)
+    print(">>> Google redirect URI:", redirect_uri, file=sys.stderr)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+@bp.route("/authorize")
+def authorize():
+    client = oauth.google
+    token  = client.authorize_access_token()
+    userinfo_endpoint = client.server_metadata["userinfo_endpoint"]
+    resp = client.get(userinfo_endpoint)
+    user_info = resp.json()
+
+
+    # Lookup or create the user
+    user = User.query.filter_by(email=user_info["email"]).first()
+    if not user:
+        user = User(
+          username     = user_info["email"].split("@")[0],
+          email        = user_info["email"],
+          display_name = user_info.get("name","")
+        )
+        user.set_password(os.urandom(16).hex())  # random unusable password
+        db.session.add(user)
+        db.session.commit()
+
+    login_user(user)
+    return redirect(url_for("main.podcast_log"))
 
 @bp.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():

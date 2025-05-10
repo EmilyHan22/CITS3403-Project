@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+load_dotenv()
 import os
 from flask import Flask
 from flask_migrate import Migrate
@@ -6,6 +8,8 @@ from flask_bcrypt import Bcrypt
 from itsdangerous import URLSafeTimedSerializer
 from flask_mail import Mail
 from app.db import db
+from authlib.integrations.flask_client import OAuth
+
 
 # global extensions
 
@@ -13,6 +17,7 @@ login_mgr = LoginManager()
 bcrypt    = Bcrypt()
 migrate   = Migrate()
 mail      = Mail()
+oauth     = OAuth() 
 
 def make_serializer(app):
     return URLSafeTimedSerializer(app.config["SECRET_KEY"], salt="password-reset")
@@ -54,6 +59,23 @@ def create_app():
     migrate.init_app(app, db)
     login_mgr.init_app(app)
     bcrypt.init_app(app)
+
+    # ── Google OAuth config ─────────────────────────────────────
+    app.config.update({
+      "GOOGLE_CLIENT_ID":     os.environ["GOOGLE_CLIENT_ID"],
+      "GOOGLE_CLIENT_SECRET": os.environ["GOOGLE_CLIENT_SECRET"],
+    })
+
+    oauth.init_app(app)
+    oauth.register(
+        name="google",
+        client_id=app.config["GOOGLE_CLIENT_ID"],
+        client_secret=app.config["GOOGLE_CLIENT_SECRET"],
+        # ← tell Authlib to fetch all endpoints (incl. jwks_uri) from here:
+        server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+        client_kwargs={"scope": "openid email profile"},
+)
+
 
     login_mgr.login_view = "main.login"
 
