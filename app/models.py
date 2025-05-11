@@ -64,10 +64,13 @@ class Podcast(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
+    spotify_id = db.Column(db.String(120), unique=True)  # Spotify's ID
     rating_volume = db.Column(db.Integer)
     rating = db.Column(db.Float)
     genre = db.Column(db.String(64))
     description = db.Column(db.Text)
+    publisher = db.Column(db.String(120))
+    image_url = db.Column(db.String(255))
     predicted_popularity = db.Column(db.Float, default=0.0)
     similar_to = db.Column(db.String(200))  # JSON string
     

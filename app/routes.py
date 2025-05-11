@@ -13,6 +13,12 @@ from app.db import db
 from app.models import User, Podcast, Friendship,PodcastLog
 from datetime import datetime, date
 import sys
+import os
+import requests
+from urllib.parse import urlencode
+
+SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
+SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
 
 bp = Blueprint("main", __name__)
 
@@ -287,9 +293,29 @@ def log_podcast():
         return jsonify({'success': False, 'message': 'Podcast is required'}), 400
     
     try:
+        podcast = Podcast.query.filter_by(spotify_id=data['podcast_id']).first()
+        
+        if not podcast:
+            # Fetch podcast details from Spotify to save in our DB
+            token = get_spotify_token()
+            headers = {'Authorization': f'Bearer {token}'}
+            response = requests.get(
+                f'https://api.spotify.com/v1/shows/{data["podcast_id"]}',
+                headers=headers
+            )
+            show_data = response.json()
+            
+            podcast = Podcast(
+                spotify_id=show_data['id'],
+                name=show_data['name'],
+                description=show_data['description'],
+                # Map other fields as needed
+            )
+            db.session.add(podcast)
+            db.session.commit()
         podcast_log = PodcastLog(
             user_id=current_user.id,
-            podcast_id=data['podcast_id'],
+            podcast_id=podcast.id,
             notes=data.get('episode'),
             tags=data.get('platform'),
             duration=int(data.get('duration', 0)) * 60 if data.get('duration') else None,
@@ -311,3 +337,57 @@ def log_podcast():
             'success': False,
             'message': str(e)  # Be cautious about exposing errors in production
         }), 500
+def get_spotify_token():
+    """Get Spotify API access token"""
+    auth_url = 'https://accounts.spotify.com/api/token'
+    auth_response = requests.post(
+        auth_url,
+        data={'grant_type': 'client_credentials'},
+        auth=(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET)
+    )
+    return auth_response.json().get('access_token')
+
+@bp.route('/search_spotify_podcasts')
+@login_required
+def search_spotify_podcasts():
+    query = request.args.get('q', '').strip()
+    if not query:
+        return jsonify([])
+    
+    try:
+        token = get_spotify_token()
+        headers = {'Authorization': f'Bearer {token}'}
+        params = {
+            'q': query,
+            'type': 'show',
+            'market': 'US',  # Adjust based on your target market
+            'limit': 10
+        }
+        
+        response = requests.get(
+            'https://api.spotify.com/v1/search',
+            headers=headers,
+            params=params
+        )
+        
+        shows = response.json().get('shows', {}).get('items', [])
+        
+        results = [{
+            'id': show['id'],
+            'name': show['name'],
+            'publisher': show['publisher'],
+            'image': show['images'][0]['url'] if show['images'] else None
+        } for show in shows]
+        
+        return jsonify(results)
+        
+    except Exception as e:
+        current_app.logger.error(f"Spotify search error: {str(e)}")
+        return jsonify([])
+
+@bp.route('/callback')
+def spotify_callback():
+    # Handle authorization code if using OAuth
+    code = request.args.get('code')
+    # Exchange code for token here
+    return redirect(url_for('main.podcast_log'))
