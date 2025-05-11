@@ -421,3 +421,23 @@ footer {
 .most-loved-text {
   color: #333;
 }
+
+
+.autocomplete-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.autocomplete-item:hover {
+    background-color: #f8f9fa;
+}
+
+.autocomplete-item .podcast-thumb {
+    object-fit: cover;
+}
+
+.no-results {
+    color: #6c757d;
+    font-style: italic;
+}
