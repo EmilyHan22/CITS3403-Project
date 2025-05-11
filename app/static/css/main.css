@@ -306,6 +306,29 @@ footer {
 	color: #ffffff;
 }
 
+/* ==== Google Sign-In Button ==== */
+.btn-google {
+	background-color: #fff;      /* white background */
+	color: #000;                 /* black text */
+	border: 1px solid #ced4da;   /* light grey border to match Bootstrap */
+	transition: background-color 0.2s;
+  }
+  
+  .btn-google:hover,
+  .btn-google:focus {
+	background-color: #f8f9fa;   /* very light grey on hover */
+	color: #000;
+	text-decoration: none;
+  }
+  
+  /* tighten up the logo dimensions */
+  .btn-google img {
+	width: 28px;
+	height: 22px;
+	margin-right: 8px;           /* space between logo and text */
+  }
+  
+
 /* --- Responsive Adjustments --- */
 @media (max-width: 768px) {
 	.podcast-form {

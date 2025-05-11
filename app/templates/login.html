@@ -45,9 +45,12 @@
 
         <!-- Google Sign-In button INSIDE the form -->
         <a href="{{ url_for('main.login_google') }}"
-           class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center mb-3">
-          <img src="{{ url_for('static', filename='icons/google.svg') }}"
-               alt="Google logo" width="20" height="20" class="me-2">
+           class="btn btn-google w-100 d-flex align-items-center justify-content-center mb-3">
+           <img
+           src="{{ url_for('static', filename='icons/google.png') }}"
+           alt="Google logo"
+           class="me-2"
+         >
           Sign in with Google
         </a>
       </form>
