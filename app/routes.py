@@ -1,3 +1,4 @@
+import secrets
 from flask import (
     Blueprint, render_template, request,
     redirect, url_for, flash,jsonify, current_app
@@ -16,11 +17,68 @@ import sys
 import os
 import requests
 from urllib.parse import urlencode
+from app import oauth
+
+
 
 SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
 SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
 
 bp = Blueprint("main", __name__)
+
+@bp.route('/login/google')
+def login_google():
+    redirect_uri = url_for('main.auth_google', _external=True)
+    try:
+        # Kick off the OAuth flow (loads metadata under the hood)
+        return oauth.google.authorize_redirect(redirect_uri)
+    except Exception as e:
+        current_app.logger.error(f"OAuth metadata fetch failed: {e}")
+        flash('Authentication service unavailable. Please try again later.', 'danger')
+        return redirect(url_for('main.login'))
+
+@bp.route('/auth/google')
+def auth_google():
+    try:
+        # 1) Exchange code for token
+        token = oauth.google.authorize_access_token()
+        # 2) Fetch userinfo
+        ui_endpoint = oauth.google.server_metadata['userinfo_endpoint']
+        resp = oauth.google.get(ui_endpoint)
+        user_info = resp.json()
+    except Exception as e:
+        # Log and inform the user
+        current_app.logger.error(f"OAuth network error: {e}")
+        flash('Authentication service unavailable. Please try again later.', 'danger')
+        return redirect(url_for('main.login'))
+
+    # 3) Guard: need a verified email
+    if not user_info.get('email') or not user_info.get('email_verified'):
+        flash('Google email not verified—please use a verified Google account.', 'danger')
+        return redirect(url_for('main.login'))
+
+    # 4) Find or create
+    email = user_info['email']
+    user = User.query.filter_by(email=email).first()
+    
+    if user:
+        # Existing account → just refresh profile and sign in
+        user.display_name = user_info.get('name')
+        db.session.commit()    # commits only if anything changed
+    else:
+        # First-time Google signup → create new user
+        user = User(
+            username=email.split('@')[0],
+            email=email,
+            display_name=user_info.get('name')
+        )
+        dummy_pw = secrets.token_urlsafe(16)
+        user.set_password(dummy_pw)
+        db.session.add(user)
+        db.session.commit()
+
+    login_user(user)
+    return redirect(url_for('main.podcast_log'), code=303)
 
 @bp.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
