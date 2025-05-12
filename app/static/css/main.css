@@ -306,6 +306,16 @@ footer {
 	color: #ffffff;
 }
 
+.btn-google {
+	background-color: #fff;
+	color: #000;
+	border: 1px solid #ccc;
+	height: 42px;
+  }
+  .btn-google img {
+	margin-right: 8px;
+  }
+
 /* --- Responsive Adjustments --- */
 @media (max-width: 768px) {
 	.podcast-form {
