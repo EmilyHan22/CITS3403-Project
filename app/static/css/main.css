@@ -460,3 +460,65 @@ footer {
   .pw-req-box .fa-times {
 	color: #6c757d;  /* Bootstrap’s text-muted */
   }
+/* ─── Password‐requirements popover ───────────────────────── */
+
+.pw-req-container {
+	position: relative;
+  }
+  
+  /* hidden by default, slightly scaled down */
+  .pw-req-box {
+	position: absolute;
+	top: 50%;
+	left: 100%;
+	transform: translate(0, -50%) scale(0.9);
+	transform-origin: left center;
+	background: #fff;
+	color: #333;
+	border-radius: 0.5rem;
+	box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+	padding: 1rem;
+	width: 260px;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.2s ease, transform 0.2s ease;
+	z-index: 10;
+  }
+  
+  /* little arrow */
+  .pw-req-box::before {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: -8px;
+	transform: translateY(-50%);
+	border-width: 8px;
+	border-style: solid;
+	border-color: transparent #fff transparent transparent;
+  }
+  
+  /* when “show” class is added, fade & scale in */
+  .pw-req-box.show {
+	opacity: 1;
+	visibility: visible;
+	transform: translate(0, -50%) scale(1);
+  }
+  
+  /* list styling */
+  .pw-req-box ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+  }
+  .pw-req-box li {
+	display: flex;
+	align-items: center;
+	font-size: 0.9rem;
+	margin-bottom: 0.5rem;
+  }
+  .pw-req-box li:last-child {
+	margin-bottom: 0;
+  }
+  .pw-req-box i {
+	margin-right: 0.5rem;
+  }
