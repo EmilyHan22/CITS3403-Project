@@ -36,7 +36,7 @@
       <hr class="flex-grow-1">
     </div>
 
-    <form method="POST" action="{{ url_for('main.signup') }}">
+    <form method="POST" action="{{ url_for('main.signup') }}" enctype="multipart/form-data">
       <div class="mb-3">
         <input type="text" class="form-control" id="name" name="name"
                placeholder="Your name" required>
@@ -62,6 +62,14 @@
       <div class="mb-3">
         <input type="password" class="form-control" id="confirm_password" name="confirm_password"
                placeholder="Confirm password" required>
+      </div>
+      <div class="mb-3">
+        <label for="profile_pic" class="form-label">Profile picture (optional)</label>
+        <input type="file"
+               class="form-control"
+               id="profile_pic"
+               name="profile_pic"
+               accept="image/*">
       </div>
       <button type="submit" class="btn btn-dark w-100">Continue</button>
     </form>

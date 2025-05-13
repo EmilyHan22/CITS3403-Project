@@ -17,6 +17,12 @@ from sqlalchemy.exc import SQLAlchemyError
 from app import mail, make_serializer, oauth
 from app.db import db
 from app.models import User, Podcast, Friendship, PodcastLog
+from werkzeug.utils import secure_filename
+
+ALLOWED_EXT = {'png','jpg','jpeg','gif'}
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.',1)[1].lower() in ALLOWED_EXT
 
 bp = Blueprint("main", __name__)
 
@@ -80,6 +86,16 @@ def signup():
         user = User(username=uname, email=email, display_name=name)
         user.set_password(pw)
         user.auth_provider = "local"
+        pic = request.files.get('profile_pic')
+        if pic and allowed_file(pic.filename):
+            filename = secure_filename(pic.filename)
+            filename = f"{user.username}_{secrets.token_hex(8)}_{filename}"
+            pic.save(os.path.join(
+                current_app.root_path,
+                'static/uploads',
+                filename
+            ))
+            user.profile_pic = filename
         db.session.add(user)
         db.session.commit()
 
@@ -283,6 +299,15 @@ def settings():
             else:
                 current_user.set_password(new_pw)
                 flash("Password updated.", "success")
+        pic = request.files.get('profile_pic')
+        if pic and allowed_file(pic.filename):
+            upload_dir = os.path.join(current_app.root_path, 'static', 'uploads')
+            os.makedirs(upload_dir, exist_ok=True)
+            filename = secure_filename(pic.filename)
+            filename = f"{current_user.username}_{secrets.token_hex(8)}_{filename}"
+            path = os.path.join(upload_dir, filename)
+            pic.save(path)
+            current_user.profile_pic = filename
 
         # Commit all changes
         try:
