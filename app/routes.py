@@ -1,4 +1,5 @@
 import secrets
+import re
 from flask import (
     Blueprint, render_template, request,
     redirect, url_for, flash,jsonify, current_app
@@ -25,6 +26,16 @@ SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
 SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
 
 bp = Blueprint("main", __name__)
+
+def is_password_strong(pw: str) -> bool:
+    """Returns True if pw has ≥8 chars, uppercase, lowercase, digit, and special."""
+    return (
+        len(pw) >= 8 and
+        re.search(r'[A-Z]', pw) and
+        re.search(r'[a-z]', pw) and
+        re.search(r'\d',    pw) and
+        re.search(r'[!@#$%^&*(),.?":{}|<>]', pw)
+    )
 
 @bp.route('/login/google')
 def login_google():
@@ -174,6 +185,13 @@ def signup():
         data = request.form
         if data["password"] != data["confirm_password"]:
             flash("Passwords do not match.", "danger")
+            return redirect(url_for("main.signup"))
+            # 2) Enforce strength
+        if not is_password_strong(data["password"]):
+            flash(
+            "Password too weak. Must be more than characters, include uppercase, lowercase, number & symbol.",
+            "danger"
+            )
             return redirect(url_for("main.signup"))
         # 1) Prevent duplicate usernames
         if User.query.filter_by(username=data["username"]).first():

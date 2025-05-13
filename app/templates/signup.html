@@ -46,6 +46,33 @@
                placeholder="Password" required>
       </div>
       <div class="mb-3">
+        <div class="pw-req-box bg-white text-dark border rounded p-3">
+          <ul class="mb-0 list-unstyled" id="password-requirements">
+            <li id="length-req">
+              <i class="fa fa-times me-1"></i>
+              8 characters minimum
+            </li>
+            <li id="uppercase-req">
+              <i class="fa fa-times me-1"></i>
+              At least 1 uppercase letter
+            </li>
+            <li id="lowercase-req">
+              <i class="fa fa-times me-1"></i>
+              At least 1 lowercase letter
+            </li>
+            <li id="number-req">
+              <i class="fa fa-times me-1"></i>
+              At least 1 number
+            </li>
+            <li id="special-req">
+              <i class="fa fa-times me-1"></i>
+              At least 1 special character
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="mb-3">
         <label for="confirm_password" class="form-label">Confirm Password</label>
         <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required>
       </div>
@@ -53,4 +80,5 @@
     </form>
   </div>
 </div>
+<script src="{{ url_for('static', filename='js/signup.js') }}"></script>
 {% endblock %}
