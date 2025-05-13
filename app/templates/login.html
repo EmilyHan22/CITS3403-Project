@@ -45,7 +45,18 @@
         <input type="password" class="form-control" id="password" name="password"
                placeholder="Your password" required>
         <a href="{{ url_for('main.forgot_password') }}"
-           class="position-absolute top-50 end-0 translate-middle-y pe-3 text-decoration-none">
+        class="
+          position-absolute top-0 end-0
+          h-100
+          bg-dark text-white
+          px-3
+          d-flex align-items-center justify-content-center
+          rounded-end
+          text-decoration-none
+          forgot-link
+        "
+        style="margin: 0;"
+        >
           Forgot?
         </a>
       </div>

@@ -17,6 +17,11 @@ class User(db.Model, UserMixin):
         nullable=False,
         default='local'
     )
+    profile_pic = db.Column(
+        db.String(255),
+        nullable=False,
+        default='default.png'
+    )
     created_at   = db.Column(db.DateTime, default=datetime.utcnow)
 
 # People I've added
