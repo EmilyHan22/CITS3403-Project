@@ -11,6 +11,7 @@ from flask_login import (
     login_user, logout_user,
     current_user, login_required
 )
+from sqlalchemy.exc import SQLAlchemyError
 from app.db import db
 from app.models import User, Podcast, Friendship,PodcastLog
 from datetime import datetime, date
@@ -36,6 +37,81 @@ def is_password_strong(pw: str) -> bool:
         re.search(r'\d',    pw) and
         re.search(r'[!@#$%^&*(),.?":{}|<>]', pw)
     )
+
+@bp.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    if request.method == 'POST':
+        form = request.form
+        # 1) Update display name
+        new_display = form.get('display_name','').strip()
+        if new_display and new_display != current_user.display_name:
+            current_user.display_name = new_display
+
+        # 2) Change email
+        new_email = form.get('email','').strip().lower()
+        if new_email and new_email != current_user.email:
+            if User.query.filter_by(email=new_email).first():
+                flash('That email is already taken.', 'warning')
+            else:
+                current_user.email = new_email
+
+        # 3) Change password
+        pw    = form.get('current_password','')
+        new_pw= form.get('new_password','')
+        cpw   = form.get('confirm_new_password','')
+        if pw or new_pw or cpw:
+            if not current_user.check_password(pw):
+                flash('Current password is incorrect.', 'danger')
+            elif new_pw != cpw:
+                flash('New passwords do not match.', 'danger')
+            elif not is_password_strong(new_pw):
+                flash('New password too weak.', 'danger')
+            else:
+                current_user.set_password(new_pw)
+                flash('Password updated.', 'success')
+
+        # 4) Commit
+        try:
+            db.session.commit()
+            flash('Settings saved.', 'success')
+        except SQLAlchemyError as e:
+            current_app.logger.error(f"Settings save failed: {e}")
+            db.session.rollback()
+            flash('Failed to save settings. Try again later.', 'danger')
+
+        return redirect(url_for('main.settings'))
+
+    return render_template('settings.html', user=current_user)
+
+
+@bp.route('/settings/delete_account', methods=['POST'])
+@login_required
+def delete_account():
+    confirmation = request.form.get('confirmation', '')
+    if confirmation != 'DELETE':
+        flash('You must type DELETE to confirm account deletion.', 'danger')
+        return redirect(url_for('main.settings'))
+
+    try:
+        # delete dependent records
+        PodcastLog.query.filter_by(user_id=current_user.id).delete()
+        Friendship.query.filter_by(user_id=current_user.id).delete()
+        Friendship.query.filter_by(friend_id=current_user.id).delete()
+
+        # delete user
+        user = current_user._get_current_object()
+        logout_user()
+        db.session.delete(user)
+        db.session.commit()
+
+        flash('Your account has been deleted.', 'success')
+        return redirect(url_for('main.index'))
+    except Exception as e:
+        current_app.logger.error(f"Error deleting account: {e}")
+        db.session.rollback()
+        flash('Unable to delete account. Please try again later.', 'danger')
+        return redirect(url_for('main.settings'))
 
 @bp.route('/login/google')
 def login_google():
