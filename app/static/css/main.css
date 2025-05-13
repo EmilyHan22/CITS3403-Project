@@ -451,3 +451,12 @@ footer {
     color: #6c757d;
     font-style: italic;
 }
+/* Custom success color for this box */
+.pw-req-box .text-success {
+	color: #20c997 !important;  /* a teal that pops on purple */
+  }
+  
+  /* Ensure the “✗” icons are grey by default */
+  .pw-req-box .fa-times {
+	color: #6c757d;  /* Bootstrap’s text-muted */
+  }
