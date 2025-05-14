@@ -68,6 +68,37 @@ class Friendship(db.Model):
     __table_args__ = (
         db.UniqueConstraint('user_id', 'friend_id', name='unique_friendship'),
     )
+class FriendRequest(db.Model):
+    """Tracks pending friend requests between users."""
+    __tablename__ = 'friend_request'
+
+    id           = db.Column(db.Integer, primary_key=True)
+    from_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    to_user_id   = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    status       = db.Column(db.String(20), nullable=False, default='pending')  # pending/accepted/rejected
+    created_at   = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.UniqueConstraint('from_user_id', 'to_user_id', name='uq_friend_request'),
+    )
+
+    # “Official” relationships
+    requester = db.relationship(
+        'User',
+        foreign_keys=[from_user_id],
+        backref=db.backref('requests_sent', lazy='dynamic')
+    )
+    requestee = db.relationship(
+        'User',
+        foreign_keys=[to_user_id],
+        backref=db.backref('requests_received', lazy='dynamic')
+    )
+
+    # Aliases so templates can do r.from_user / r.to_user
+    from_user = requester
+    to_user   = requestee
+
+
 
 class Podcast(db.Model):
     __tablename__ = 'podcast'  # Explicit table name

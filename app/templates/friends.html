@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}My Friends – Podfolio{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">My Friends</h2>
+
+<!-- Search & Send Request -->
+<div class="row mb-4">
+  <div class="col-md-6">
+    <div class="input-group position-relative">
+      <input type="text" id="friendSearch" class="form-control"
+             placeholder="Search by username…">
+      <button class="btn btn-primary" id="sendRequestBtn" type="button">
+        Send Request
+      </button>
+      <div id="searchSuggestions" class="list-group position-absolute w-100"
+           style="z-index:10; top:100%; display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<div class="row gy-4">
+  <!-- Sent Requests -->
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-header">Pending Sent</div>
+      <ul class="list-group list-group-flush" id="pendingSentList">
+        {% for r in sent_requests %}
+        <li class="list-group-item d-flex justify-content-between">
+          {{ r.to_user.username }}
+          <span class="badge bg-warning">Pending</span>
+        </li>
+        {% else %}
+        <li class="list-group-item text-muted">None</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <!-- Received Requests -->
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-header">Pending Received</div>
+      <ul class="list-group list-group-flush" id="pendingReceivedList">
+        {% for r in received_requests %}
+        <li class="list-group-item d-flex justify-content-between">
+          {{ r.from_user.username }}
+          <div>
+            <button class="btn btn-sm btn-success accept-btn" data-id="{{ r.id }}">Accept</button>
+            <button class="btn btn-sm btn-danger reject-btn ms-2" data-id="{{ r.id }}">Reject</button>
+          </div>
+        </li>
+        {% else %}
+        <li class="list-group-item text-muted">None</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <!-- Current Friends -->
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-header">Friends</div>
+      <ul class="list-group list-group-flush" id="friendsList">
+        {% for u in friends %}
+        <li class="list-group-item d-flex justify-content-between">
+          {{ u.username }}
+          <button class="btn btn-sm btn-outline-danger remove-btn" data-id="{{ u.id }}">
+            Remove
+          </button>
+        </li>
+        {% else %}
+        <li class="list-group-item text-muted">None</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/friends.js') }}"></script>
+{% endblock %}
