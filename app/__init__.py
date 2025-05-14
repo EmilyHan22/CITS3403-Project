@@ -6,7 +6,8 @@ from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
 from flask_mail import Mail
 from itsdangerous import URLSafeTimedSerializer
-from .db import db               # relative import, NOT “from app.db”
+from flask_mail import Mail
+from app.db import db
 
 # ─── global extensions ──────────────────────────────────────
 login_mgr = LoginManager()
@@ -28,11 +29,11 @@ def create_app():
 
     # ─── load all config from environment ────────────────────
     app.config.update({
-        "SECRET_KEY":               os.environ.get("SECRET_KEY", "dev"),
-        "SQLALCHEMY_DATABASE_URI":  os.environ.get(
-                                        "SQLALCHEMY_DATABASE_URI",
-                                        f"sqlite:///{os.path.join(os.path.abspath(os.path.dirname(__file__)), 'podfolio.db')}"
-                                    ),
+        "SECRET_KEY": os.environ.get("SECRET_KEY", "dev"),
+        "SQLALCHEMY_DATABASE_URI": (
+            "sqlite:///" +
+            os.path.join(os.path.abspath(os.path.dirname(__file__)), "podfolio.db")
+        ),
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
 
         "MAIL_SERVER":        os.environ.get("MAIL_SERVER", "smtp.gmail.com"),
@@ -44,11 +45,14 @@ def create_app():
                                   "MAIL_DEFAULT_SENDER",
                                   f"Podfolio Support <{os.environ.get('MAIL_USERNAME')}>"
                               ),
+        "SPOTIFY_CLIENT_ID": os.environ.get("SPOTIFY_CLIENT_ID"),
+        "SPOTIFY_CLIENT_SECRET": os.environ.get("SPOTIFY_CLIENT_SECRET"),
 
         # ← your new Google OAuth creds
         "GOOGLE_CLIENT_ID":     os.environ.get("GOOGLE_CLIENT_ID"),
         "GOOGLE_CLIENT_SECRET": os.environ.get("GOOGLE_CLIENT_SECRET"),
     })
+
 
     # ─── OAuth: init + register Google ──────────────────────
     oauth.init_app(app)
