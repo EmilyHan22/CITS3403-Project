@@ -7,7 +7,7 @@ from urllib.parse import urlencode
 
 from flask import (
     Blueprint, render_template, request,
-    redirect, url_for, flash, jsonify, current_app, abort
+    redirect, url_for, flash, jsonify, current_app
 )
 from flask_login import login_user, logout_user, current_user, login_required
 from flask_mail import Message
@@ -48,44 +48,6 @@ def index():
         return redirect(url_for("main.podcast_log"))
     return render_template("index.html", current_year=date.today().year)
 
-@bp.route('/search')
-@login_required
-def search():
-    # just render the blank search page
-    return render_template('search.html', current_year=date.today().year)
-
-@bp.route("/profile/<username>")
-@login_required
-def profile(username):
-    # 1) find the user
-    profile_user = User.query.filter_by(username=username).first_or_404()
-
-    # 2) determine whether current_user is allowed
-    is_owner  = profile_user.id == current_user.id
-    is_friend = Friendship.query.filter_by(
-                    user_id=current_user.id,
-                    friend_id=profile_user.id
-                ).first() is not None
-
-    # 3) fetch counts & logs (we'll still fetch logs but template will gate display)
-    followers_count = profile_user.people_added_me.count()
-    following_count = profile_user.people_i_added.count()
-    logs = (
-        PodcastLog.query
-        .filter_by(user_id=profile_user.id)
-        .order_by(PodcastLog.listened_at.desc())
-        .all()
-    )
-
-    return render_template(
-        "profile.html",
-        profile_user=profile_user,
-        followers_count=followers_count,
-        following_count=following_count,
-        logs=logs,
-        is_owner=is_owner,
-        is_friend=is_friend
-    )
 
 # ─── SIGN UP & LOGIN ─────────────────────────────────────────
 
@@ -447,33 +409,22 @@ def friends():
     )
 
 
-from sqlalchemy import or_
-
-from sqlalchemy import or_
-
 @bp.route('/search_users')
 @login_required
 def search_users():
     q = request.args.get('q', '').strip()
     if not q:
         return jsonify([])
-
     matches = (
         User.query
-            .filter(
-                or_(
-                    User.username.ilike(f'%{q}%'),
-                    User.display_name.ilike(f'%{q}%')
-                ),
-                User.id != current_user.id
-            )
-            .with_entities(User.username)
-            .limit(10)
-            .all()
+        .filter(User.username.ilike(f'%{q}%'), User.id != current_user.id)
+        .with_entities(User.username)
+        .limit(10)
+        .all()
     )
     return jsonify([u.username for u in matches])
 
-
+from datetime import datetime
 
 @bp.route('/send_friend_request', methods=['POST'])
 @login_required
@@ -675,10 +626,12 @@ def log_podcast():
         log = PodcastLog(
             user_id=current_user.id,
             podcast_id=podcast.id,
-            notes=data.get("episode"),
-            tags=data.get("platform"),
+            ep_name=data.get("episode"),
+            platform=data.get("platform"),
             duration=(int(data.get("duration")) * 60) if data.get("duration") else None,
-            rating=float(data["rating"]) if data.get("rating") else None
+            rating=float(data["rating"]) if data.get("rating") else None,
+            genre=data.get("genre") 
+
         )
         db.session.add(log)
         db.session.commit()
