@@ -102,108 +102,123 @@
 
 
 <script>
-	document.addEventListener('DOMContentLoaded', function () {
+	document.addEventListener('DOMContentLoaded', function() {
 		const podcastInput = document.getElementById('podcastName');
 		const podcastIdInput = document.getElementById('selectedPodcastId');
 		const suggestionsContainer = document.getElementById('podcastSuggestions');
 		let debounceTimer;
-
-		podcastInput.addEventListener('input', function () {
-			clearTimeout(debounceTimer);
-			const query = this.value.trim();
-
-			if (query.length < 2) {
-				suggestionsContainer.style.display = 'none';
-				return;
-			}
-
-			debounceTimer = setTimeout(() => {
-				fetch(`/search_podcast_names?q=${encodeURIComponent(query)}`)
-					.then(response => response.json())
-					.then(podcasts => {
-						suggestionsContainer.innerHTML = '';
-
-						if (podcasts.length === 0) {
-							suggestionsContainer.style.display = 'none';
-							return;
-						}
-
-						podcasts.forEach(podcast => {
-							const item = document.createElement('div');
-							item.className = 'autocomplete-item';
-							item.textContent = podcast.name;
-							item.addEventListener('click', () => {
-								podcastInput.value = podcast.name;
-								podcastIdInput.value = podcast.id;
-								suggestionsContainer.style.display = 'none';
-							});
-							suggestionsContainer.appendChild(item);
-						});
-
-						suggestionsContainer.style.display = 'block';
-					});
-			}, 300);
-		});
-
+	
+		podcastInput.addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    const query = this.value.trim();
+    
+    if (query.length < 2) {
+        suggestionsContainer.style.display = 'none';
+        return;
+    }
+    
+    debounceTimer = setTimeout(() => {
+        fetch(`/search_spotify_podcasts?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(podcasts => {
+                suggestionsContainer.innerHTML = '';
+                
+                if (!podcasts || podcasts.length === 0) {
+                    suggestionsContainer.innerHTML = '<div class="autocomplete-item no-results">No podcasts found</div>';
+                    suggestionsContainer.style.display = 'block';
+                    return;
+                }
+                
+                podcasts.forEach(podcast => {
+                    const item = document.createElement('div');
+                    item.className = 'autocomplete-item';
+                    
+                    // Create podcast display with image if available
+                    item.innerHTML = `
+                        <div class="d-flex align-items-center">
+                            ${podcast.image ? 
+                                `<img src="${podcast.image}" class="podcast-thumb me-2" style="width: 40px; height: 40px; border-radius: 4px;">` : 
+                                `<div class="podcast-thumb me-2" style="width: 40px; height: 40px; background: #ddd; border-radius: 4px;"></div>`}
+                            <div>
+                                <div class="fw-bold">${podcast.name}</div>
+                                <small class="text-muted">${podcast.publisher}</small>
+                            </div>
+                        </div>
+                    `;
+                    
+                    item.addEventListener('click', () => {
+                        podcastInput.value = podcast.name;
+                        podcastIdInput.value = podcast.id;  // Using Spotify ID now
+                        suggestionsContainer.style.display = 'none';
+                    });
+                    
+                    suggestionsContainer.appendChild(item);
+                });
+                
+                suggestionsContainer.style.display = 'block';
+            });
+    }, 500);  // Slightly longer debounce for API calls
+});
+	
 		// Hide dropdown when clicking outside
-		document.addEventListener('click', function (e) {
+		document.addEventListener('click', function(e) {
 			if (e.target !== podcastInput) {
 				suggestionsContainer.style.display = 'none';
 			}
 		});
-
+	
 		// Form submission remains exactly the same
-		document.getElementById('podcastLogForm').addEventListener('submit', function (e) {
-			e.preventDefault();
+		document.getElementById('podcastLogForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Validate required fields
+        if (!document.getElementById('selectedPodcastId').value) {
+            alert('Please select a podcast from the suggestions');
+            return;
+        }
+        
+        // Get form data
+        const formData = {
+            podcast_id: document.getElementById('selectedPodcastId').value,
+            episode: document.getElementById('podcastEp').value,
+            platform: document.getElementById('platform').value,
+            duration: document.getElementById('listenTime').value,
+            genre: document.getElementById('genre').value,
+            rating: document.querySelector('input[name="rating"]:checked')?.value
+        };
+        
 
-			// Validate required fields
-			if (!document.getElementById('selectedPodcastId').value) {
-				alert('Please select a podcast from the suggestions');
-				return;
-			}
-
-			// Get form data
-			const formData = {
-				podcast_id: document.getElementById('selectedPodcastId').value,
-				episode: document.getElementById('podcastEp').value,
-				platform: document.getElementById('platform').value,
-				duration: document.getElementById('listenTime').value,
-				genre: document.getElementById('genre').value,
-				rating: document.querySelector('input[name="rating"]:checked')?.value
-			};
-
-
-
-			// Send to server
-			fetch('/log_podcast', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(formData)
-			})
-				.then(response => {
-					if (!response.ok) {
-						throw new Error('Network response was not ok');
-					}
-					return response.json();
-				})
-				.then(data => {
-					if (data.success) {
-						alert('Podcast logged successfully!');
-						// Reset form
-						this.reset();
-						document.getElementById('selectedPodcastId').value = '';
-					} else {
-						alert('Error: ' + (data.message || 'Failed to log podcast'));
-					}
-				})
-				.catch(error => {
-					console.error('Error:', error);
-					alert('Failed to log podcast. Please try again.');
-				});
-		});
+        
+        // Send to server
+        fetch('/log_podcast', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert('Podcast logged successfully!');
+                // Reset form
+                this.reset();
+                document.getElementById('selectedPodcastId').value = '';
+            } else {
+                alert('Error: ' + (data.message || 'Failed to log podcast'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to log podcast. Please try again.');
+        });
+    });
 	});
-</script>
+	</script>
 
 {% endblock %}
