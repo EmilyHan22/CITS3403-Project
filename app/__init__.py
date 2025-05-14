@@ -46,6 +46,8 @@ def create_app():
             "MAIL_DEFAULT_SENDER",
             f"Podfolio Support <{os.environ['MAIL_USERNAME']}>"
         ),
+        "SPOTIFY_CLIENT_ID": os.environ.get("SPOTIFY_CLIENT_ID"),
+        "SPOTIFY_CLIENT_SECRET": os.environ.get("SPOTIFY_CLIENT_SECRET"),
     })
 
     # Initialize extensions
