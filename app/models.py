@@ -2,6 +2,7 @@ from app.db import db
 from datetime import datetime
 from flask_login import UserMixin
 from flask_bcrypt import Bcrypt
+from sqlalchemy.orm import synonym
 bcrypt = Bcrypt()
 
 
@@ -95,8 +96,8 @@ class FriendRequest(db.Model):
     )
 
     # Aliases so templates can do r.from_user / r.to_user
-    from_user = requester
-    to_user   = requestee
+    from_user = synonym('requester')
+    to_user   = synonym('requestee')
 
 
 
