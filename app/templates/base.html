@@ -77,6 +77,11 @@
         <li class="nav-item">
           <a class="nav-link text-white" href="{{ url_for('main.share') }}"><i class="bi bi-people me-2"></i>ShareFeeds</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" href="{{ url_for('main.friends') }}">
+            <i class="bi bi-people-fill me-2"></i>My Friends
+          </a>
+        </li>
         {% if current_user.is_authenticated %}
         <li class="nav-item">
           <a class="nav-link text-white" href="{{ url_for('main.settings') }}">
@@ -126,6 +131,11 @@
         </li>
         <li class="nav-item">
           <a class="nav-link text-white" href="{{ url_for('main.share') }}"><i class="bi bi-people me-2"></i>ShareFeeds</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" href="{{ url_for('main.friends') }}">
+            <i class="bi bi-people-fill me-2"></i>My Friends
+          </a>
         </li>
         {% if current_user.is_authenticated %}
         <li class="nav-item">
