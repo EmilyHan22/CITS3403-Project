@@ -2,6 +2,7 @@ from app.db import db
 from datetime import datetime
 from flask_login import UserMixin
 from flask_bcrypt import Bcrypt
+from sqlalchemy.orm import synonym
 bcrypt = Bcrypt()
 
 
@@ -95,8 +96,8 @@ class FriendRequest(db.Model):
     )
 
     # Aliases so templates can do r.from_user / r.to_user
-    from_user = requester
-    to_user   = requestee
+    from_user = synonym('requester')
+    to_user   = synonym('requestee')
 
 
 
@@ -125,8 +126,8 @@ class PodcastLog(db.Model):
     listened_at = db.Column(db.DateTime, default=datetime.utcnow)
     duration = db.Column(db.Integer)  # in seconds
     rating = db.Column(db.Float)  # 1-5 scale
-    ep_name = db.Column(db.Text)
-    platform = db.Column(db.String(200))  # comma-separated tags
-    genre = db.Column(db.String(64))
+    notes = db.Column(db.Text)
+    tags = db.Column(db.String(200))  # comma-separated tags
+    
     # Relationship
     podcast = db.relationship('Podcast', backref='logs')
