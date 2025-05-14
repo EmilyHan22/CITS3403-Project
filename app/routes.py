@@ -626,10 +626,12 @@ def log_podcast():
         log = PodcastLog(
             user_id=current_user.id,
             podcast_id=podcast.id,
-            notes=data.get("episode"),
-            tags=data.get("platform"),
+            ep_name=data.get("episode"),
+            platform=data.get("platform"),
             duration=(int(data.get("duration")) * 60) if data.get("duration") else None,
-            rating=float(data["rating"]) if data.get("rating") else None
+            rating=float(data["rating"]) if data.get("rating") else None,
+            genre=data.get("genre") 
+
         )
         db.session.add(log)
         db.session.commit()
