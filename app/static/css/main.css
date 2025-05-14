@@ -433,6 +433,13 @@ footer {
 }
 
 
+/* --- Fix landing, login, and signup centering issue on wider screens --- */
+@media (min-width: 768px) {
+	.landing-page {
+	  margin-left: 0 !important;
+	}
+}
+
 .autocomplete-item {
     padding: 8px 12px;
     cursor: pointer;
