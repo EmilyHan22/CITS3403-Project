@@ -12,6 +12,16 @@ class User(db.Model, UserMixin):
     email        = db.Column(db.String(120), unique=True, nullable=False)
     pw_hash      = db.Column(db.String(128), nullable=False)
     display_name = db.Column(db.String(64))
+    auth_provider = db.Column(
+        db.String(20),
+        nullable=False,
+        default='local'
+    )
+    profile_pic = db.Column(
+        db.String(255),
+        nullable=False,
+        default='default.png'
+    )
     created_at   = db.Column(db.DateTime, default=datetime.utcnow)
 
 # People I've added
@@ -64,10 +74,13 @@ class Podcast(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
+    spotify_id = db.Column(db.String(120), unique=True)  # Spotify's ID
     rating_volume = db.Column(db.Integer)
     rating = db.Column(db.Float)
     genre = db.Column(db.String(64))
     description = db.Column(db.Text)
+    publisher = db.Column(db.String(120))
+    image_url = db.Column(db.String(255))
     predicted_popularity = db.Column(db.Float, default=0.0)
     similar_to = db.Column(db.String(200))  # JSON string
     

@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Settings – Podfolio{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h2 class="card-title mb-4 text-center">Account Settings</h2>
+
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <div class="mb-3">
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endwith %}
+
+          <form method="POST"
+                action="{{ url_for('main.settings') }}"
+                enctype="multipart/form-data">
+
+            <!-- Display Name -->
+            <div class="mb-3">
+              <label for="display_name" class="form-label">Display Name</label>
+              <input type="text"
+                     id="display_name"
+                     name="display_name"
+                     class="form-control"
+                     value="{{ user.display_name }}"
+                     required>
+            </div>
+
+            <!-- Email Address -->
+            <div class="mb-3">
+              <label for="email" class="form-label">Email Address</label>
+              <input type="email"
+                     id="email"
+                     name="email"
+                     class="form-control"
+                     value="{{ user.email }}"
+                     required>
+            </div>
+
+            <hr>
+
+            <!-- Change Password -->
+            <h5 class="mt-4">Change Password</h5>
+
+            <div class="mb-3">
+              <label for="current_password" class="form-label">Current Password</label>
+              <input type="password"
+                     id="current_password"
+                     name="current_password"
+                     class="form-control">
+            </div>
+
+            <div class="mb-3 pw-req-container">
+              <label for="new_password" class="form-label">New Password</label>
+              <input type="password"
+                     id="new_password"
+                     name="new_password"
+                     class="form-control">
+              <div class="pw-req-box">
+                <ul class="mb-0 list-unstyled">
+                  <li id="req-length"><i class="fa fa-times me-1"></i> ≥8 characters</li>
+                  <li id="req-upper"><i class="fa fa-times me-1"></i> Uppercase letter</li>
+                  <li id="req-lower"><i class="fa fa-times me-1"></i> Lowercase letter</li>
+                  <li id="req-number"><i class="fa fa-times me-1"></i> Number</li>
+                  <li id="req-special"><i class="fa fa-times me-1"></i> Special character</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="confirm_new_password" class="form-label">Confirm New Password</label>
+              <input type="password"
+                     id="confirm_new_password"
+                     name="confirm_new_password"
+                     class="form-control">
+            </div>
+
+            <!-- Profile Picture Upload -->
+            <div class="mb-4">
+              <label for="profile_pic" class="form-label">Profile Picture</label>
+              <div class="d-flex align-items-center">
+                <img id="settingsAvatarPreview"
+                     src="{{ url_for('static', filename='uploads/' ~ user.profile_pic) }}"
+                     alt="Avatar Preview"
+                     class="rounded-circle me-3"
+                     style="width:60px; height:60px; object-fit:cover; cursor:pointer;">
+                <input type="file"
+                       id="profile_pic"
+                       name="profile_pic"
+                       accept="image/*"
+                       class="form-control">
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Save Settings</button>
+          </form>
+
+          <hr class="my-4">
+
+          <!-- Delete Account -->
+          <h5 class="text-danger">Delete Account</h5>
+          <p class="text-muted">This action is irreversible and will permanently remove all your data.</p>
+          <button id="delete-account-btn" class="btn btn-outline-danger w-100 mb-3">Delete Account</button>
+
+          <form id="delete-account-form"
+                method="POST"
+                action="{{ url_for('main.delete_account') }}"
+                style="display:none;">
+            <div class="mb-3">
+              <label for="delete-confirm-input" class="form-label">
+                Type <strong>DELETE</strong> to confirm:
+              </label>
+              <input type="text"
+                     id="delete-confirm-input"
+                     name="confirmation"
+                     class="form-control">
+            </div>
+            <button type="submit"
+                    id="delete-confirm-btn"
+                    class="btn btn-danger w-100"
+                    disabled>
+              Confirm Delete
+            </button>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+{% endblock %}
