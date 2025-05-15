@@ -13,7 +13,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 from flask_mail import Message
 from itsdangerous import SignatureExpired, BadSignature
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import or_, and_, func 
+from sqlalchemy import or_, and_, func, desc
 
 from app import mail, make_serializer, oauth
 from app.db import db
@@ -405,8 +405,55 @@ def share():
 @bp.route("/visualise")
 @login_required
 def visualise():
-    return render_template("visualise.html", current_year=date.today().year)
+    # 1) Top 5 by total listen‐time (in minutes)
+    top5_q = (
+        db.session
+          .query(
+             Podcast.name,
+             func.sum(PodcastLog.duration).label("total_duration")
+          )
+          .join(PodcastLog, Podcast.id == PodcastLog.podcast_id)
+          .filter(PodcastLog.user_id == current_user.id)
+          .group_by(Podcast.id)
+          .order_by(desc("total_duration"))
+          .limit(5)
+          .all()
+    )
+    top5 = [
+       (name, round(total_duration/60,1))
+       for name, total_duration in top5_q
+    ]
 
+    # 2) Most loved = highest average rating
+    loved_q = (
+        db.session
+          .query(
+             Podcast.name,
+             func.avg(PodcastLog.rating).label("avg_rating")
+          )
+          .join(PodcastLog, Podcast.id == PodcastLog.podcast_id)
+          .filter(
+             PodcastLog.user_id == current_user.id,
+             PodcastLog.rating != None
+          )
+          .group_by(Podcast.id)
+          .order_by(desc("avg_rating"))
+          .first()
+    )
+    if loved_q:
+        most_loved = {
+          "name": loved_q[0],
+          "rating": round(loved_q[1],1)
+        }
+    else:
+        most_loved = None
+
+    return render_template(
+      "visualise.html",
+      current_year=date.today().year,
+      top5=top5,
+      most_loved=most_loved
+    )
 
 @bp.route("/frienddash")
 @login_required
