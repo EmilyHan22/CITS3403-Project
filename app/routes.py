@@ -699,6 +699,7 @@ def get_spotify_token():
     return resp.json().get("access_token")
 
 
+
 @bp.route("/search_spotify_podcasts")
 @login_required
 def search_spotify_podcasts():

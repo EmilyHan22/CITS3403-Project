@@ -118,6 +118,7 @@ class Podcast(db.Model):
     
 
 
+
 class PodcastLog(db.Model):
     """User podcast listening logs"""
     id = db.Column(db.Integer, primary_key=True)
