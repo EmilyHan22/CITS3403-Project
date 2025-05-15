@@ -129,7 +129,7 @@ class PodcastLog(db.Model):
     rating = db.Column(db.Float)  # 1-5 scale
     ep_name = db.Column(db.Text)
     platform = db.Column(db.String(200))  # comma-separated tags
-    genre     = db.Column(db.String(64)) 
+    genre = db.Column(db.String(64)) 
     
     # Relationship
     podcast = db.relationship('Podcast', backref='logs')

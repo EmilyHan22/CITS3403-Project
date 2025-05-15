@@ -673,12 +673,14 @@ def log_podcast():
             db.session.add(podcast)
             db.session.commit()
         log = PodcastLog(
-            user_id=current_user.id,
-            podcast_id=podcast.id,
-            ep_name=data.get("episode"),
-            platform=data.get("platform"),
-            duration=(int(data.get("duration")) * 60) if data.get("duration") else None,
-            rating=float(data["rating"]) if data.get("rating") else None
+            user_id   = current_user.id,
+            podcast_id= podcast.id,
+            ep_name   = data.get("episode"),
+            platform  = data.get("platform"),
+            genre     = data.get("genre"),   
+            duration  = (int(data.get("duration")) * 60)
+                          if data.get("duration") else None,
+            rating    = float(data.get("rating")) if data.get("rating") else None
         )
         db.session.add(log)
         db.session.commit()
@@ -741,12 +743,11 @@ def visualise_data():
     # 1) Genre breakdown (sum duration per genre)
     genre_q = (
         db.session.query(
-            Podcast.genre,
+            PodcastLog.genre,
             func.coalesce(func.sum(PodcastLog.duration), 0).label("total_duration")
         )
-        .join(Podcast, PodcastLog.podcast_id == Podcast.id)
         .filter(PodcastLog.user_id == current_user.id)
-        .group_by(Podcast.genre)
+        .group_by(PodcastLog.genre)
         .all()
     )
     genre_data = [
