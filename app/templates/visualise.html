@@ -7,15 +7,15 @@
 <script src="/static/js/dashboard_charts.js"></script>
 <h1>Your listening insights</h1>
 
-<div id="my-charts" style="background-color: plum; border-radius: 50px; margin-bottom: 50px; padding: 20px 7px;">
-	<div id="podcast-chart-row-1" class="top-row-graphs" style="display: flex; justify-content: center; margin: 0 auto;">
-		<div id="horizontal-barchart" class="chart-box"></div>
-		<div id="listen-line-graph" class="chart-box"></div>
+<div id="my-charts" class="charts-container">
+	<div id="podcast-chart-row-1" class="chart-row">
+		<div id="horizontal-barchart"></div>
+		<div id="listen-line-graph"></div>
 	</div>
 
-	<div id="podcast-chart-row-2" style="display: flex; justify-content: center; margin: 0 auto;">
+	<div id="podcast-chart-row-2" class="chart-row">
 	<!-- ─── Top 5 Podcasts ─────────────────────────────────── -->
-		<div id="top-five-section" class="me-4" style="margin:2em 0; max-width: 400px;">
+		<div id="top-five-section">
 			<h2>Your Top 5 Podcasts</h2>
 			<p>Here are your top 5 podcasts of the month!</p>
 
@@ -48,7 +48,7 @@
 		</div>
 
 		<!-- ─── Most Loved Podcast ────────────────────────────── -->
-		<div id="most-loved-section" style="margin:2em 0; max-width: 400px;">
+		<div id="most-loved-section">
 			<h2 class="most-loved-title text-center mb-3">MOST LOVED</h2>
 
 			{% if most_loved %}
