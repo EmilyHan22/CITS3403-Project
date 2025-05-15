@@ -4,8 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from app import create_app, db
-from app.models import User, Podcast
-from werkzeug.security import generate_password_hash
+from app.models import User, Podcast,PodcastLog
 import threading
 import time
 from werkzeug.serving import make_server
@@ -40,10 +39,9 @@ class SeleniumTestCase(unittest.TestCase):
         os.unlink(cls.db_path)  # Remove temp db file
     
     def setUp(self):
-        # Update config before app creation
         self.app = create_app()
         self.app.config.update({
-            'SQLALCHEMY_DATABASE_URI': f'sqlite:///{self.db_path}',
+            'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
             'TESTING': True,
             'WTF_CSRF_ENABLED': False,
             'SERVER_NAME': 'localhost:5000'
@@ -56,9 +54,9 @@ class SeleniumTestCase(unittest.TestCase):
         self.user = User(
             username='seleniumuser',
             email='selenium@example.com',
-            pw_hash=generate_password_hash('password'),
             display_name='Selenium User'
         )
+        self.user.set_password('password')
         db.session.add(self.user)
         db.session.commit()
 
@@ -87,7 +85,7 @@ class SeleniumTestCase(unittest.TestCase):
         self.driver.find_element(By.XPATH, '//button[@type="submit"]').click()
         WebDriverWait(self.driver, 10).until(EC.url_contains('/podcast-log'))
 
-    # ... your test methods as before ...
+    # Tests
 
 
     def test_home_page(self):
@@ -100,7 +98,9 @@ class SeleniumTestCase(unittest.TestCase):
         self.driver.find_element(By.NAME, 'email').send_keys('newuser@example.com')
         self.driver.find_element(By.NAME, 'password').send_keys('Test123!')
         self.driver.find_element(By.NAME, 'confirm_password').send_keys('Test123!')
-        self.driver.find_element(By.XPATH, '//button[@type="submit"]').click()
+        submit_button = self.driver.find_element(By.XPATH, '//button[@type="submit"]')
+        self.driver.execute_script("arguments[0].scrollIntoView(true);", submit_button)
+        submit_button.click()
 
         WebDriverWait(self.driver, 10).until(EC.url_contains('/podcast-log'))
 
@@ -109,9 +109,12 @@ class SeleniumTestCase(unittest.TestCase):
 
     def test_navigation(self):
         self.driver.get('http://localhost:5000/')
-        self.driver.find_element(By.LINK_TEXT, 'Login').click()
+        element = self.driver.find_element(By.LINK_TEXT, 'Get Started')
+        self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
+        time.sleep(0.5)  # allow layout to stabilize
+        element.click()
         WebDriverWait(self.driver, 10).until(EC.url_contains('/login'))
-        self.driver.find_element(By.LINK_TEXT, 'Sign up').click()
+        self.driver.find_element(By.LINK_TEXT, 'Sign Up').click()
         WebDriverWait(self.driver, 10).until(EC.url_contains('/signup'))
 
     def test_friend_page_access(self):
@@ -120,7 +123,7 @@ class SeleniumTestCase(unittest.TestCase):
 
     def test_logout(self):
         self.login()
-        self.driver.find_element(By.LINK_TEXT, 'Logout').click()
+        self.driver.find_element(By.LINK_TEXT, 'Log Out').click()
         WebDriverWait(self.driver, 10).until(EC.url_contains('/'))
 
     def test_log_podcast_with_existing_db_entry(self):
@@ -154,7 +157,6 @@ class SeleniumTestCase(unittest.TestCase):
         time.sleep(2)
 
         # Check that log exists
-        from app.models import PodcastLog
         logs = PodcastLog.query.filter_by(user_id=self.user.id).all()
         self.assertGreaterEqual(len(logs), 1)
 
