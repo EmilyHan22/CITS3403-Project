@@ -37,6 +37,7 @@
     </div>
 
     <form method="POST" action="{{ url_for('main.signup') }}" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="mb-3">
         <input type="text" class="form-control" id="name" name="name"
                placeholder="Your name" required>

@@ -1,5 +1,6 @@
 import os
 from flask import Flask
+from flask_wtf import CSRFProtect
 from authlib.integrations.flask_client import OAuth
 from flask_migrate import Migrate
 from flask_login import LoginManager
@@ -13,7 +14,8 @@ login_mgr = LoginManager()
 bcrypt    = Bcrypt()
 migrate   = Migrate()
 mail      = Mail()
-oauth     = OAuth()               # ← add this
+oauth     = OAuth()
+csrf      = CSRFProtect()               # ← add this
 
 def make_serializer(app):
     return URLSafeTimedSerializer(app.config["SECRET_KEY"], salt="password-reset")
@@ -63,7 +65,11 @@ def create_app():
         server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
         client_kwargs={'scope': 'openid email profile'}
     )
-    print("➜ SQLALCHEMY_DATABASE_URI is:", app.config["SQLALCHEMY_DATABASE_URI"])
+
+
+    # ─── CSRF protection ────────────────────────────────────
+    csrf.init_app(app)
+    
     # ─── initialize the rest ───────────────────────────────
     db.init_app(app)
     mail.init_app(app)

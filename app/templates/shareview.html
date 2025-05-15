@@ -14,11 +14,14 @@
 {% block scripts %}
 {{ super() }}
 <script>
+  // grab the CSRF token from <meta>
+  const csrfToken = document.querySelector('meta[name=csrf-token]').content;
+
   let page = 1, loading = false, ended = false;
   const container = document.getElementById('feedContainer');
   const loader    = document.getElementById('loading');
 
-  // 1) Pagination + render
+  // 1) load & render
   function loadPage() {
     if (loading || ended) return;
     loading = true;
@@ -51,7 +54,7 @@
                 <div class="d-flex align-items-center mt-3">
                   <button class="btn btn-sm like-btn">
                     <i class="bi bi-heart${log.liked ? '-fill text-danger' : ''}"></i>
-                    <span class="ms-1 like-count">${log.likes}</span>
+                    <span class="ms-1 like-count">${log.likes || 0}</span>
                   </button>
                   <button class="btn btn-sm ms-3 comment-btn">
                     <i class="bi bi-chat"></i>
@@ -81,23 +84,28 @@
       });
   }
 
-  // infinite scroll
+  // infinite scroll trigger
   window.addEventListener('scroll', () => {
     if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
       loadPage();
     }
   });
 
-  // 2) Delegate Likes & Comments
+  // 2) Delegate like/comment actions
   container.addEventListener('click', e => {
-    // Like/unlike
+    // ─── Likes ─────────────────────────────────────────
     const likeBtn = e.target.closest('.like-btn');
     if (likeBtn) {
       const card   = likeBtn.closest('.card');
       const postId = card.dataset.postId;
       const liked  = likeBtn.querySelector('i').classList.contains('bi-heart-fill');
+
       fetch(`/api/posts/${postId}/like`, {
-        method: liked ? 'DELETE' : 'POST'
+        method: liked ? 'DELETE' : 'POST',
+        headers: {
+          'Content-Type':'application/json',
+          'X-CSRFToken': csrfToken
+        }
       })
       .then(r => r.json())
       .then(json => {
@@ -112,11 +120,11 @@
       return;
     }
 
-    // Show/hide comment form
+    // ─── Show/hide comment form ────────────────────────
     const commentBtn = e.target.closest('.comment-btn');
     if (commentBtn) {
       const card = commentBtn.closest('.card');
-      let form = card.querySelector('.comment-form');
+      let form   = card.querySelector('.comment-form');
       if (form) {
         form.remove();
       } else {
@@ -131,7 +139,7 @@
       return;
     }
 
-    // Submit comment
+    // ─── Submit comment ───────────────────────────────
     const submitBtn = e.target.closest('.submit-comment');
     if (submitBtn) {
       const card   = submitBtn.closest('.card');
@@ -142,7 +150,10 @@
 
       fetch(`/api/posts/${postId}/comments`, {
         method: 'POST',
-        headers: {'Content-Type':'application/json'},
+        headers: {
+          'Content-Type':'application/json',
+          'X-CSRFToken': csrfToken
+        },
         body: JSON.stringify({ text })
       })
       .then(r => r.json())
@@ -154,9 +165,9 @@
           li.className = 'list-group-item';
           li.innerHTML = `<strong>${json.commenter}:</strong> ${json.text}`;
           ul.append(li);
-          input.value = '';
 
-          // update comment count
+          // clear input & bump counter
+          input.value = '';
           const countSpan = card.querySelector('.comment-count');
           countSpan.textContent = parseInt(countSpan.textContent || '0') + 1;
         }
