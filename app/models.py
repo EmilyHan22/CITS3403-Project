@@ -127,8 +127,9 @@ class PodcastLog(db.Model):
     listened_at = db.Column(db.DateTime, default=datetime.utcnow)
     duration = db.Column(db.Integer)  # in seconds
     rating = db.Column(db.Float)  # 1-5 scale
-    notes = db.Column(db.Text)
-    tags = db.Column(db.String(200))  # comma-separated tags
+    ep_name = db.Column(db.Text)
+    platform = db.Column(db.String(200))  # comma-separated tags
+    genre     = db.Column(db.String(64)) 
     
     # Relationship
     podcast = db.relationship('Podcast', backref='logs')

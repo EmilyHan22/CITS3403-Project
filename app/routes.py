@@ -13,7 +13,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 from flask_mail import Message
 from itsdangerous import SignatureExpired, BadSignature
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import or_, and_
+from sqlalchemy import or_, and_, func 
 
 from app import mail, make_serializer, oauth
 from app.db import db
@@ -675,8 +675,8 @@ def log_podcast():
         log = PodcastLog(
             user_id=current_user.id,
             podcast_id=podcast.id,
-            notes=data.get("episode"),
-            tags=data.get("platform"),
+            ep_name=data.get("episode"),
+            platform=data.get("platform"),
             duration=(int(data.get("duration")) * 60) if data.get("duration") else None,
             rating=float(data["rating"]) if data.get("rating") else None
         )
@@ -730,3 +730,47 @@ def search_spotify_podcasts():
 def spotify_callback():
     # Placeholder for OAuth callback handling if you implement it
     return redirect(url_for("main.podcast_log"))
+
+
+
+# ─── DASHBOARD DISPLAY ────────────────────────────
+
+@bp.route("/api/visualise-data")
+@login_required
+def visualise_data():
+    # 1) Genre breakdown (sum duration per genre)
+    genre_q = (
+        db.session.query(
+            Podcast.genre,
+            func.coalesce(func.sum(PodcastLog.duration), 0).label("total_duration")
+        )
+        .join(Podcast, PodcastLog.podcast_id == Podcast.id)
+        .filter(PodcastLog.user_id == current_user.id)
+        .group_by(Podcast.genre)
+        .all()
+    )
+    genre_data = [
+        {"genre": g or "Unknown", "time": round(total / 60, 1)}
+        for g, total in genre_q
+    ]
+
+    # 2) Weekly listening (sum duration per calendar-week)
+    week_q = (
+        db.session.query(
+            func.strftime("%Y-%W", PodcastLog.listened_at).label("week"),
+            func.sum(PodcastLog.duration).label("total_duration")
+        )
+        .filter(PodcastLog.user_id == current_user.id)
+        .group_by("week")
+        .order_by("week")
+        .all()
+    )
+    week_data = [
+        {"week": wk, "time": round(total / 60, 1)}
+        for wk, total in week_q
+    ]
+
+    return jsonify({
+        "genreBreakdown": genre_data,
+        "weeklyListening": week_data
+    })
