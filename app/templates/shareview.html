@@ -1,9 +1,170 @@
 {% extends "base.html" %}
-
-{% block title %}ShareFeeds – Podfolio{% endblock %}
+{% block title %}Share Feed – Podfolio{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">ShareFeeds</h2>
-<h3 class = "mb-4"> Share your favourite podcasts to your friends!</h3>
+<div class="container py-5">
+  <h1 class="text-center text-white mb-4">Sharefeeds</h1>
+  <div id="feedContainer" class="row gy-4"></div>
+  <div id="loading" class="text-center my-4" style="display:none;">
+    <i class="bi bi-arrow-repeat spin"></i> Loading…
+  </div>
+</div>
+{% endblock %}
 
+{% block scripts %}
+{{ super() }}
+<script>
+  let page = 1, loading = false, ended = false;
+  const container = document.getElementById('feedContainer');
+  const loader    = document.getElementById('loading');
+
+  // 1) Pagination + render
+  function loadPage() {
+    if (loading || ended) return;
+    loading = true;
+    loader.style.display = 'block';
+
+    fetch(`/api/share_posts?page=${page}`)
+      .then(r => r.json())
+      .then(data => {
+        data.posts.forEach(log => {
+          const col = document.createElement('div');
+          col.className = 'col-12';
+
+          col.innerHTML = `
+            <div class="card mx-auto mb-4" style="max-width:600px;" data-post-id="${log.id}">
+              <div class="card-header d-flex align-items-center bg-light">
+                <img src="${log.poster_pic}" class="rounded-circle me-2"
+                     style="width:32px;height:32px;object-fit:cover;">
+                <strong>${log.poster_username}</strong>
+              </div>
+              <img src="${log.podcast_image || '/static/default.png'}"
+                   class="card-img-top" alt="">
+              <div class="card-body">
+                <h5 class="card-title">${log.podcast_name}</h5>
+                <p class="card-text"><strong>Episode:</strong> ${log.ep_name || '–'}</p>
+                <p class="card-text"><strong>Platform:</strong> ${log.platform || '–'}</p>
+                <p class="card-text"><strong>Duration:</strong> ${log.duration_min} min</p>
+                ${ log.genre  ? `<p class="card-text"><strong>Genre:</strong> ${log.genre}</p>`  : '' }
+                ${ log.rating ? `<p class="card-text"><strong>Rating:</strong> ${log.rating}/5</p>` : '' }
+
+                <div class="d-flex align-items-center mt-3">
+                  <button class="btn btn-sm like-btn">
+                    <i class="bi bi-heart${log.liked ? '-fill text-danger' : ''}"></i>
+                    <span class="ms-1 like-count">${log.likes}</span>
+                  </button>
+                  <button class="btn btn-sm ms-3 comment-btn">
+                    <i class="bi bi-chat"></i>
+                    <span class="ms-1 comment-count">${log.comments.length}</span>
+                  </button>
+                </div>
+                <ul class="comments-list list-group list-group-flush mt-2">
+                  ${ log.comments.map(c =>
+                      `<li class="list-group-item"><strong>${c.commenter}:</strong> ${c.text}</li>`
+                    ).join('') }
+                </ul>
+              </div>
+            </div>`;
+
+          container.append(col);
+        });
+
+        if (data.next_page) {
+          page = data.next_page;
+        } else {
+          ended = true;
+        }
+      })
+      .finally(() => {
+        loading = false;
+        loader.style.display = 'none';
+      });
+  }
+
+  // infinite scroll
+  window.addEventListener('scroll', () => {
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+      loadPage();
+    }
+  });
+
+  // 2) Delegate Likes & Comments
+  container.addEventListener('click', e => {
+    // Like/unlike
+    const likeBtn = e.target.closest('.like-btn');
+    if (likeBtn) {
+      const card   = likeBtn.closest('.card');
+      const postId = card.dataset.postId;
+      const liked  = likeBtn.querySelector('i').classList.contains('bi-heart-fill');
+      fetch(`/api/posts/${postId}/like`, {
+        method: liked ? 'DELETE' : 'POST'
+      })
+      .then(r => r.json())
+      .then(json => {
+        if (json.success) {
+          const icon = likeBtn.querySelector('i');
+          icon.classList.toggle('bi-heart-fill', !liked);
+          icon.classList.toggle('text-danger',   !liked);
+          icon.classList.toggle('bi-heart',       liked);
+          card.querySelector('.like-count').textContent = json.likes;
+        }
+      });
+      return;
+    }
+
+    // Show/hide comment form
+    const commentBtn = e.target.closest('.comment-btn');
+    if (commentBtn) {
+      const card = commentBtn.closest('.card');
+      let form = card.querySelector('.comment-form');
+      if (form) {
+        form.remove();
+      } else {
+        form = document.createElement('div');
+        form.className = 'comment-form mt-2';
+        form.innerHTML = `
+          <input type="text" class="form-control mb-1 comment-input" placeholder="Write a comment…">
+          <button class="btn btn-sm btn-primary submit-comment">Post</button>
+        `;
+        card.querySelector('.card-body').append(form);
+      }
+      return;
+    }
+
+    // Submit comment
+    const submitBtn = e.target.closest('.submit-comment');
+    if (submitBtn) {
+      const card   = submitBtn.closest('.card');
+      const postId = card.dataset.postId;
+      const input  = card.querySelector('.comment-input');
+      const text   = input.value.trim();
+      if (!text) return;
+
+      fetch(`/api/posts/${postId}/comments`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ text })
+      })
+      .then(r => r.json())
+      .then(json => {
+        if (json.success) {
+          // append new comment
+          const ul = card.querySelector('.comments-list');
+          const li = document.createElement('li');
+          li.className = 'list-group-item';
+          li.innerHTML = `<strong>${json.commenter}:</strong> ${json.text}`;
+          ul.append(li);
+          input.value = '';
+
+          // update comment count
+          const countSpan = card.querySelector('.comment-count');
+          countSpan.textContent = parseInt(countSpan.textContent || '0') + 1;
+        }
+      });
+    }
+  });
+
+  // initial load
+  loadPage();
+</script>
 {% endblock %}

@@ -17,7 +17,7 @@ from sqlalchemy import or_, and_
 
 from app import mail, make_serializer, oauth
 from app.db import db
-from app.models import User, Podcast, Friendship, PodcastLog, FriendRequest
+from app.models import User, Podcast, Friendship, PodcastLog, FriendRequest, Like, Comment
 from werkzeug.utils import secure_filename
 
 ALLOWED_EXT = {'png','jpg','jpeg','gif'}
@@ -86,6 +86,8 @@ def profile(username):
         is_owner=is_owner,
         is_friend=is_friend
     )
+
+
 
 # ─── SIGN UP & LOGIN ─────────────────────────────────────────
 
@@ -396,10 +398,132 @@ def podcast_log():
     return render_template("PodcastLog.html", current_year=date.today().year)
 
 
-@bp.route("/shareview")
+@bp.route('/shareview')
 @login_required
-def share():
-    return render_template("shareview.html", current_year=date.today().year)
+def shareview():
+    page     = request.args.get('page', 1, type=int)
+    per_page = 9
+    pagination = PodcastLog.query \
+        .filter_by(shared=True) \
+        .order_by(PodcastLog.listened_at.desc()) \
+        .paginate(page=page, per_page=per_page, error_out=False)
+
+    return render_template('shareview.html', pagination=pagination)
+
+# at the top of routes.py
+from flask import url_for
+
+from app.models import Comment, Like  # <-- import your Comment and Like models
+
+@bp.route('/api/share_posts')
+@login_required
+def api_share_posts():
+    page, per_page = request.args.get('page',1,type=int), 9
+    pagination = PodcastLog.query\
+        .filter_by(shared=True)\
+        .order_by(PodcastLog.listened_at.desc())\
+        .paginate(page=page, per_page=per_page, error_out=False)
+
+    posts = []
+    for log in pagination.items:
+        # pull poster
+        poster = User.query.get(log.user_id)
+
+        # pull likes
+        total_likes = Like.query.filter_by(post_id=log.id).count()
+        liked       = Like.query.filter_by(post_id=log.id, user_id=current_user.id).first() is not None
+
+        # pull comments
+        raw_comments = Comment.query\
+            .filter_by(post_id=log.id)\
+            .order_by(Comment.created_at.asc())\
+            .all()
+        comments = [
+            {
+              'commenter': c.user.display_name or c.user.username,
+              'text':      c.text
+            }
+            for c in raw_comments
+        ]
+
+        posts.append({
+          'id':              log.id,
+          'podcast_name':    log.podcast.name,
+          'podcast_image':   log.podcast.image_url,
+          'ep_name':         log.ep_name,
+          'platform':        log.platform,
+          'duration_min':    (log.duration / 60) if log.duration else None,
+          'genre':           log.podcast.genre,
+          'rating':          log.rating,
+          'poster_username': poster.username,
+          'poster_pic':      url_for('static', filename='uploads/' + poster.profile_pic),
+          'likes':           total_likes,
+          'liked':           liked,
+          'comments':        comments
+        })
+
+    return jsonify({
+      'posts':    posts,
+      'next_page': pagination.next_num if pagination.has_next else None
+    })
+
+
+@bp.route('/share_podcast/<int:log_id>', methods=['POST'])
+@login_required
+def share_podcast(log_id):
+    log = PodcastLog.query.get_or_404(log_id)
+    # only the owner can share their own log
+    if log.user_id != current_user.id:
+        abort(403)
+    log.shared = True
+    db.session.commit()
+    return jsonify({'success': True})
+
+@bp.route('/api/posts/<int:post_id>/like', methods=['POST', 'DELETE'])
+@login_required
+def toggle_like(post_id):
+    # POST   → add like
+    # DELETE → remove like
+    log = PodcastLog.query.get_or_404(post_id)
+    existing = Like.query.filter_by(user_id=current_user.id, post_id=post_id).first()
+
+    if request.method == 'POST' and not existing:
+        like = Like(user_id=current_user.id, post_id=post_id)
+        db.session.add(like)
+    elif request.method == 'DELETE' and existing:
+        db.session.delete(existing)
+    db.session.commit()
+
+    # return new count
+    count = Like.query.filter_by(post_id=post_id).count()
+    return jsonify({ 'success': True, 'likes': count })
+
+
+@bp.route('/api/posts/<int:post_id>/comments', methods=['POST'])
+@login_required
+def post_comment(post_id):
+    log = PodcastLog.query.get_or_404(post_id)
+    data = request.get_json() or {}
+    text = data.get('text','').strip()
+    if not text:
+        return jsonify({ 'success': False }), 400
+
+    comment = Comment(
+      user_id    =current_user.id,
+      post_id    =post_id,
+      text       =text,
+      created_at =datetime.utcnow()
+    )
+    db.session.add(comment)
+    db.session.commit()
+
+    return jsonify({
+      'success':   True,
+      'commenter': current_user.username,
+      'text':      text
+    })
+
+
 
 
 @bp.route("/visualise")
