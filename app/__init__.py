@@ -44,6 +44,8 @@ def create_app():
                                   "MAIL_DEFAULT_SENDER",
                                   f"Podfolio Support <{os.environ.get('MAIL_USERNAME')}>"
                               ),
+        "SPOTIFY_CLIENT_ID": os.environ.get("SPOTIFY_CLIENT_ID"),
+        "SPOTIFY_CLIENT_SECRET": os.environ.get("SPOTIFY_CLIENT_SECRET"),
 
         # ← your new Google OAuth creds
         "GOOGLE_CLIENT_ID":     os.environ.get("GOOGLE_CLIENT_ID"),
