@@ -32,8 +32,8 @@
             <div class="card h-100">
               <div class="card-body">
                 <h5 class="card-title">{{ log.podcast.name }}</h5>
-                <p class="card-text"><strong>Episode:</strong> {{ log.notes or '–' }}</p>
-                <p class="card-text"><strong>Platform:</strong> {{ log.tags or '–' }}</p>
+                <p class="card-text"><strong>Episode:</strong> {{ log.ep_name or '–' }}</p>
+                <p class="card-text"><strong>Platform:</strong> {{ log.platform or '–' }}</p>
                 <p class="card-text">
                   <strong>Duration:</strong>
                   {{ (log.duration // 60) if log.duration else '–' }} min
