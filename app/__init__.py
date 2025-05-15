@@ -52,6 +52,8 @@ def create_app():
         "GOOGLE_CLIENT_SECRET": os.environ.get("GOOGLE_CLIENT_SECRET"),
     })
 
+    
+
     # ─── OAuth: init + register Google ──────────────────────
     oauth.init_app(app)
     oauth.register(
@@ -61,7 +63,7 @@ def create_app():
         server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
         client_kwargs={'scope': 'openid email profile'}
     )
-
+    print("➜ SQLALCHEMY_DATABASE_URI is:", app.config["SQLALCHEMY_DATABASE_URI"])
     # ─── initialize the rest ───────────────────────────────
     db.init_app(app)
     mail.init_app(app)

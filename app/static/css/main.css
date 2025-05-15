@@ -401,7 +401,7 @@ footer {
 }
 
 #most-loved {
-  background-color: #FFF;
+  background-color: whitesmoke;
   border-radius: 50px;
   padding: 30px;
   /* margin: 40px auto; */
@@ -539,3 +539,230 @@ footer {
   .forgot-link:hover {
 	background-color: #343a40 !important;  /* slightly lighter than pure black */
   }
+
+  /* ─── Visualise Dashboard Styles ───────────────────────── */
+
+/* wrap each chart in a “card” */
+.chart-box {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 1.5rem;
+  padding: 1rem;
+  flex: 1;
+  max-width: 450px;
+  margin: 0 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* the flex‐row that holds those two .chart-box items */
+#podcast-chart-row-1 {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+/* center & soften the main heading on the visualise page */
+#my-charts + h1,
+h1 {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-weight: 300;
+}
+
+/* make sure Plotly doesn’t default gray behind transparent .chart-box */
+.chart-box .svg-container {
+  background: transparent !important;
+}
+
+
+/* evenly‐spaced flex rows for your two chart rows and bottom row */
+#podcast-chart-row-1,
+#podcast-chart-row-2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+#top-five-section,
+#most-loved-section {
+  flex: 1;
+}
+
+/* make the podcast‐name text black so it pops on white */
+.top5-podcast-name {
+  color: #000;
+  font-weight: 600;
+}
+
+/* make each child of .top-row-graphs flex to fill the row,
+   allow it to shrink, and enforce a reasonable min‐height */
+.top-row-graphs > div {
+  flex: 1;          /* each pane gets equal width */
+  min-width: 0;     /* allow bars to shrink in a flex row */
+  min-height: 300px;/* force some height so Plotly can render */
+}
+
+
+/* ─── Dashboard panels ───────────────────────────────────────── */
+/* keep the big rounded plum wrapper */
+.charts-container {
+  background: white;            /* your original plum color */
+  border-radius: 1.5rem;
+  padding: 2rem;
+  margin: 2rem 0;
+}
+
+/* flex rows for both top and bottom */
+.chart-row {
+  display: flex;
+  gap: 2rem;                  /* even gutters */
+  margin-bottom: 2rem;
+}
+
+/* every card in those rows */
+.chart-row > div {
+  flex: 1;                    /* share the row equally */
+  background: whitesmoke;           /* crisp white card */
+  border-radius: 1rem;
+  padding: 1rem;              /* inner breathing room */
+  min-height: 300px;          /* give Plotly something to fill */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* tighten up your Plotly canvases so they fill the card */
+#horizontal-barchart,
+#listen-line-graph {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* make the Top-5 headings dark (instead of white on white) */
+#top-five-section h2,
+#top-five-section p {
+  color: #333 !important;
+}
+
+/* give that whole Top-5 card a little breathing room */
+#top-five-section {
+  background: rgba(255,255,255,0.9);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* style the “Most Loved” card to match */
+#most-loved-section {
+  background: rgba(255,255,255,0.9);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+/* ensure the Most Loved heading is dark */
+#most-loved-section h2 {
+  color: #333;
+  margin-top: 0;
+}
+
+/* tighten up the star row and text */
+#most-loved-section .star-rating {
+  margin: 1rem 0;
+}
+#most-loved-section .most-loved-text {
+  margin-bottom: 0;
+}
+
+/* 1) Turn the whole dashboard into a 2×2 grid */
+#my-charts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: minmax(250px, auto);
+  gap: 2rem;
+  /* optional padding inside the big white container */
+  padding: 2rem;
+}
+
+/* 2) Style each of the 4 panels exactly the same: */
+#horizontal-barchart,
+#listen-line-graph,
+#top-five-section,
+#most-loved-section {
+  background-color: whitesmoke;      /* match all panels */
+  border-radius: 1rem;               /* round corners */
+  padding: 1.5rem;                   /* inner breathing room */
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  height: 100%;                      /* stretch to full row height */
+}
+
+/* 3) If your charts have their own white plot_bgcolor, override that too */
+#horizontal-barchart .js-plotly-plot .plotly,
+#listen-line-graph .js-plotly-plot .plotly {
+  background: transparent !important;
+}
+
+/* 4) Tweak Title alignment so they sit nicely */
+#horizontal-barchart > .js-plotly-plot,
+#listen-line-graph > .js-plotly-plot {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ─── Dashboard container ───────────────────────────────── */
+#my-charts {
+  /* white “card” background */
+  background-color: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  /* stack two rows */
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ─── Each row of two panels ─────────────────────────────── */
+#podcast-chart-row-1,
+#podcast-chart-row-2 {
+  display: flex;
+  gap: 2rem;
+}
+
+/* ─── All four panels look the same ──────────────────────── */
+#podcast-chart-row-1 > div,
+#podcast-chart-row-2 > div {
+  flex: 1;                          /* equal width */
+  background-color: whitesmoke;     /* consistent card color */
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Make sure Plotly plots use transparent bg so the card shows through ─ */
+#horizontal-barchart .js-plotly-plot .plotly,
+#listen-line-graph .js-plotly-plot .plotly {
+  background: transparent !important;
+}
+
+/* ─── Force all four dashboard panels to match the height of the “Top 5” card ───────────────── */
+#podcast-chart-row-1 > div,
+#podcast-chart-row-2 > div {
+  flex: 1;
+  /* match this to whatever your Top 5 card actually measures.
+     I inspected yours at about 360px, but feel free to tweak. */
+  min-height: 360px;
+}
+
+/* ensure the chart never bleeds outside its white “card” */
+#horizontal-barchart, 
+#listen-line-graph {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
