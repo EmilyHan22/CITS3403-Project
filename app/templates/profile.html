@@ -32,8 +32,8 @@
             <div class="card h-100">
               <div class="card-body">
                 <h5 class="card-title">{{ log.podcast.name }}</h5>
-                <p class="card-text"><strong>Episode:</strong> {{ log.notes or '–' }}</p>
-                <p class="card-text"><strong>Platform:</strong> {{ log.tags or '–' }}</p>
+                <p class="card-text"><strong>Episode:</strong> {{ log.ep_name or '–' }}</p>
+                <p class="card-text"><strong>Platform:</strong> {{ log.platform or '–' }}</p>
                 <p class="card-text">
                   <strong>Duration:</strong>
                   {{ (log.duration // 60) if log.duration else '–' }} min
@@ -45,7 +45,12 @@
                   <p class="card-text"><strong>Rating:</strong> {{ log.rating }}/5</p>
                 {% endif %}
                 {% if is_owner %}
-                  <button class="btn btn-sm btn-outline-primary mt-2">Share</button>
+                <button
+                class="btn btn-sm btn-outline-primary mt-2 share-btn"
+                data-log-id="{{ log.id }}"
+              >
+                {% if log.shared %}Shared{% else %}Share{% endif %}
+              </button>
                 {% endif %}
               </div>
             </div>
@@ -58,3 +63,25 @@
   {% endif %}
 </div>
 {% endblock %}
+{% block scripts %}
+<script>
+  document.querySelectorAll('.share-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.logId;
+      fetch(`/share_podcast/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          btn.textContent = 'Shared';
+          btn.disabled = true;
+        }
+      })
+      .catch(console.error);
+    });
+  });
+</script>
+{% endblock %}
+  

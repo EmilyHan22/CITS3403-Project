@@ -131,5 +131,26 @@ class PodcastLog(db.Model):
     platform = db.Column(db.String(200))  # comma-separated tags
     genre = db.Column(db.String(64)) 
     
+
     # Relationship
     podcast = db.relationship('Podcast', backref='logs')
+    shared    = db.Column(db.Boolean, nullable=False, default=False)
+
+class Like(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('podcast_log.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'post_id', name='uq_user_post_like'),
+    )
+
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('podcast_log.id'), nullable=False)
+    text = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref='comments')

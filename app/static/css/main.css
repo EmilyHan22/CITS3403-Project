@@ -757,3 +757,12 @@ h1 {
      I inspected yours at about 360px, but feel free to tweak. */
   min-height: 360px;
 }
+
+/* ensure the chart never bleeds outside its white “card” */
+#horizontal-barchart, 
+#listen-line-graph {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
