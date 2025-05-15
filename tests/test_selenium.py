@@ -207,9 +207,16 @@ class SeleniumTestCase(unittest.TestCase):
 
         # User B logs in and accepts
         self.driver.get('http://localhost:5000/login')
-        self.driver.find_element(By.NAME, 'email').send_keys('friend@example.com')
-        self.driver.find_element(By.NAME, 'password').send_keys('pafdn@123')
-        self.driver.find_element(By.XPATH, '//button[@type="submit"]').click()
+        email_input = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.NAME, 'email'))
+        )
+        email_input.send_keys('friend@example.com')
+
+        password_input = self.driver.find_element(By.NAME, 'password')
+        password_input.send_keys('pafdn@123')
+
+        submit_button = self.driver.find_element(By.XPATH, '//button[@type="submit"]')
+        submit_button.click()
         WebDriverWait(self.driver, 10).until(EC.url_contains('/podcast-log'))
 
         # Accept the friend request
