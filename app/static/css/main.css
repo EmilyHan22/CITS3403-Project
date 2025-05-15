@@ -306,6 +306,16 @@ footer {
 	color: #ffffff;
 }
 
+.btn-google {
+	background-color: #fff;
+	color: #000;
+	border: 1px solid #ccc;
+	height: 42px;
+  }
+  .btn-google img {
+	margin-right: 8px;
+  }
+
 /* --- Responsive Adjustments --- */
 @media (max-width: 768px) {
 	.podcast-form {
@@ -421,3 +431,111 @@ footer {
 .most-loved-text {
   color: #333;
 }
+
+
+/* --- Fix landing, login, and signup centering issue on wider screens --- */
+@media (min-width: 768px) {
+	.landing-page {
+	  margin-left: 0 !important;
+	}
+}
+
+.autocomplete-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.autocomplete-item:hover {
+    background-color: #f8f9fa;
+}
+
+.autocomplete-item .podcast-thumb {
+    object-fit: cover;
+}
+
+.no-results {
+    color: #6c757d;
+    font-style: italic;
+}
+/* Custom success color for this box */
+.pw-req-box .text-success {
+	color: #20c997 !important;  /* a teal that pops on purple */
+  }
+  
+  /* Ensure the “✗” icons are grey by default */
+  .pw-req-box .fa-times {
+	color: #6c757d;  /* Bootstrap’s text-muted */
+  }
+/* ─── Password‐requirements popover ───────────────────────── */
+
+.pw-req-container {
+	position: relative;
+  }
+  
+  /* hidden by default, slightly scaled down */
+  .pw-req-box {
+	position: absolute;
+	top: 50%;
+	left: 100%;
+	transform: translate(0, -50%) scale(0.9);
+	transform-origin: left center;
+	background: #fff;
+	color: #333;
+	border-radius: 0.5rem;
+	box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+	padding: 1rem;
+	width: 260px;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.2s ease, transform 0.2s ease;
+	z-index: 10;
+  }
+  
+  /* little arrow */
+  .pw-req-box::before {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: -8px;
+	transform: translateY(-50%);
+	border-width: 8px;
+	border-style: solid;
+	border-color: transparent #fff transparent transparent;
+  }
+  
+  /* when “show” class is added, fade & scale in */
+  .pw-req-box.show {
+	opacity: 1;
+	visibility: visible;
+	transform: translate(0, -50%) scale(1);
+  }
+  
+  /* list styling */
+  .pw-req-box ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+  }
+  .pw-req-box li {
+	display: flex;
+	align-items: center;
+	font-size: 0.9rem;
+	margin-bottom: 0.5rem;
+  }
+  .pw-req-box li:last-child {
+	margin-bottom: 0;
+  }
+  .pw-req-box i {
+	margin-right: 0.5rem;
+  }
+
+  .forgot-link {
+	position: absolute;    /* ensure it’s in the same stacking context */
+	z-index: 2;            /* above the input (which is z-index: 1 by default) */
+	cursor: pointer;
+	transition: background-color 0.15s ease;
+  }
+  .forgot-link:hover {
+	background-color: #343a40 !important;  /* slightly lighter than pure black */
+  }

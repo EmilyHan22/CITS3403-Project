@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}{{ profile_user.display_name or profile_user.username }} – Podfolio{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex align-items-center mb-4">
+    <img
+      src="{{ url_for('static', filename='uploads/' ~ profile_user.profile_pic) }}"
+      alt="Avatar"
+      class="rounded-circle me-3"
+      style="width:80px; height:80px; object-fit:cover;"
+    >
+    <div>
+      <h2 class="mb-1">{{ profile_user.display_name or profile_user.username }}</h2>
+      <div>
+        <span class="badge bg-primary me-2">Followers: {{ followers_count }}</span>
+        <span class="badge bg-secondary">Following: {{ following_count }}</span>
+      </div>
+    </div>
+  </div>
+
+  {% if not (is_owner or is_friend) %}
+    <div class="alert alert-info">
+      🔒 Profile locked: to view {{ profile_user.username }}’s podcasts you need to be friends first.
+    </div>
+
+  {% else %}
+    {% if logs %}
+      <div class="row">
+        {% for log in logs %}
+          <div class="col-md-4 mb-4">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title">{{ log.podcast.name }}</h5>
+                <p class="card-text"><strong>Episode:</strong> {{ log.notes or '–' }}</p>
+                <p class="card-text"><strong>Platform:</strong> {{ log.tags or '–' }}</p>
+                <p class="card-text">
+                  <strong>Duration:</strong>
+                  {{ (log.duration // 60) if log.duration else '–' }} min
+                </p>
+                {% if log.podcast.genre %}
+                  <p class="card-text"><strong>Genre:</strong> {{ log.podcast.genre }}</p>
+                {% endif %}
+                {% if log.rating %}
+                  <p class="card-text"><strong>Rating:</strong> {{ log.rating }}/5</p>
+                {% endif %}
+                {% if is_owner %}
+                  <button class="btn btn-sm btn-outline-primary mt-2">Share</button>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-muted">This user hasn’t logged any podcasts yet.</p>
+    {% endif %}
+  {% endif %}
+</div>
+{% endblock %}
