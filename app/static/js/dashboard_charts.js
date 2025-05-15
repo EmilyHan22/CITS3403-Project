@@ -10,7 +10,7 @@ function genreBarChart(xArray, yArray) {
     const layout = {
         title: "Genre Breakdown",
         plot_bgcolor: 'rgba(255,255,255,0.3)',
-        paper_bgcolor: 'rgba(0,0,0,0)'
+        paper_bgcolor: 'transparent'
     };
     Plotly.newPlot("horizontal-barchart", genreData, layout);
 }
