@@ -64,22 +64,31 @@
 </div>
 {% endblock %}
 {% block scripts %}
+{{ super() }}
 <script>
+  // grab token from meta
+  const csrfToken = document.querySelector('meta[name=csrf-token]').content;
+
   document.querySelectorAll('.share-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.dataset.logId;
       fetch(`/share_podcast/${id}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken
+        }
       })
       .then(r => r.json())
       .then(data => {
         if (data.success) {
           btn.textContent = 'Shared';
           btn.disabled = true;
+        } else {
+          alert(data.message || 'Unable to share.');
         }
       })
-      .catch(console.error);
+      .catch(err => console.error(err));
     });
   });
 </script>

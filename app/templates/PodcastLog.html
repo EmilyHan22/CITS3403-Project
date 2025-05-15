@@ -13,6 +13,7 @@
 <!-- Form Centered -->
 <div class="form-container">
 	<form class="podcast-form" id="podcastLogForm">
+		<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
 		<div class="mb-3" style="position: relative;">
 			<label for="podcastName" class="form-label">Which Podcast did you listen to?</label>
@@ -102,6 +103,7 @@
 
 
 <script>
+	const csrfToken = document.querySelector('meta[name=csrf-token]').content;
 	document.addEventListener('DOMContentLoaded', function() {
 		const podcastInput = document.getElementById('podcastName');
 		const podcastIdInput = document.getElementById('selectedPodcastId');
@@ -194,6 +196,7 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+				'X-CSRFToken': csrfToken
             },
             body: JSON.stringify(formData)
         })

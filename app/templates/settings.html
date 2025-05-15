@@ -22,6 +22,7 @@
           <form method="POST"
                 action="{{ url_for('main.settings') }}"
                 enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
             <!-- Display Name -->
             <div class="mb-3">
@@ -114,6 +115,7 @@
                 method="POST"
                 action="{{ url_for('main.delete_account') }}"
                 style="display:none;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="mb-3">
               <label for="delete-confirm-input" class="form-label">
                 Type <strong>DELETE</strong> to confirm:

@@ -69,7 +69,9 @@ document.addEventListener('DOMContentLoaded', () => {
   
         fetch(`/api/posts/${postId}/comments`, {
           method: 'POST',
-          headers: {'Content-Type':'application/json'},
+          headers: {'Content-Type':'application/json',
+            'X-CSRFToken': csrfToken
+          },
           body: JSON.stringify({ text })
         })
         .then(r => r.json())
