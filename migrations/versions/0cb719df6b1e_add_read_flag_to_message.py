@@ -15,15 +15,14 @@ branch_labels = None
 depends_on = None
 
 def upgrade():
-    # 1) Add the new 'read' column, defaulting existing rows to False
-    op.add_column(
-        'message',
-        sa.Column('read', sa.Boolean(), nullable=False, server_default=sa.false())
-    )
-    # 2) Remove the server_default so new inserts use your Python‐side default
-    op.alter_column('message', 'read', server_default=None)
+    # Add the new 'read' column with default using batch mode for SQLite
+    with op.batch_alter_table('message', recreate="always") as batch_op:
+        batch_op.add_column(
+            sa.Column('read', sa.Boolean(), nullable=False, server_default=sa.false())
+        )
+        batch_op.alter_column('read', server_default=None)  # remove server default after adding
 
 
 def downgrade():
-    op.drop_column('message', 'read')
-
+    with op.batch_alter_table('message', recreate="always") as batch_op:
+        batch_op.drop_column('read')

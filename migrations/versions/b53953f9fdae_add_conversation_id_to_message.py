@@ -16,29 +16,21 @@ depends_on = None
 
 
 def upgrade():
-    # 1) add the new non-nullable column
-    op.add_column(
-        'message',
-        sa.Column('conversation_id', sa.Integer(), nullable=False)
-    )
-    # 2) name and create the FK constraint to conversation.id
-    op.create_foreign_key(
-        'fk_message_conversation',
-        'message', 'conversation',
-        ['conversation_id'], ['id']
-    )
-    # 3) drop the old recipient_id column
-    op.drop_column('message', 'recipient_id')
+    with op.batch_alter_table('message', recreate='always') as batch_op:
+        # Add the new column
+        batch_op.add_column(sa.Column('conversation_id', sa.Integer(), nullable=False))
+        # Create foreign key constraint
+        batch_op.create_foreign_key('fk_message_conversation', 'conversation', ['conversation_id'], ['id'])
+        # Drop the old column
+        batch_op.drop_column('recipient_id')
 
 
 def downgrade():
-    # 1) re-add the old column (as nullable so downgrade can run)
-    op.add_column(
-        'message',
-        sa.Column('recipient_id', sa.Integer(), nullable=True)
-    )
-    # 2) drop our new FK
-    op.drop_constraint('fk_message_conversation', 'message', type_='foreignkey')
-    # 3) drop the conversation_id column
-    op.drop_column('message', 'conversation_id')
+    with op.batch_alter_table('message', recreate='always') as batch_op:
+        # Re-add the old column as nullable
+        batch_op.add_column(sa.Column('recipient_id', sa.Integer(), nullable=True))
+        # Drop the new foreign key
+        batch_op.drop_constraint('fk_message_conversation', type_='foreignkey')
+        # Drop the conversation_id column
+        batch_op.drop_column('conversation_id')
 

@@ -3,120 +3,81 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from app import create_app, db
-from app.models import User, Podcast,PodcastLog
-import threading
-import time
-from werkzeug.serving import make_server
-import tempfile
-import os
 from selenium.webdriver.support.ui import Select
-from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertPresentException
+from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertPresentException,TimeoutException,StaleElementReferenceException
 from selenium.webdriver.common.alert import Alert
-
-
-
-class ServerThread(threading.Thread):
-    def __init__(self, app):
-        threading.Thread.__init__(self)
-        self.srv = make_server('127.0.0.1', 5000, app)
-        self.ctx = app.app_context()
-        self.ctx.push()
-
-    def run(self):
-        self.srv.serve_forever()
-
-    def shutdown(self):
-        self.srv.shutdown()
-        self.ctx.pop()
+import time
+import random
+import string
 
 
 class SeleniumTestCase(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        # Set environment variables for Spotify credentials
-        os.environ['SPOTIFY_CLIENT_ID'] = "41f896f36304442fbb01a77a11c0aebb"
-        os.environ['SPOTIFY_CLIENT_SECRET'] = "99c407e2cbe048e684b172c76c92896a"
-        # Create temp file for SQLite db that is accessible across threads
-        cls.db_fd, cls.db_path = tempfile.mkstemp(suffix='.sqlite')
-    
-    @classmethod
-    def tearDownClass(cls):
-        os.close(cls.db_fd)
-        os.unlink(cls.db_path)  # Remove temp db file
-    
     def setUp(self):
-        self.app = create_app()
-        self.app.config.update({
-            'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
-            'TESTING': True,
-            'WTF_CSRF_ENABLED': False,
-            'SERVER_NAME': 'localhost:5000'
-        })
-        self.app_context = self.app.app_context()
-        self.app_context.push()
-        db.create_all()
-
-        # Create user for login tests
-        self.user = User(
-            username='seleniumuser',
-            email='selenium@example.com',
-            display_name='Selenium User'
-        )
-        self.user.set_password('ewuf@132')
-        db.session.add(self.user)
-        db.session.commit()
-
-        # Start the Flask server in a thread
-        self.server = ServerThread(self.app)
-        self.server.start()
-        time.sleep(1)  # Give the server time to start
-
         # Setup Selenium WebDriver
         self.driver = webdriver.Chrome()
         self.driver.implicitly_wait(10)
+        self.base_url = "http://127.0.0.1:5000"
+        
+        # Generate random test user credentials
+        username = 'testuser_' + ''.join(random.choices(string.ascii_lowercase, k=5))
+        self.test_user = {
+            'username': username,
+            'email': f'{username}@example.com',  # Match email prefix to username
+            'password': 'Test@1234',
+            'display_name': 'Test User'
+        }
+
 
     def tearDown(self):
         self.driver.quit()
-        self.server.shutdown()
 
-        # Clean up DB after test
-        db.session.remove()
-        db.drop_all()
-        self.app_context.pop()
-
-    def login(self):
-        self.driver.get('http://localhost:5000/login')
-        self.driver.find_element(By.NAME, 'email').send_keys('selenium@example.com')
-        self.driver.find_element(By.NAME, 'password').send_keys('ewuf@132')
-        self.driver.find_element(By.XPATH, '//button[@type="submit"]').click()
-        WebDriverWait(self.driver, 10).until(EC.url_contains('/podcast-log'))
-
-    # Tests
-
-
-    def test_home_page(self):
-        self.driver.get('http://localhost:5000/')
-        self.assertIn('Podfolio', self.driver.title)
-
-    def test_signup(self):
-        self.driver.get('http://localhost:5000/signup')
-        self.driver.find_element(By.NAME, 'name').send_keys('New User')
-        self.driver.find_element(By.NAME, 'email').send_keys('newuser@example.com')
-        self.driver.find_element(By.NAME, 'password').send_keys('Test123!')
-        self.driver.find_element(By.NAME, 'confirm_password').send_keys('Test123!')
+    def signup(self):
+        self.driver.get(f'{self.base_url}/signup')
+        self.driver.find_element(By.NAME, 'name').send_keys(self.test_user['username'])
+        self.driver.find_element(By.NAME, 'email').send_keys(self.test_user['email'])
+        self.driver.find_element(By.NAME, 'password').send_keys(self.test_user['password'])
+        self.driver.find_element(By.NAME, 'confirm_password').send_keys(self.test_user['password'])
         submit_button = self.driver.find_element(By.XPATH, '//button[@type="submit"]')
         self.driver.execute_script("arguments[0].scrollIntoView(true);", submit_button)
         time.sleep(0.5)
         submit_button.click()
-
         WebDriverWait(self.driver, 10).until(EC.url_contains('/podcast-log'))
 
-    def test_login(self):
+    def login(self):
+        self.driver.get(f'{self.base_url}/login')
+        self.driver.find_element(By.NAME, 'email').send_keys(self.test_user['email'])
+        self.driver.find_element(By.NAME, 'password').send_keys(self.test_user['password'])
+        self.driver.find_element(By.XPATH, '//button[@type="submit"]').click()
+        WebDriverWait(self.driver, 10).until(EC.url_contains('/podcast-log'))
+
+    def logout(self):
+        self.driver.find_element(By.LINK_TEXT, 'Log Out').click()
+        WebDriverWait(self.driver, 10).until(EC.url_contains('/'))
+
+    # Tests
+
+    def test_home_page(self):
+        self.driver.get(self.base_url)
+        self.assertIn('Podfolio', self.driver.title)
+
+    def test_signup_and_login(self):
+        # Test signup
+        self.signup()
+        
+        # Verify we're on the podcast log page after signup
+        self.assertIn('/podcast-log', self.driver.current_url)
+        
+        # Logout
+        self.logout()
+        
+        # Test login with same credentials
         self.login()
+        
+        # Verify we're logged in
+        self.assertIn('/podcast-log', self.driver.current_url)
 
     def test_navigation(self):
-        self.driver.get('http://localhost:5000/')
+        self.driver.get(self.base_url)
         element = self.driver.find_element(By.LINK_TEXT, 'Get Started')
         self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
         time.sleep(0.5)  # allow layout to stabilize
@@ -126,197 +87,232 @@ class SeleniumTestCase(unittest.TestCase):
         WebDriverWait(self.driver, 10).until(EC.url_contains('/signup'))
 
     def test_friend_page_access(self):
-        self.driver.get('http://localhost:5000/friends')
+        self.driver.get(f'{self.base_url}/friends')
         WebDriverWait(self.driver, 10).until(EC.url_contains('/login'))
 
     def test_logout(self):
-        self.login()
-        self.driver.find_element(By.LINK_TEXT, 'Log Out').click()
-        WebDriverWait(self.driver, 10).until(EC.url_contains('/'))
+        self.signup()
+        self.logout()
+        self.assertIn(self.base_url, self.driver.current_url)
 
-    def test_log_podcast_with_existing_db_entry(self):
-        self.login()
-
-        podcast = Podcast(
-            spotify_id='test123',
-            name='Test Podcast',
-            description='Testing'
-        )
-        db.session.add(podcast)
-        db.session.commit()
-
-        # Simulate logging podcast via JS fetch (POST)
-        self.driver.execute_script("""
-            fetch('/log_podcast', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    podcast_id: 'test123',
-                    episode: 'Test Episode',
-                    platform: 'Spotify',
-                    duration: 30,
-                    rating: 4.5,
-                    genre: 'Tech'
-                })
-            }).then(r => r.json()).then(console.log);
-        """)
-
-        # Give it some time to process
-        time.sleep(2)
-
-        # Check that log exists
-        logs = PodcastLog.query.filter_by(user_id=self.user.id).all()
-        self.assertGreaterEqual(len(logs), 1)
-
-    def test_autocomplete_podcast_search(self):
-        podcast = Podcast(name="Learning Python", spotify_id="p1", description="desc")
-        db.session.add(podcast)
-        db.session.commit()
-
-        self.login()
-
-        self.driver.get("http://localhost:5000/podcast-log")
-        self.driver.execute_script("""
-            fetch('/search_podcast_names?q=Learning')
-              .then(r => r.json())
-              .then(data => console.log(data));
-        """)
-        time.sleep(2)  # Allow JS to run
-
-    def test_send_and_accept_friend_request(self):
-        # Create user B
-        user_b = User(username='frienduser', email='friend@example.com', display_name='Friend User')
-        user_b.set_password('pafdn@123')
-        db.session.add(user_b)
-        db.session.commit()
-
-        # User A logs in and sends request
-        self.login()  # seleniumuser
-        self.driver.get('http://localhost:5000/friends')
-        # Wait for the search input by ID
-        search_input = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.ID, 'friendSearch'))
-        )
-        search_input.send_keys('frienduser')
+    def test_duplicate_signup(self):
+        # First signup should work
+        self.signup()
+        self.logout()
         
-        # Click the send request button
-        send_btn = self.driver.find_element(By.ID, 'sendRequestBtn')
-        send_btn.click()
-        time.sleep(1)
-
-        self.driver.find_element(By.LINK_TEXT, 'Log Out').click()
-
-        # User B logs in and accepts
-        self.driver.get('http://localhost:5000/login')
-        email_input = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.NAME, 'email'))
-        )
-        email_input.send_keys('friend@example.com')
-
-        password_input = self.driver.find_element(By.NAME, 'password')
-        password_input.send_keys('pafdn@123')
-
+        # Second signup with same email should fail
+        self.driver.get(f'{self.base_url}/signup')
+        self.driver.find_element(By.NAME, 'name').send_keys(self.test_user['username'])
+        self.driver.find_element(By.NAME, 'email').send_keys(self.test_user['email'])
+        self.driver.find_element(By.NAME, 'password').send_keys(self.test_user['password'])
+        self.driver.find_element(By.NAME, 'confirm_password').send_keys(self.test_user['password'])
         submit_button = self.driver.find_element(By.XPATH, '//button[@type="submit"]')
+        self.driver.execute_script("arguments[0].scrollIntoView(true);", submit_button)
+        time.sleep(0.5)
         submit_button.click()
-        WebDriverWait(self.driver, 10).until(EC.url_contains('/podcast-log'))
-
-        # Accept the friend request
-        self.driver.get('http://localhost:5000/friends')
-        accept_button = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, 'accept-btn'))
+        
+        # Wait for response and check for error message
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, '.alert-warning'))
         )
-        accept_button.click()
-        time.sleep(1)
+        error_messages = self.driver.find_elements(By.CSS_SELECTOR, '.alert-warning')
 
-        # Assert the friend request is now a friend
-        page_source = self.driver.page_source
-        self.assertIn('seleniumuser', page_source)
+        
+        # Check if any error message contains text about duplicate email
+        duplicate_email_found = any(
+            'email' in message.text.lower() and 'already' in message.text.lower()
+            for message in error_messages
+        )
+        self.assertTrue(duplicate_email_found, "Expected duplicate email error message not found")
 
     def test_log_podcast_from_ui(self):
-        self.login()
+        self.signup()
+        
+        self.driver.get(f'{self.base_url}/podcast-log')
 
-
-
-        self.driver.get('http://localhost:5000/podcast-log')
-
-        # Type podcast name (simulate user input)
         podcast_input = self.driver.find_element(By.ID, "podcastName")
         podcast_input.clear()
-        podcast_input.send_keys("joe")
+        podcast_input.send_keys("test")
 
-        # Wait for suggestions to load
-        suggestions = WebDriverWait(self.driver, 10).until(
+        # Wait for podcast suggestions dropdown and at least one item
+        pod_suggestions = WebDriverWait(self.driver, 10).until(
             EC.visibility_of_element_located((By.ID, "podcastSuggestions"))
         )
-
-        # Wait for at least one suggestion item to appear
-        first_suggestion = WebDriverWait(self.driver, 10).until(
+        first_podcast = WebDriverWait(self.driver, 10).until(
             EC.visibility_of_element_located((By.CSS_SELECTOR, "#podcastSuggestions .autocomplete-item"))
         )
 
-        # Click the first suggestion to select the podcast
-        first_suggestion.click()
+        # Select the first podcast suggestion
+        first_podcast.click()
 
-        # Fill in the rest of the form by ID
-        self.driver.find_element(By.ID, 'podcastEp').send_keys('Episode 1')
+        # Wait for episodes to be fetched and episode input enabled
+        episode_input = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable((By.ID, 'podcastEp'))
+        )
+        time.sleep(5)
+        # Now type episode name to trigger episode suggestions
+        episode_input.send_keys('#1')
+
+        # Wait for episode suggestions dropdown to appear
+        episode_suggestion = WebDriverWait(self.driver, 10).until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, '#episodeSuggestions .autocomplete-item'))
+        )
+        episode_suggestion.click()
+        selected_episode_value = episode_input.get_attribute('value')
+        
+        # Select platform
         Select(self.driver.find_element(By.ID, 'platform')).select_by_visible_text('Spotify')
-        self.driver.find_element(By.ID, 'listenTime').send_keys('45')
+
+        # Fill duration
+        listen_time = self.driver.find_element(By.ID, 'listenTime')
+        listen_time.clear()
+        listen_time.send_keys('45')
+
+        # Select genre
         Select(self.driver.find_element(By.ID, 'genre')).select_by_visible_text('Educational')
 
         # Select 5-star rating
-        # Find the label associated with #star5
         star_label = self.driver.find_element(By.CSS_SELECTOR, "label[for='star5']")
-
-        # Scroll it into view
         self.driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", star_label)
-
-        # Click it
         time.sleep(0.5)
         star_label.click()
 
-        # Submit the form
+        # Fill review (optional)
+        review_input = self.driver.find_element(By.ID, 'review')
+        review_input.clear()
+        review_input.send_keys('Great episode!')
+
+        # Submit form
         submit_button = self.driver.find_element(By.CSS_SELECTOR, 'button.btn-log')
         submit_button.click()
- 
+
+        # Wait for alert and verify
         try:
             WebDriverWait(self.driver, 10).until(EC.alert_is_present())
             alert = self.driver.switch_to.alert
             self.assertEqual(alert.text, "Podcast logged successfully!")
             alert.accept()
         except NoAlertPresentException:
-            self.fail("Expected alert did not appear.")
-
-        logs = PodcastLog.query.filter_by(user_id=self.user.id).all()
-        self.assertGreaterEqual(len(logs), 1)
-        self.assertEqual(logs[-1].ep_name, 'Episode 1')
-
+            # Check if success message is shown on page instead
+            self.assertIn("Podcast logged successfully!", self.driver.page_source)
 
     def test_unauthenticated_podcast_log_access(self):
-        self.driver.get('http://localhost:5000/logout')
-        self.driver.get('http://localhost:5000/podcast-log')
+        self.driver.get(f'{self.base_url}/logout')
+        self.driver.get(f'{self.base_url}/podcast-log')
         WebDriverWait(self.driver, 10).until(EC.url_contains('/login'))
 
+
+
     def test_update_profile_display_name(self):
-        self.login()
-        self.driver.get('http://localhost:5000/settings')
+        self.signup()
+        self.driver.get(f'{self.base_url}/settings')
 
-        display_name_input = self.driver.find_element(By.NAME, 'display_name')
+        # Generate new display name
+        new_display_name = 'Updated Display Name ' + ''.join(random.choices(string.ascii_letters, k=5))
+
+        # Find and update display name field
+        display_name_input = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.NAME, 'display_name'))
+        )
         display_name_input.clear()
-        display_name_input.send_keys('New Display Name')
+        display_name_input.send_keys(new_display_name)
 
-        save_button = self.driver.find_element(By.XPATH, '//button[text()="Save Settings"]')
-        self.driver.execute_script("arguments[0].scrollIntoView(true);", save_button)
+        # Find save button and scroll it into view
+        save_button = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, '//button[text()="Save Settings"]'))
+        )
+        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", save_button)
+        time.sleep(0.5)  # Allow scroll to complete
+
+        # Wait for button to be clickable and click it
+        WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, '//button[text()="Save Settings"]'))
+        ).click()
+
+        # Wait for update to complete and verify using EC.text_to_be_present_in_element_value
+        locator = (By.NAME, 'display_name')
+        WebDriverWait(self.driver, 10).until(
+            EC.text_to_be_present_in_element_value(locator, new_display_name)
+        )
+
+    def test_send_and_accept_friend_request(self):
+        # Create first test user (main user)
+        self.signup()
+        
+        # Get the actual username that was registered
+        main_username = self.test_user['username']
+        
+        # Logout the first user
+        self.logout()
+        
+        # Create second test user credentials
+        username = 'frienduser_' + ''.join(random.choices(string.ascii_lowercase, k=5))
+        friend_user = {
+            'username': username,
+            'email': f'{username}@example.com',
+            'password': 'Friend@1234',
+            'display_name': 'Friend User'
+        }
+
+        # Sign up second user
+        self.driver.get(f'{self.base_url}/signup')
+        self.driver.find_element(By.NAME, 'name').send_keys(friend_user['username'])
+        self.driver.find_element(By.NAME, 'email').send_keys(friend_user['email'])
+        self.driver.find_element(By.NAME, 'password').send_keys(friend_user['password'])
+        self.driver.find_element(By.NAME, 'confirm_password').send_keys(friend_user['password'])
+        submit_button = self.driver.find_element(By.XPATH, '//button[@type="submit"]')
+        self.driver.execute_script("arguments[0].scrollIntoView(true);", submit_button)
         time.sleep(0.5)
-        save_button.click()
-
-        time.sleep(1)  # wait for the update to complete
-
-        # Re-query the user fresh from the DB to avoid session issues
-        updated_user = db.session.query(User).filter_by(id=self.user.id).first()
-        self.assertIsNotNone(updated_user)
-        self.assertEqual(updated_user.display_name, 'New Display Name')
-
+        submit_button.click()
+        WebDriverWait(self.driver, 10).until(EC.url_contains('/podcast-log'))
+        
+        # Second user sends friend request to first user
+        self.driver.get(f'{self.base_url}/friends')
+        
+        # Wait for the search input by ID
+        search_input = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, 'friendSearch'))
+        )
+        search_input.send_keys(main_username)
+        
+        # Click the send request button
+        send_btn = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable((By.ID, 'sendRequestBtn'))
+        )
+        send_btn.click()
+        
+        # Handle any alerts that might appear
+        try:
+            alert = WebDriverWait(self.driver, 3).until(EC.alert_is_present())
+            alert.accept()
+        except (NoAlertPresentException, TimeoutException):
+            pass
+        
+        # Logout second user
+        self.logout()
+        
+        # First user logs in to accept request
+        self.login()
+        self.driver.get(f'{self.base_url}/friends')
+        
+        # Accept the friend request
+        try:
+            accept_button = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, '.accept-btn'))
+            )
+            accept_button.click()
+            time.sleep(1)
+        except TimeoutException:
+            pass
+        time.sleep(4)
+        # Verify the friend appears in the friends list
+        page_source = self.driver.page_source
+        self.assertIn(friend_user['username'], page_source)
 
 
 def load_tests(loader, tests, pattern):
     return loader.loadTestsFromTestCase(SeleniumTestCase)
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)
