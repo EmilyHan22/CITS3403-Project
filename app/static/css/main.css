@@ -5,16 +5,17 @@
 	box-sizing: border-box;
 }
 
+/* --- Responsive Utility Overrides --- */
+img, video, .card-img-top, .podcast-thumb {
+  max-width: 100%;
+  height: auto;
+}
+
 /* --- Global body style --- */
 body {
 	font-family: 'Poppins', Arial, sans-serif;
-
-	/* remove if using animated bg*/
-	/*background: radial-gradient(circle at center, #360068 0%, #6814b7 40%, #b077e5 75%, #e0c2ef 100%);*/
-
 	color: #ffffff;
-	padding-top: 56px;
-	/* Space for mobile nav */
+	padding-top: 56px; /* Space for mobile nav */
 	animation: gradientMove 15s ease infinite;
 }
 
@@ -49,14 +50,12 @@ header {
 	padding: 10px 20px;
 }
 
-
+/* --- Links --- */
 a {
 	color: inherit;
 }
-
 a:hover {
 	color: #B274EC;
-	/* Optional: nice hover color */
 }
 
 /* --- Navbar links --- */
@@ -65,7 +64,6 @@ nav a {
 	margin-right: 15px;
 	text-decoration: none;
 }
-
 nav a:hover {
 	text-decoration: underline;
 }
@@ -89,7 +87,6 @@ nav a:hover {
 	background-color: #09012a;
 	min-height: calc(100vh - 56px);
 	display: none;
-	/* hidden on mobile */
 }
 
 /* --- Logo Styling --- */
@@ -99,7 +96,6 @@ nav a:hover {
 	color: white;
 	text-decoration: none;
 }
-
 .logo-img {
 	width: 32px;
 	height: 32px;
@@ -111,36 +107,21 @@ nav a:hover {
 	justify-content: center;
 }
 
+/* --- Card & List Overrides --- */
 .card {
-	background-color: #892AE0 !important;
+	background-color: #171718 !important;
 	border: none;
 	color: #ffffff;
 }
-
 .card-header {
 	background-color: transparent !important;
 	border-bottom: none;
 	color: #ffffff;
 }
-
 .list-group-item {
 	background-color: transparent;
 	border: none;
 	color: #ffffff;
-}
-
-
-/* --- Lists (user lists, friends lists) --- */
-.user-list,
-.friends-list {
-
-	max-height: 300px;
-	overflow-y: auto;
-}
-
-.main-screen {
-	min-height: 300px;
-	background-color: #8A2BE2;
 }
 
 /* --- Custom scrollbar for lists --- */
@@ -148,7 +129,6 @@ nav a:hover {
 .friends-list::-webkit-scrollbar {
 	width: 8px;
 }
-
 .user-list::-webkit-scrollbar-thumb,
 .friends-list::-webkit-scrollbar-thumb {
 	background-color: #9B9CF2;
@@ -160,38 +140,13 @@ nav a:hover {
 	cursor: pointer;
 	transition: background-color 0.2s;
 }
-
 .friend-item:hover {
 	background-color: #f8f9fa;
 }
 
-/* --- Main Content Area (for pages) --- */
+/* --- Main Content Area --- */
 main {
 	margin: 20px 0;
-}
-
-/* --- Desktop Specific Styles --- */
-@media (min-width: 768px) {
-	body {
-		padding-top: 0;
-	}
-
-	.mobile-nav {
-		display: none;
-	}
-
-	.desktop-nav {
-		display: block;
-		position: fixed;
-		width: 250px;
-		top: 0;
-		bottom: 0;
-		left: 0;
-	}
-
-	main {
-		margin-left: 250px;
-	}
 }
 
 /* --- Footer --- */
@@ -205,596 +160,198 @@ footer {
   bottom: 0px;
   width: 100%;
   z-index: 20;
-
 }
 
 @keyframes gradientMove {
-	0% {
-		background-position: 0% 50%;
-	}
-
-	50% {
-		background-position: 100% 50%;
-	}
-
-	100% {
-		background-position: 0% 50%;
-	}
+	0% { background-position: 0% 50%; }
+	50% { background-position: 100% 50%; }
+	100% { background-position: 0% 50%; }
 }
-
 
 /* --- Logger Page Style --- */
-/* --- Greeting Section --- */
-.greeting {
-	text-align: center;
-	margin-top: 2rem;
-}
-
-.greeting h1 {
-	font-size: 2.5rem;
-	font-weight: bold;
-}
-
-.greeting p {
-	font-size: 1.1rem;
-	font-weight: 500;
-}
-
-/* --- Podcast Log Form Section --- */
-.form-container {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	min-height: 70vh;
-	padding: 20px;
-}
-
-.podcast-form {
-	width: 100%;
-	max-width: 600px;
-	padding: 2rem;
-	background-color: #dbb9ee;
-	border-radius: 10px;
-	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-	z-index: 2;
-}
-
-/* --- Form Label Text --- */
-.form-label {
-	color: #000000;
-	font-weight: 600;
-	font-size: 1.1rem;
-}
+.greeting { text-align: center; margin-top: 2rem; }
+.greeting h1 { font-size: 2.5rem; font-weight: bold; }
+.greeting p { font-size: 1.1rem; font-weight: 500; }
+.form-container { display: flex; justify-content: center; align-items: center; min-height: 70vh; padding: 20px; }
+.podcast-form { width: 100%; max-width: 600px; padding: 2rem; background-color: #dbb9ee; border-radius: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); z-index: 2; }
+.form-label { color: #000000; font-weight: 600; font-size: 1.1rem; }
 
 /* --- Star Rating --- */
-.star-rating {
-	direction: rtl;
-	font-size: 2rem;
-	unicode-bidi: bidi-override;
-	display: inline-flex;
-}
-
-.star-rating input {
-	display: none;
-}
-
-.star-rating label {
-	color: #ccc;
-	cursor: pointer;
-	text-shadow: 0 0 1px black, 0 0 1px black, 0 0 1px black;
-}
-
-.star-rating input:checked~label,
+.star-rating { direction: rtl; font-size: 2rem; unicode-bidi: bidi-override; display: inline-flex; }
+.star-rating input { display: none; }
+.star-rating label { color: #ccc; cursor: pointer; text-shadow: 0 0 1px black; }
+.star-rating input:checked ~ label,
 .star-rating label:hover,
-.star-rating label:hover~label {
-	color: gold;
-}
+.star-rating label:hover ~ label { color: gold; }
 
-.btn-log {
-	background-color: #09012a;
-	color: #ffffff;
-	border: none;
-	font-weight: 600;
-	padding: 10px 20px;
-	border-radius: 6px;
-	transition: background-color 0.3s ease;
-}
+.btn-log { background-color: #e80a0a; color: #ffffff; border: none; font-weight: 600; padding: 10px 20px; border-radius: 6px; transition: background-color 0.3s ease; }
+.btn-log:hover { background-color: #1a153b; }
 
-.btn-log:hover {
-	background-color: #1a153b;
-	/* slightly lighter on hover */
-	color: #ffffff;
-}
-
-.btn-google {
-	background-color: #fff;
-	color: #000;
-	border: 1px solid #ccc;
-	height: 42px;
-  }
-  .btn-google img {
-	margin-right: 8px;
-  }
+.btn-google { background-color: #fff; color: #000; border: 1px solid #ccc; height: 42px; }
+.btn-google img { margin-right: 8px; }
 
 /* --- Responsive Adjustments --- */
 @media (max-width: 768px) {
-	.podcast-form {
-		padding: 1.5rem;
-	}
-
-	/* make the page a column flex container */
-	html,
-	body {
-		height: 100%;
-	}
-
-	body {
-		display: flex;
-		flex-direction: column;
-	}
-
-	/* let <main> grow to fill the available space */
-	main {
-		flex: 1 0 auto;
-	}
-
-	/* override your fixed 40px top-margin and pin footer to bottom */
-	footer {
-		margin-top: auto;
-	}
-
-	.landing-page {
-		margin-left: 0px !important;
-	}
+	.podcast-form { padding: 1.5rem; }
+	html, body { height: 100%; }
+	body { display: flex; flex-direction: column; }
+	main { flex: 1 0 auto; }
+	footer { margin-top: auto; }
+	.landing-page { margin-left: 0px !important; }
 }
 
-/* For visualising the top row graphs */
-.top-row-graphs {
-  margin: auto;
-}
+/* --- Password Requirements Popover --- */
+.pw-req-container { position: relative; }
+.pw-req-box { position: absolute; top: 50%; left: 100%; transform: translate(0, -50%) scale(0.9); transform-origin: left center; background: #fff; color: #333; border-radius: 0.5rem; box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15); padding: 1rem; width: 260px; opacity: 0; visibility: hidden; transition: opacity 0.2s ease, transform 0.2s ease; z-index: 10; }
+.pw-req-box::before { content: ""; position: absolute; top: 50%; left: -8px; transform: translateY(-50%); border-width: 8px; border-style: solid; border-color: transparent #fff transparent transparent; }
+.pw-req-box.show { opacity: 1; visibility: visible; transform: translate(0, -50%) scale(1); }
+.pw-req-box ul { margin: 0; padding: 0; list-style: none; }
+.pw-req-box li { display: flex; align-items: center; font-size: 0.9rem; margin-bottom: 0.5rem; }
+.pw-req-box li:last-child { margin-bottom: 0; }
+.pw-req-box i { margin-right: 0.5rem; }
 
+.forgot-link { position: absolute; z-index: 2; cursor: pointer; transition: background-color 0.15s ease; }
+.forgot-link:hover { background-color: #343a40 !important; }
 
-.top5-titles-group {
-  color: #333;
-  margin-bottom: 15px;
-  text-align: center;
-}
+/* --- Dashboard Charts & Panels --- */
+.chart-box { background: rgba(255,255,255,0.2); border-radius: 1.5rem; padding: 1rem; flex: 1; max-width: 450px; margin: 0 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+#podcast-chart-row-1, #podcast-chart-row-2 { display: flex; gap: 2rem; justify-content: center; max-width: 1200px; margin: 0 auto 2rem; }
+h1 { text-align: center; margin-bottom: 1rem; font-weight: 300; }
+#horizontal-barchart, #listen-line-graph, #top-five-section, #most-loved-section { background-color: whitesmoke; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 4px 16px rgba(0,0,0,0.15); height: 100%; }
+.top5-list { list-style: none; margin: 0; padding: 0; }
+.top5-list-item { display: flex; align-items: center; justify-content: space-between; background: white; margin: 0.5rem 0; padding: 0.75rem 1rem; border-radius: 1rem; }
+.top5-rank { font-weight: bold; color: #007bff; margin-right: 1rem; }
+.top5-podcast-name { color: #000; font-weight: 600; flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space:nowrap; } 
+.top5-duration { background-color: #6c757d; border-radius: 1rem; padding: 0.25rem 0.75rem; color: #fff; }
+.most-loved-title, .most-loved-text { color: #333; text-align: center; }
+.most-loved-text { margin: 0.5rem 0; }
+.star { display: inline-block; font-size: 1.5rem; }
+.star.filled { color: #F4C542; }
+.star { color: #ccc; }
+/* ─── Dashboard 2×2 Grid ───────────────────────────── */
+#my-charts {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	grid-auto-rows: minmax(250px, auto);
+	gap: 2rem;
+	/* center inside the main “container-fluid” which already sits right of the sidebar */
+	/* margin: 2rem auto;     */
+	max-width: 1200px;
+	background: white;
+	border-radius: 1rem;
+	padding: 2rem;
+  }
+  
+  /* make Plotly fill each cell */
+  #horizontal-barchart .js-plotly-plot,
+  #listen-line-graph  .js-plotly-plot {
+	width: 100% !important;
+	height: 100% !important;
+	background: transparent !important;
+  }
 
+/* --- Chat List Styling --- */
+.chat-item { list-style: none; }
+.chat-link { display: flex; align-items: center; padding: 0.75rem 1rem; background-color: #fff; border: 2px solid rgba(0,0,0,0.08); border-radius: 0.5rem; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
+.chat-link:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-color: rgba(0,0,0,0.2); }
+.chat-link img { flex-shrink: 0; border-radius: 50%; }
 
-.top5-podcast-arrow {
-  text-align: right;
-}
+/* --- Utility Classes --- */
+.autocomplete-item { padding: 8px 12px; cursor: pointer; transition: background-color 0.2s; }
+.autocomplete-item:hover { background-color: #f8f9fa; }
+.no-results { color: #6c757d; font-style: italic; }
 
-
-.list-div {
-  justify-content: space-between;
-  background: white;
-  color: black;
-  margin: 10px 0;
-  padding: 15px 20px;
-  border-radius: 30px;
-  display: flex;
-  align-items: center;
-}
-
-
- .top5-list-item {
-  justify-content: space-between;
-  align-items: center;
-} 
-
-.list-div::before {
-  content: counter(rank) ".";
-  font-weight: bold;
-  margin-right: 15px;
-  font-size: 1.2rem;
-}
-
-.top5-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-#top-5-podcasts{
-  margin: 5px auto;
-}
-
-#most-loved {
-  background-color: whitesmoke;
-  border-radius: 50px;
-  padding: 30px;
-  /* margin: 40px auto; */
-  text-align: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  max-width: 40%;
-  margin: 5px auto;
-  max-height: 50%;
-}
-
-.star {
-  display: inline-block;
-}
-
-.star.filled {
-  color: #F4C542;
-}
-
-.star{
-  color: #ccc; /* empty star color */
-}
-
-.most-loved-title {
-  color: #333;
-}
-
-.most-loved-text {
-  color: #333;
-}
-
-
-/* --- Fix landing, login, and signup centering issue on wider screens --- */
+/* ─── Undo sidebar shift on public (landing) pages ───────────────── */
 @media (min-width: 768px) {
 	.landing-page {
 	  margin-left: 0 !important;
+	  padding: 0 1rem; /* optional: add a little side padding */
+	}
+	.desktop-nav {
+		display: flex !important;
+		flex-direction: column;
+		gap: 0.5rem; /* tweak this value to taste */
+	  }
+  }
+/* ─── UP TO TABLET (0–991.98px) ────────────────────────────── */
+@media (max-width: 991.98px) {
+	/* show the mobile top bar for both public & authed */
+	.mobile-nav { display: flex !important; }
+	/* hide both the sidebar and the public desktop bar */
+	/* .desktop-nav, .public-nav { display: none !important; } */
+  
+	/* push content below the fixed mobile bar */
+	main {
+	  margin-top: 56px !important;
+	  margin-left: 0 !important;
+	}
+  }
+  
+  /* ─── DESKTOP (992px+) ─────────────────────────────────────── */
+  @media (min-width: 992px) {
+	/* hide the mobile bar */
+	.mobile-nav { display: none !important; }
+	/* show your real sidebar */
+	.desktop-nav { 
+	  display: block !important;
+	  position: fixed;
+	  top: 0; bottom: 0; left: 0;
+	  width: 250px;
+	  z-index: 1000;
+	}
+	/* hide the public “desktop” navbar on large screens */
+	/* .public-nav { display: none !important; } */
+  
+	main {
+	  margin-top: 0 !important;
+	  margin-left: 250px !important;
+	}
+  }
+  @media screen and (min-width: 768px) {
+    .top-nav-public {
+	 top: -55px;
+  }
+}
+
+@media screen and (max-width: 767px) {
+	#my-charts {
+		/* display: block!important; */
+		grid-template-columns: 1fr;
+        padding: 1rem;
+        gap: 1rem;
+	}
+	.chart-box {
+		/*margin: 0 0rem;*/
+		padding: 0rem;
+		color: #000000;
+		margin: 0px 10px;
+		padding: 0rem;
+        margin: 0px 4px 6px 0px;
+        text-align: center;
+	}
+	#horizontal-barchart, #listen-line-graph, #top-five-section, #most-loved-section {
+		padding: 0rem;
+	}
+	.settings-row{
+		height: 100%;
+		overflow: scroll;
 	}
 }
-
-.autocomplete-item {
-    padding: 8px 12px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.autocomplete-item:hover {
-    background-color: #f8f9fa;
-}
-
-.autocomplete-item .podcast-thumb {
-    object-fit: cover;
-}
-
-.no-results {
-    color: #6c757d;
-    font-style: italic;
-}
-/* Custom success color for this box */
-.pw-req-box .text-success {
-	color: #20c997 !important;  /* a teal that pops on purple */
-  }
   
-  /* Ensure the “✗” icons are grey by default */
-  .pw-req-box .fa-times {
-	color: #6c757d;  /* Bootstrap’s text-muted */
-  }
-/* ─── Password‐requirements popover ───────────────────────── */
 
-.pw-req-container {
-	position: relative;
-  }
+.like-btn, .comment-btn {
+  color: #ffffff;
+}
+.text-muted{
+	color: #ffffff !important;
+}
+
+
+.form-label {
+    color: #f8f9fa;
+    font-weight: 600;
+}
+
+
   
-  /* hidden by default, slightly scaled down */
-  .pw-req-box {
-	position: absolute;
-	top: 50%;
-	left: 100%;
-	transform: translate(0, -50%) scale(0.9);
-	transform-origin: left center;
-	background: #fff;
-	color: #333;
-	border-radius: 0.5rem;
-	box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
-	padding: 1rem;
-	width: 260px;
-	opacity: 0;
-	visibility: hidden;
-	transition: opacity 0.2s ease, transform 0.2s ease;
-	z-index: 10;
-  }
-  
-  /* little arrow */
-  .pw-req-box::before {
-	content: "";
-	position: absolute;
-	top: 50%;
-	left: -8px;
-	transform: translateY(-50%);
-	border-width: 8px;
-	border-style: solid;
-	border-color: transparent #fff transparent transparent;
-  }
-  
-  /* when “show” class is added, fade & scale in */
-  .pw-req-box.show {
-	opacity: 1;
-	visibility: visible;
-	transform: translate(0, -50%) scale(1);
-  }
-  
-  /* list styling */
-  .pw-req-box ul {
-	margin: 0;
-	padding: 0;
-	list-style: none;
-  }
-  .pw-req-box li {
-	display: flex;
-	align-items: center;
-	font-size: 0.9rem;
-	margin-bottom: 0.5rem;
-  }
-  .pw-req-box li:last-child {
-	margin-bottom: 0;
-  }
-  .pw-req-box i {
-	margin-right: 0.5rem;
-  }
 
-  .forgot-link {
-	position: absolute;    /* ensure it’s in the same stacking context */
-	z-index: 2;            /* above the input (which is z-index: 1 by default) */
-	cursor: pointer;
-	transition: background-color 0.15s ease;
-  }
-  .forgot-link:hover {
-	background-color: #343a40 !important;  /* slightly lighter than pure black */
-  }
-
-  /* ─── Visualise Dashboard Styles ───────────────────────── */
-
-/* wrap each chart in a “card” */
-.chart-box {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 1.5rem;
-  padding: 1rem;
-  flex: 1;
-  max-width: 450px;
-  margin: 0 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* the flex‐row that holds those two .chart-box items */
-#podcast-chart-row-1 {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  margin-bottom: 2rem;
-}
-
-/* center & soften the main heading on the visualise page */
-#my-charts + h1,
-h1 {
-  text-align: center;
-  margin-bottom: 1rem;
-  font-weight: 300;
-}
-
-/* make sure Plotly doesn’t default gray behind transparent .chart-box */
-.chart-box .svg-container {
-  background: transparent !important;
-}
-
-
-/* evenly‐spaced flex rows for your two chart rows and bottom row */
-#podcast-chart-row-1,
-#podcast-chart-row-2 {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 2rem;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-#top-five-section,
-#most-loved-section {
-  flex: 1;
-}
-
-/* make the podcast‐name text black so it pops on white */
-.top5-podcast-name {
-  color: #000;
-  font-weight: 600;
-}
-
-/* make each child of .top-row-graphs flex to fill the row,
-   allow it to shrink, and enforce a reasonable min‐height */
-.top-row-graphs > div {
-  flex: 1;          /* each pane gets equal width */
-  min-width: 0;     /* allow bars to shrink in a flex row */
-  min-height: 300px;/* force some height so Plotly can render */
-}
-
-
-/* ─── Dashboard panels ───────────────────────────────────────── */
-/* keep the big rounded plum wrapper */
-.charts-container {
-  background: white;            /* your original plum color */
-  border-radius: 1.5rem;
-  padding: 2rem;
-  margin: 2rem 0;
-}
-
-/* flex rows for both top and bottom */
-.chart-row {
-  display: flex;
-  gap: 2rem;                  /* even gutters */
-  margin-bottom: 2rem;
-}
-
-/* every card in those rows */
-.chart-row > div {
-  flex: 1;                    /* share the row equally */
-  background: whitesmoke;           /* crisp white card */
-  border-radius: 1rem;
-  padding: 1rem;              /* inner breathing room */
-  min-height: 300px;          /* give Plotly something to fill */
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-
-/* tighten up your Plotly canvases so they fill the card */
-#horizontal-barchart,
-#listen-line-graph {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-/* make the Top-5 headings dark (instead of white on white) */
-#top-five-section h2,
-#top-five-section p {
-  color: #333 !important;
-}
-
-/* give that whole Top-5 card a little breathing room */
-#top-five-section {
-  background: rgba(255,255,255,0.9);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-/* style the “Most Loved” card to match */
-#most-loved-section {
-  background: rgba(255,255,255,0.9);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  margin-top: 1.5rem;
-}
-
-/* ensure the Most Loved heading is dark */
-#most-loved-section h2 {
-  color: #333;
-  margin-top: 0;
-}
-
-/* tighten up the star row and text */
-#most-loved-section .star-rating {
-  margin: 1rem 0;
-}
-#most-loved-section .most-loved-text {
-  margin-bottom: 0;
-}
-
-/* 1) Turn the whole dashboard into a 2×2 grid */
-#my-charts {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-auto-rows: minmax(250px, auto);
-  gap: 2rem;
-  /* optional padding inside the big white container */
-  padding: 2rem;
-}
-
-/* 2) Style each of the 4 panels exactly the same: */
-#horizontal-barchart,
-#listen-line-graph,
-#top-five-section,
-#most-loved-section {
-  background-color: whitesmoke;      /* match all panels */
-  border-radius: 1rem;               /* round corners */
-  padding: 1.5rem;                   /* inner breathing room */
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-  height: 100%;                      /* stretch to full row height */
-}
-
-/* 3) If your charts have their own white plot_bgcolor, override that too */
-#horizontal-barchart .js-plotly-plot .plotly,
-#listen-line-graph .js-plotly-plot .plotly {
-  background: transparent !important;
-}
-
-/* 4) Tweak Title alignment so they sit nicely */
-#horizontal-barchart > .js-plotly-plot,
-#listen-line-graph > .js-plotly-plot {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-/* ─── Dashboard container ───────────────────────────────── */
-#my-charts {
-  /* white “card” background */
-  background-color: white;
-  border-radius: 1rem;
-  padding: 2rem;
-  /* stack two rows */
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-/* ─── Each row of two panels ─────────────────────────────── */
-#podcast-chart-row-1,
-#podcast-chart-row-2 {
-  display: flex;
-  gap: 2rem;
-}
-
-/* ─── All four panels look the same ──────────────────────── */
-#podcast-chart-row-1 > div,
-#podcast-chart-row-2 > div {
-  flex: 1;                          /* equal width */
-  background-color: whitesmoke;     /* consistent card color */
-  border-radius: 1rem;
-  padding: 1.5rem;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-  display: flex;
-  flex-direction: column;
-}
-
-/* ─── Make sure Plotly plots use transparent bg so the card shows through ─ */
-#horizontal-barchart .js-plotly-plot .plotly,
-#listen-line-graph .js-plotly-plot .plotly {
-  background: transparent !important;
-}
-
-/* ─── Force all four dashboard panels to match the height of the “Top 5” card ───────────────── */
-#podcast-chart-row-1 > div,
-#podcast-chart-row-2 > div {
-  flex: 1;
-  /* match this to whatever your Top 5 card actually measures.
-     I inspected yours at about 360px, but feel free to tweak. */
-  min-height: 360px;
-}
-
-/* ensure the chart never bleeds outside its white “card” */
-#horizontal-barchart, 
-#listen-line-graph {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-.modal-body .list-group-item {
-	color: #000 !important;
-  }
-
-
-/* chat_list custom styling */
-.chat-item {
-	/* remove default bullets/margins if any */
-	list-style: none;
-  }
-  
-  /* the “card” around each chat */
-  .chat-link {
-	display: flex;
-	align-items: center;
-	padding: 0.75rem 1rem;
-	border: 2px solid rgba(0,0,0,0.08);
-	border-radius: 0.5rem;
-	transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-	background-color: #fff;
-  }
-  
-  /* hover effect */
-  .chat-link:hover {
-	border-color: rgba(0,0,0,0.2);
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-	transform: translateY(-2px);
-  }
-  
-  /* ensure the image stays nicely contained */
-  .chat-link img {
-	flex-shrink: 0;
-  }
