@@ -472,8 +472,9 @@ def api_share_posts():
           'ep_name':         log.ep_name,
           'platform':        log.platform,
           'duration_min':    (log.duration / 60) if log.duration else None,
-          'genre':           log.podcast.genre,
+          'genre':           log.genre or log.podcast.genre,
           'rating':          log.rating,
+          'review':          log.review,
           'poster_username': poster.username,
           'poster_pic':      url_for('static', filename='uploads/' + poster.profile_pic),
           'likes':           total_likes,
@@ -491,12 +492,22 @@ def api_share_posts():
 @login_required
 def share_podcast(log_id):
     log = PodcastLog.query.get_or_404(log_id)
-    # only the owner can share their own log
+
+    # only the owner can share
     if log.user_id != current_user.id:
-        abort(403)
-    log.shared = True
-    db.session.commit()
-    return jsonify({'success': True})
+        return jsonify(success=False, message="You can’t share this"), 403
+
+    try:
+        log.shared = True
+        # bump the timestamp so new shares always sort to the top
+        log.listened_at = datetime.utcnow()
+        db.session.commit()
+        return jsonify(success=True)
+    except Exception as e:
+        current_app.logger.error(f"Error sharing podcast: {e}")
+        db.session.rollback()
+        return jsonify(success=False, message="Server error"), 500
+
 
 @bp.route('/api/posts/<int:post_id>/like', methods=['POST', 'DELETE'])
 @login_required
@@ -841,9 +852,22 @@ def log_podcast():
     if not request.is_json:
         return jsonify({"success": False, "message": "Invalid content type"}), 400
     data = request.get_json()
+    # Server-side validation for all required fields
     if not data.get("podcast_id"):
         return jsonify({"success": False, "message": "Podcast is required"}), 400
+    if not data.get("episode_id"):
+        return jsonify({"success": False, "message": "Episode is required"}), 400
+    if not data.get("platform"):
+        return jsonify({"success": False, "message": "Platform is required"}), 400
+    if not data.get("duration") or int(data["duration"]) <= 0:
+        return jsonify({"success": False, "message": "Duration is required"}), 400
+    if not data.get("genre"):
+        return jsonify({"success": False, "message": "Genre is required"}), 400
+    if not data.get("rating"):
+        return jsonify({"success": False, "message": "Rating is required"}), 400
+
     try:
+        # existing logic to fetch or create Podcast
         podcast = Podcast.query.filter_by(spotify_id=data["podcast_id"]).first()
         if not podcast:
             token = get_spotify_token()
@@ -853,28 +877,30 @@ def log_podcast():
             podcast = Podcast(
                 spotify_id=show["id"],
                 name=show["name"],
-                description=show["description"]
+                description=show.get("description")
             )
             db.session.add(podcast)
             db.session.commit()
+
+        # Create the log entry
         log = PodcastLog(
-            user_id   = current_user.id,
-            podcast_id= podcast.id,
-            ep_name   = data.get("episode"),
-            platform  = data.get("platform"),
-            genre     = data.get("genre"),   
-            duration  = (int(data.get("duration")) * 60)
-                          if data.get("duration") else None,
-            rating    = float(data.get("rating")) if data.get("rating") else None
- 
+            user_id    = current_user.id,
+            podcast_id = podcast.id,
+            ep_name    = data.get("episode"),
+            platform   = data.get("platform"),
+            genre      = data.get("genre"),
+            duration   = (int(data.get("duration")) * 60),
+            rating     = float(data.get("rating")),
+            review     = data.get("review") or None
         )
         db.session.add(log)
         db.session.commit()
         return jsonify({"success": True, "message": "Podcast logged successfully"})
+
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Error logging podcast: {e}")
-        return jsonify({"success": False, "message": str(e)}), 500
+        return jsonify({"success": False, "message": "Server error"}), 500
 
 
 def get_spotify_token():
@@ -912,6 +938,53 @@ def search_spotify_podcasts():
     except Exception as e:
         current_app.logger.error(f"Spotify search error: {e}")
         return jsonify([])
+    
+@bp.route("/api/spotify_shows/<show_id>/episodes")
+@login_required
+def spotify_show_episodes(show_id):
+    """
+    Fetch the episodes of a Spotify show.  Spotify returns the list under
+    either top‐level "items", nested under "episodes"→"items", or sometimes
+    as an "episodes" list directly.
+    This will try all three and always return a list (maybe empty).
+    """
+    token = get_spotify_token()
+    headers = {"Authorization": f"Bearer {token}"}
+    params = {"market": "US", "limit": 50}
+
+    try:
+        resp = requests.get(
+            f"https://api.spotify.com/v1/shows/{show_id}/episodes",
+            headers=headers,
+            params=params,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+    except Exception as e:
+        current_app.logger.error(f"Spotify API request failed for show {show_id}: {e}")
+        return jsonify([]), 500
+
+    # Log at INFO so we actually see it when Flask runs
+    current_app.logger.info(f"Spotify raw episodes for {show_id}: {data}")
+
+    # Try to extract a list of episode dicts from one of the known shapes
+    items = []
+    if isinstance(data, dict):
+        if isinstance(data.get("items"), list):
+            items = data["items"]
+        elif isinstance(data.get("episodes"), dict) and isinstance(data["episodes"].get("items"), list):
+            items = data["episodes"]["items"]
+        elif isinstance(data.get("episodes"), list):
+            items = data["episodes"]
+
+    # As a final safeguard, ensure items is a list
+    if not isinstance(items, list):
+        items = []
+
+    # Now build just id+name pairs
+    episodes = [{"id": ep.get("id"), "name": ep.get("name")} for ep in items if ep]
+
+    return jsonify(episodes)
 
 
 @bp.route("/callback")
@@ -1156,6 +1229,25 @@ def send_podcast():
     return jsonify(success=True, 
                    to_username=other.username,
                    message=payload)
+
+@bp.route('/podcast_log/<int:log_id>', methods=['DELETE'])
+@login_required
+def delete_podcast_log(log_id):
+    log = PodcastLog.query.get_or_404(log_id)
+    if log.user_id != current_user.id:
+        return jsonify(success=False, message="Forbidden"), 403
+
+    try:
+        db.session.delete(log)
+        db.session.commit()
+        return jsonify(success=True)
+    except Exception as e:
+        current_app.logger.error(f"Error deleting podcast log {log_id}: {e}")
+        db.session.rollback()
+        return jsonify(success=False, message="Server error"), 500
+    
+
+
 
 
 
