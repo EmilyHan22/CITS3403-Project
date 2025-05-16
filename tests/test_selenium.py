@@ -113,8 +113,10 @@ class SeleniumTestCase(unittest.TestCase):
         
         # Wait for response and check for error message
         WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, '.alert-danger')))
-        error_messages = self.driver.find_elements(By.CSS_SELECTOR, '.alert-danger')
+            EC.presence_of_element_located((By.CSS_SELECTOR, '.alert-warning'))
+        )
+        error_messages = self.driver.find_elements(By.CSS_SELECTOR, '.alert-warning')
+
         
         # Check if any error message contains text about duplicate email
         duplicate_email_found = any(
@@ -199,13 +201,15 @@ class SeleniumTestCase(unittest.TestCase):
         self.driver.get(f'{self.base_url}/podcast-log')
         WebDriverWait(self.driver, 10).until(EC.url_contains('/login'))
 
+
+
     def test_update_profile_display_name(self):
         self.signup()
         self.driver.get(f'{self.base_url}/settings')
 
         # Generate new display name
         new_display_name = 'Updated Display Name ' + ''.join(random.choices(string.ascii_letters, k=5))
-        
+
         # Find and update display name field
         display_name_input = WebDriverWait(self.driver, 10).until(
             EC.presence_of_element_located((By.NAME, 'display_name'))
@@ -219,16 +223,18 @@ class SeleniumTestCase(unittest.TestCase):
         )
         self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", save_button)
         time.sleep(0.5)  # Allow scroll to complete
-        
+
         # Wait for button to be clickable and click it
         WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, '//button[text()="Save Settings"]'))
         ).click()
-        
-        # Wait for update to complete and verify
+
+        # Wait for update to complete and verify using EC.text_to_be_present_in_element_value
+        locator = (By.NAME, 'display_name')
         WebDriverWait(self.driver, 10).until(
-            lambda d: d.find_element(By.NAME, 'display_name').get_attribute('value') == new_display_name
+            EC.text_to_be_present_in_element_value(locator, new_display_name)
         )
+
     def test_send_and_accept_friend_request(self):
         # Create first test user (main user)
         self.signup()
