@@ -37,8 +37,8 @@
                   <strong>Duration:</strong>
                   {{ (log.duration // 60) if log.duration else '–' }} min
                 </p>
-                {% if log.podcast.genre %}
-                  <p class="card-text"><strong>Genre:</strong> {{ log.podcast.genre }}</p>
+                {% if log.genre %}
+                  <p class="card-text"><strong>Genre:</strong> {{ log.genre }}</p>
                 {% endif %}
                 {% if log.rating %}
                   <p class="card-text"><strong>Rating:</strong> {{ log.rating }}/5</p>
