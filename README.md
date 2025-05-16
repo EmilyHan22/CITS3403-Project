@@ -11,12 +11,13 @@ Podfolio
 - [Features](#features)  
 - [Prerequisites](#prerequisites)  
 - [Getting Started](#getting-started)  
-  - [1. Clone & virtualenv](#1-clone--virtualenv)  
+  - [1. Clone & Virtual Environment](#1-clone--virtualenv)  
   - [2. Install dependencies](#2-install-dependencies)  
-  - [3. Configuration](#3-configuration)  
-  - [4. Database setup](#4-database-setup)  
-  - [5. Run the server](#5-run-the-server)  
-- [Running Tests / Manual QA](#running-tests--manual-qa)  
+  - [3. Configure Environment](#3-configuration)  
+  - [4. Database Migrations](#4-database-setup)  
+  - [5. Run the server](#5-run-the-server)
+- [Testing & Usage](#running-tests--manual-qa)
+- [Avoid problems because of not installing Jinja Extension](#6-avoid-problems)   
 - [Group Members](#group-members)  
 
 ---
@@ -102,6 +103,20 @@ This application is designed for users to visualize the podcasts they listen to 
 - Log podcasts on the logger page; verify dashboard charts.
 - Send/accept friend requests; confirm privacy on profiles.
 - Post to the share feed; like and comment in real time.
+
+## Avoid problems because of not installing Jinja Extension
+- Open your user settings JSON
+- Do this by typing Ctrl+Shift+P on Windows and ⌘ + Shift + P on Mac
+- Type Preferences: Open settings(JSON) and hit enter
+- In that file (your User settings.json) add exactly:
+```
+"files.associations": {
+  "**/templates/**/*.html": "jinja"
+},
+"[jinja]": {
+  "css.validate": false
+}
+```
 
 ### Group 63 Members:
 

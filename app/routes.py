@@ -14,10 +14,11 @@ from flask_mail import Message
 from itsdangerous import SignatureExpired, BadSignature
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import or_, and_, func, desc
+from sqlalchemy import distinct
 
 from app import mail, make_serializer, oauth
 from app.db import db
-from app.models import User, Podcast, Friendship, PodcastLog, FriendRequest, Like, Comment
+from app.models import User, Podcast, Friendship, PodcastLog, FriendRequest, Like, Comment, Message, Conversation
 from werkzeug.utils import secure_filename
 
 ALLOWED_EXT = {'png','jpg','jpeg','gif'}
@@ -41,6 +42,24 @@ def is_password_strong(pw: str) -> bool:
         re.search(r"[!@#$%^&*(),.?\":{}|<>]", pw)
     )
 
+
+@bp.context_processor
+def inject_unread_conversations():
+    """
+    Count how many *distinct* conversations have at least one
+    unread message to the current_user.
+    """
+    total_unread = 0
+    if current_user.is_authenticated:
+        total_unread = (
+            db.session.query(distinct(Message.conversation_id))
+            .filter(
+                Message.recipient_id == current_user.id,
+                Message.read == False
+            )
+            .count()
+        )
+    return dict(unread_conversations=total_unread)
 
 @bp.route("/")
 def index():
@@ -617,11 +636,6 @@ def friends():
         friends=friends_list
     )
 
-
-from sqlalchemy import or_
-
-from sqlalchemy import or_
-
 @bp.route('/search_users')
 @login_required
 def search_users():
@@ -947,3 +961,202 @@ def visualise_data():
         "genreBreakdown": genre_data,
         "weeklyListening": week_data
     })
+
+@bp.route('/chats')
+@login_required
+def chat_list():
+    convos = Conversation.query.filter(
+        or_(
+          Conversation.user1_id == current_user.id,
+          Conversation.user2_id == current_user.id
+        )
+    ).all()
+
+    # Attach unread count to each convo
+    for convo in convos:
+        unread_count = Message.query \
+            .filter_by(
+              conversation_id=convo.id,
+              recipient_id=current_user.id,
+              read=False
+            ) \
+            .count()
+        convo.unread = unread_count
+
+    return render_template('chat_list.html', conversations=convos)
+
+@bp.route('/chats/<int:convo_id>')
+@login_required
+def chat_view(convo_id):
+    convo = Conversation.query.get_or_404(convo_id)
+    if current_user.id not in (convo.user1_id, convo.user2_id):
+        abort(403)
+
+    # Mark every unread message sent *to me* in this convo as read
+    Message.query \
+        .filter_by(
+          conversation_id=convo.id,
+          recipient_id=current_user.id,
+          read=False
+        ) \
+        .update({Message.read: True}, synchronize_session=False)
+    db.session.commit()
+
+    # now load partner & all messages
+    partner = (User.query.get(convo.user2_id)
+               if convo.user1_id == current_user.id
+               else User.query.get(convo.user1_id))
+    messages = Message.query \
+        .filter_by(conversation_id=convo.id) \
+        .order_by(Message.created_at.asc()) \
+        .all()
+
+    return render_template('chat_view.html',
+                           conversation=convo,
+                           other_user=partner,
+                           messages=messages)
+
+@bp.route('/chats/<int:convo_id>/message', methods=['POST'])
+@login_required
+def post_message(convo_id):
+    data = request.get_json() or {}
+    text = (data.get('text') or '').strip()
+    if not text:
+        return jsonify(success=False, message="Empty"), 400
+
+    convo = Conversation.query.get_or_404(convo_id)
+    if current_user.id not in (convo.user1_id, convo.user2_id):
+        abort(403)
+
+    recipient_id = convo.user2_id if current_user.id == convo.user1_id else convo.user1_id
+    msg = Message(
+        conversation_id=convo.id,
+        sender_id=current_user.id,
+        recipient_id=recipient_id,
+        text=text
+    )
+    db.session.add(msg)
+    db.session.commit()
+
+    # Build the JSON payload with username & profile pic
+    sender = msg.sender
+    return jsonify(
+        success=True,
+        message={
+            'text':       msg.text,
+            'created_at': msg.created_at.isoformat(),
+            'sender_id':  msg.sender_id,
+            'username':   sender.display_name or sender.username,
+            'profile_pic_url': url_for(
+                'static',
+                filename='uploads/' + (sender.profile_pic or 'default.png')
+            )
+        }
+    )
+
+
+@bp.route('/api/send_podcast', methods=['POST'])
+@login_required
+def api_send_podcast():
+    data = request.get_json()
+    log_id     = data.get('log_id')
+    to_user_id = data.get('to_user_id')
+    if not log_id or not to_user_id:
+        return jsonify(error='Missing parameters'), 400
+
+    # Simple “message” record: you might build a Conversation+Message model
+    msg = Message(
+      sender_id=current_user.id,
+      recipient_id=to_user_id,
+      podcast_log_id=log_id,
+      text=''  # or some note
+    )
+    db.session.add(msg)
+    db.session.commit()
+    to_user = User.query.get(to_user_id)
+    return jsonify(success=True, to_username=to_user.username)
+
+@bp.route('/api/friends')
+@login_required
+def api_friends():
+    # fetch all accepted friends for current_user
+    friends = (
+        User.query
+        .join(Friendship, Friendship.friend_id == User.id)
+        .filter(Friendship.user_id == current_user.id)
+        .all()
+    )
+    return jsonify(friends=[
+        {
+          "id":   u.id,
+          "username": u.username,
+          "profile_pic_url": url_for('static', filename='uploads/' + u.profile_pic)
+        }
+        for u in friends
+    ])
+
+@bp.route('/send_podcast', methods=['POST'])
+@login_required
+def send_podcast():
+    data = request.get_json() or {}
+
+    # accept either key, but prefer recipient_id
+    raw_recipient = data.get('recipient_id', data.get('to_user_id'))
+    try:
+        log_id       = int(data.get('log_id'))
+        recipient_id = int(raw_recipient)
+    except (TypeError, ValueError):
+        return jsonify(success=False, message="Invalid payload"), 400
+
+    # verify ownership
+    log = PodcastLog.query.get(log_id)
+    if not log or log.user_id != current_user.id:
+        return jsonify(success=False, message="Invalid podcast log"), 400
+
+    # sort so (small,large) is consistent
+    uid1, uid2 = sorted([current_user.id, recipient_id])
+    convo = Conversation.query.filter_by(user1_id=uid1, user2_id=uid2).first()
+    if not convo:
+        convo = Conversation(user1_id=uid1, user2_id=uid2)
+        db.session.add(convo)
+        db.session.commit()
+
+    # create the share‐message
+    msg = Message(
+        conversation_id=convo.id,
+        sender_id=current_user.id,
+        recipient_id=recipient_id,
+        podcast_log_id=log_id
+    )
+    db.session.add(msg)
+    db.session.commit()
+
+    # pull the podcast & log data
+    plog = log
+    pod  = plog.podcast
+    # build our JSON‐serializable payload
+    payload = {
+        'id':            msg.id,
+        'conversation_id': convo.id,
+        'sender_id':     msg.sender_id,
+        'recipient_id':  msg.recipient_id,
+        'created_at':    msg.created_at.strftime('%Y-%m-%d %H:%M'),
+        'podcast': {
+            'name':       pod.name,
+            'ep_name':    plog.ep_name or '–',
+            'platform':   plog.platform or '–',
+            'duration':   (plog.duration // 60) if plog.duration else None,
+            'genre':      pod.genre,
+            'rating':     plog.rating,
+            'image_url':  pod.image_url or '/static/default.png'
+        }
+    }
+
+    other = User.query.get(recipient_id)
+    return jsonify(success=True, 
+                   to_username=other.username,
+                   message=payload)
+
+
+
+

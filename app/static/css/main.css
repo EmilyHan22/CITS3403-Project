@@ -765,4 +765,36 @@ h1 {
   height: 100%;
   overflow: hidden;
 }
+.modal-body .list-group-item {
+	color: #000 !important;
+  }
 
+
+/* chat_list custom styling */
+.chat-item {
+	/* remove default bullets/margins if any */
+	list-style: none;
+  }
+  
+  /* the “card” around each chat */
+  .chat-link {
+	display: flex;
+	align-items: center;
+	padding: 0.75rem 1rem;
+	border: 2px solid rgba(0,0,0,0.08);
+	border-radius: 0.5rem;
+	transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+	background-color: #fff;
+  }
+  
+  /* hover effect */
+  .chat-link:hover {
+	border-color: rgba(0,0,0,0.2);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	transform: translateY(-2px);
+  }
+  
+  /* ensure the image stays nicely contained */
+  .chat-link img {
+	flex-shrink: 0;
+  }
