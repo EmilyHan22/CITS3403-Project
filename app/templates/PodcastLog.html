@@ -14,7 +14,7 @@
 
 <!-- Form Centered -->
 <div class="form-container">
-  <form class="podcast-form" id="podcastLogForm">
+  <form class="card podcast-form" id="podcastLogForm">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
     <!-- Podcast name + suggestions -->
@@ -111,7 +111,7 @@
                 placeholder="Write what you thought…">{{ request.form.get('review','') }}</textarea>
     </div>
 
-    <button type="submit" class="btn-log">Log It!</button>
+    <button type="submit" class="btn-log btn-success">Log It!</button>
   </form>
 </div>
 

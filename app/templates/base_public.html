@@ -19,24 +19,26 @@
 </head>
 <body>
 
-  <!-- Mobile nav (visible < md) -->
-  <nav class="mobile-nav d-md-none">
-    <a href="{{ url_for('main.index') }}" class="logo-container me-auto">
-      <img src="{{ url_for('static', filename='icons/favicon.png') }}" alt="Logo" class="logo-img me-2">
-      <span class="fs-5 fw-bold">Podfolio</span>
-    </a>
-    <div>
-      {% if current_user.is_authenticated %}
-        <a href="{{ url_for('main.logout') }}" class="btn btn-outline-secondary btn-sm">Log Out</a>
-      {% else %}
-        <a href="{{ url_for('main.login') }}"  class="btn btn-outline-light   btn-sm me-2">Log In</a>
-        <a href="{{ url_for('main.signup') }}" class="btn btn-light          btn-sm">Sign Up</a>
-      {% endif %}
+  
+  <nav class="mobile-nav d-md-none fixed-top bg-light">
+    <div class="container-fluid d-flex align-items-center">
+      <a href="{{ url_for('main.index') }}" class="logo-container text-dark me-auto">
+        <img src="{{ url_for('static', filename='icons/favicon.png') }}"
+            alt="Logo"
+            class="logo-img me-2">
+        <span class="fs-5 fw-bold">Podfolio</span>
+      </a>
+      <!-- always white outline -->
+      <a href="{{ url_for('main.signup') }}"
+        class="btn btn-outline-dark btn-sm">
+        Sign Up
+      </a>
     </div>
   </nav>
 
   <!-- Desktop nav (visible ≥ md) -->
-  <nav class="navbar navbar-expand-md navbar-light bg-light d-none d-md-flex">
+  <div class="public-nav d-none d-lg-block">
+  <nav class="navbar navbar-expand-md navbar-light bg-light d-none d-md-flex top-nav-public">
     <div class="container-fluid">
       <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.index') }}">
         <img src="{{ url_for('static', filename='icons/icon.JPG') }}" alt="Logo" width="32" height="32" class="me-2">
@@ -47,14 +49,15 @@
       </div>
     </div>
   </nav>
+  </div>
 
   <!-- Page content -->
-  <main class = "landing-page">
+  <main class="landing-page">
     {% block content %}{% endblock %}
   </main>
 
   <!-- Sticky footer -->
-  <footer class="bg-light text-center py-3">
+  <footer class="bg-light text-center py-3 fixed-bottom">
     <div class="container">
       <small>&copy; {{ current_year }} Podfolio</small>
     </div>
