@@ -14,14 +14,24 @@
 {% block scripts %}
 {{ super() }}
 <script>
-  // grab the CSRF token from <meta>
   const csrfToken = document.querySelector('meta[name=csrf-token]').content;
+  const defaultPodcastImg = "{{ url_for('static', filename='uploads/default.png') }}";
+
+  function renderStars(rating) {
+    let stars = '<div class="mb-2">';
+    for (let i = 1; i <= 5; i++) {
+      stars += i <= rating
+        ? '<i class="bi bi-star-fill text-warning me-1"></i>'
+        : '<i class="bi bi-star text-muted me-1"></i>';
+    }
+    stars += '</div>';
+    return stars;
+  }
 
   let page = 1, loading = false, ended = false;
   const container = document.getElementById('feedContainer');
   const loader    = document.getElementById('loading');
 
-  // 1) load & render
   function loadPage() {
     if (loading || ended) return;
     loading = true;
@@ -41,20 +51,22 @@
                      style="width:32px;height:32px;object-fit:cover;">
                 <strong>${log.poster_username}</strong>
               </div>
-              <img src="${log.podcast_image || '/static/default.png'}"
-                   class="card-img-top" alt="">
+
+              <!-- placeholder for future podcast cover -->
+              <div class="card-img-top" style="height:0;"></div>
+
               <div class="card-body">
                 <h5 class="card-title">${log.podcast_name}</h5>
                 <p class="card-text"><strong>Episode:</strong> ${log.ep_name || '–'}</p>
                 <p class="card-text"><strong>Platform:</strong> ${log.platform || '–'}</p>
                 <p class="card-text"><strong>Duration:</strong> ${log.duration_min} min</p>
                 ${ log.genre  ? `<p class="card-text"><strong>Genre:</strong> ${log.genre}</p>`  : '' }
-                ${ log.rating ? `<p class="card-text"><strong>Rating:</strong> ${log.rating}/5</p>` : '' }
+                ${ log.rating ? renderStars(log.rating) : '' }
 
                 <div class="d-flex align-items-center mt-3">
                   <button class="btn btn-sm like-btn">
                     <i class="bi bi-heart${log.liked ? '-fill text-danger' : ''}"></i>
-                    <span class="ms-1 like-count">${log.likes || 0}</span>
+                    <span class="ms-1 like-count">${log.likes}</span>
                   </button>
                   <button class="btn btn-sm ms-3 comment-btn">
                     <i class="bi bi-chat"></i>
@@ -72,11 +84,8 @@
           container.append(col);
         });
 
-        if (data.next_page) {
-          page = data.next_page;
-        } else {
-          ended = true;
-        }
+        if (data.next_page) page = data.next_page;
+        else ended = true;
       })
       .finally(() => {
         loading = false;
@@ -84,50 +93,40 @@
       });
   }
 
-  // infinite scroll trigger
   window.addEventListener('scroll', () => {
     if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
       loadPage();
     }
   });
 
-  // 2) Delegate like/comment actions
   container.addEventListener('click', e => {
-    // ─── Likes ─────────────────────────────────────────
     const likeBtn = e.target.closest('.like-btn');
     if (likeBtn) {
       const card   = likeBtn.closest('.card');
       const postId = card.dataset.postId;
       const liked  = likeBtn.querySelector('i').classList.contains('bi-heart-fill');
-
       fetch(`/api/posts/${postId}/like`, {
         method: liked ? 'DELETE' : 'POST',
-        headers: {
-          'Content-Type':'application/json',
-          'X-CSRFToken': csrfToken
-        }
+        headers: { 'X-CSRFToken': csrfToken }
       })
       .then(r => r.json())
       .then(json => {
         if (json.success) {
           const icon = likeBtn.querySelector('i');
           icon.classList.toggle('bi-heart-fill', !liked);
-          icon.classList.toggle('text-danger',   !liked);
-          icon.classList.toggle('bi-heart',       liked);
+          icon.classList.toggle('text-danger', !liked);
+          icon.classList.toggle('bi-heart', liked);
           card.querySelector('.like-count').textContent = json.likes;
         }
       });
       return;
     }
-
-    // ─── Show/hide comment form ────────────────────────
     const commentBtn = e.target.closest('.comment-btn');
     if (commentBtn) {
       const card = commentBtn.closest('.card');
       let form   = card.querySelector('.comment-form');
-      if (form) {
-        form.remove();
-      } else {
+      if (form) form.remove();
+      else {
         form = document.createElement('div');
         form.className = 'comment-form mt-2';
         form.innerHTML = `
@@ -138,8 +137,6 @@
       }
       return;
     }
-
-    // ─── Submit comment ───────────────────────────────
     const submitBtn = e.target.closest('.submit-comment');
     if (submitBtn) {
       const card   = submitBtn.closest('.card');
@@ -147,26 +144,19 @@
       const input  = card.querySelector('.comment-input');
       const text   = input.value.trim();
       if (!text) return;
-
       fetch(`/api/posts/${postId}/comments`, {
         method: 'POST',
-        headers: {
-          'Content-Type':'application/json',
-          'X-CSRFToken': csrfToken
-        },
+        headers: { 'X-CSRFToken': csrfToken, 'Content-Type':'application/json' },
         body: JSON.stringify({ text })
       })
       .then(r => r.json())
       .then(json => {
         if (json.success) {
-          // append new comment
           const ul = card.querySelector('.comments-list');
           const li = document.createElement('li');
           li.className = 'list-group-item';
           li.innerHTML = `<strong>${json.commenter}:</strong> ${json.text}`;
           ul.append(li);
-
-          // clear input & bump counter
           input.value = '';
           const countSpan = card.querySelector('.comment-count');
           countSpan.textContent = parseInt(countSpan.textContent || '0') + 1;
@@ -175,7 +165,6 @@
     }
   });
 
-  // initial load
   loadPage();
 </script>
 {% endblock %}

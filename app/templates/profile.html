@@ -41,7 +41,14 @@
                   <p class="card-text"><strong>Genre:</strong> {{ log.genre }}</p>
                 {% endif %}
                 {% if log.rating %}
-                  <p class="card-text"><strong>Rating:</strong> {{ log.rating }}/5</p>
+                  <p class="card-text">
+                    {% for i in range(log.rating|int) %}
+                      <i class="bi bi-star-fill text-warning me-1"></i>
+                    {% endfor %}
+                    {% for i in range(5 - (log.rating|int)) %}
+                      <i class="bi bi-star text-muted me-1"></i>
+                    {% endfor %}
+                  </p>
                 {% endif %}
 
                 {% if is_owner %}
@@ -49,8 +56,9 @@
                   <button
                     class="btn btn-sm btn-outline-primary mt-2 share-btn"
                     data-log-id="{{ log.id }}"
+                    {% if log.shared %}disabled{% endif %}
                   >
-                    {% if log.shared %}Shared{% else %}Share{% endif %}
+                    {{ log.shared and 'Shared' or 'Share' }}
                   </button>
 
                   <!-- Chat/send-to-friend button -->
@@ -72,7 +80,7 @@
   {% endif %}
 </div>
 
-<!-- Chat‐to‐friend Modal -->
+<!-- Chat-to-friend Modal -->
 <div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -96,7 +104,38 @@
   (function(){
     const csrfToken = document.querySelector('meta[name=csrf-token]').content;
 
-    // When you click the "send" icon on a log
+    // SHARE PODCAST
+    document.querySelectorAll('.share-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const logId = btn.dataset.logId;
+        try {
+          const res = await fetch(`/share_podcast/${logId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({})
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            btn.textContent = 'Shared';
+            btn.disabled = true;
+            // if we're already on sharefeed, reload to show it
+            if (window.location.pathname === '/shareview') {
+              window.location.reload();
+            }
+          } else {
+            alert(data.message || 'Unable to share.');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Network error while sharing.');
+        }
+      });
+    });
+
+    // APPEND FRIENDS LIST FOR SENDING LINKS
     document.querySelectorAll('.chat-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const logId = btn.dataset.logId;
@@ -116,11 +155,11 @@
                        style="width:32px;height:32px;object-fit:cover;">
                   <span>${u.username}</span>
                 </div>
-                <button
-                  class="btn btn-sm btn-primary send-to-btn"
-                  data-log-id="${logId}"
-                  data-user-id="${u.id}"
-                >Send</button>
+                <button class="btn btn-sm btn-primary send-to-btn"
+                        data-log-id="${logId}"
+                        data-user-id="${u.id}">
+                  Send
+                </button>
               `;
               listEl.append(li);
             });
@@ -136,44 +175,33 @@
       });
     });
 
-    // Delegate “Send” clicks inside the modal
-    document.getElementById('chatUserList').addEventListener('click', e => {
+    // HANDLE “Send” INSIDE MODAL
+    document.getElementById('chatUserList').addEventListener('click', async e => {
       const sendBtn = e.target.closest('.send-to-btn');
       if (!sendBtn) return;
 
-      const logId    = sendBtn.dataset.logId;
-      const recId    = sendBtn.dataset.userId;
-      console.log('📤 send_podcast payload:', { log_id: logId, recipient_id: recId });
-
-      fetch('/send_podcast', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': csrfToken
-        },
-        body: JSON.stringify({ log_id: logId, recipient_id: recId })
-      })
-      .then(async r => {
-        if (!r.ok) {
-          const text = await r.text();
-          console.error('🚨 /send_podcast error', r.status, text);
-          throw new Error('Server error');
-        }
-        return r.json();
-      })
-      .then(json => {
-        console.log('📬 send_podcast response:', json);
-        if (json.success) {
+      const logId = sendBtn.dataset.logId;
+      const recId = sendBtn.dataset.userId;
+      try {
+        const res = await fetch('/send_podcast', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+          },
+          body: JSON.stringify({ log_id: logId, recipient_id: recId })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
           bootstrap.Modal.getInstance(document.getElementById('chatModal')).hide();
-          alert(`Sent to ${json.to_username} successfully`);
+          alert(`Sent to ${data.to_username} successfully`);
         } else {
-          alert(json.message || 'Unable to send');
+          alert(data.message || 'Unable to send');
         }
-      })
-      .catch(err => {
-        console.error('❌ send_podcast network error', err);
+      } catch (err) {
+        console.error(err);
         alert('Network error');
-      });
+      }
     });
   })();
   </script>

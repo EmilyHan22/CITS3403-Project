@@ -472,7 +472,7 @@ def api_share_posts():
           'ep_name':         log.ep_name,
           'platform':        log.platform,
           'duration_min':    (log.duration / 60) if log.duration else None,
-          'genre':           log.podcast.genre,
+          'genre':           log.genre or log.podcast.genre,
           'rating':          log.rating,
           'poster_username': poster.username,
           'poster_pic':      url_for('static', filename='uploads/' + poster.profile_pic),
@@ -491,12 +491,22 @@ def api_share_posts():
 @login_required
 def share_podcast(log_id):
     log = PodcastLog.query.get_or_404(log_id)
-    # only the owner can share their own log
+
+    # only the owner can share
     if log.user_id != current_user.id:
-        abort(403)
-    log.shared = True
-    db.session.commit()
-    return jsonify({'success': True})
+        return jsonify(success=False, message="You can’t share this"), 403
+
+    try:
+        log.shared = True
+        # bump the timestamp so new shares always sort to the top
+        log.listened_at = datetime.utcnow()
+        db.session.commit()
+        return jsonify(success=True)
+    except Exception as e:
+        current_app.logger.error(f"Error sharing podcast: {e}")
+        db.session.rollback()
+        return jsonify(success=False, message="Server error"), 500
+
 
 @bp.route('/api/posts/<int:post_id>/like', methods=['POST', 'DELETE'])
 @login_required
