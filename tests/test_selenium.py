@@ -107,6 +107,7 @@ class SeleniumTestCase(unittest.TestCase):
         self.driver.find_element(By.NAME, 'confirm_password').send_keys('Test123!')
         submit_button = self.driver.find_element(By.XPATH, '//button[@type="submit"]')
         self.driver.execute_script("arguments[0].scrollIntoView(true);", submit_button)
+        time.sleep(0.5)
         submit_button.click()
 
         WebDriverWait(self.driver, 10).until(EC.url_contains('/podcast-log'))
@@ -270,6 +271,7 @@ class SeleniumTestCase(unittest.TestCase):
         self.driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", star_label)
 
         # Click it
+        time.sleep(0.5)
         star_label.click()
 
         # Submit the form
@@ -304,6 +306,7 @@ class SeleniumTestCase(unittest.TestCase):
 
         save_button = self.driver.find_element(By.XPATH, '//button[text()="Save Settings"]')
         self.driver.execute_script("arguments[0].scrollIntoView(true);", save_button)
+        time.sleep(0.5)
         save_button.click()
 
         time.sleep(1)  # wait for the update to complete
