@@ -238,6 +238,45 @@ class ModelTestCase(unittest.TestCase):
         with self.assertRaises(Exception):
             db.session.commit()
 
+    def test_user_default_fields(self):
+        user = User(username='defaultuser', email='default@example.com', pw_hash='dummyhash')
+        db.session.add(user)
+        db.session.commit()
+        self.assertEqual(user.auth_provider, 'local')
+        self.assertEqual(user.profile_pic, 'default.png')
+        self.assertIsInstance(user.created_at, datetime)
+
+    def test_password_is_hashed(self):
+        user = User(username='hashuser', email='hash@example.com', pw_hash='dummy')
+        user.set_password('plaintextpassword')
+        self.assertNotEqual(user.pw_hash, 'plaintextpassword')
+        self.assertTrue(user.check_password('plaintextpassword'))
+
+    def test_friendship_backref_relationships(self):
+        friendship = Friendship(user_id=self.user1.id, friend_id=self.user2.id)
+        db.session.add(friendship)
+        db.session.commit()
+        
+        self.assertIn(friendship, self.user1.friends_added.all())
+        self.assertIn(friendship, self.user2.added_by.all())
+
+    def test_user_friendship_properties(self):
+        db.session.add(Friendship(user_id=self.user1.id, friend_id=self.user2.id))
+        db.session.commit()
+        
+        added = self.user1.people_i_added.all()
+        added_me = self.user2.people_added_me.all()
+        self.assertIn(self.user2, added)
+        self.assertIn(self.user1, added_me)
+
+    def test_duplicate_spotify_id(self):
+        podcast1 = Podcast(name='Podcast1', spotify_id='dup123')
+        podcast2 = Podcast(name='Podcast2', spotify_id='dup123')
+        db.session.add_all([podcast1, podcast2])
+        with self.assertRaises(Exception):
+            db.session.commit()
+
+
 
 
 if __name__ == '__main__':
