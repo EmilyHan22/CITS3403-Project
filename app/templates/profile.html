@@ -30,6 +30,12 @@
           <div class="col-md-4 mb-4">
             <div class="card h-100">
               <div class="card-body">
+              {% if is_owner %}
+                  <button class="btn btn-sm btn-outline-danger delete-btn position-absolute top-0 end-0 m-2"
+                          data-log-id="{{ log.id }}" title="Delete this entry">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                {% endif %}
                 <h5 class="card-title">{{ log.podcast.name }}</h5>
                 <p class="card-text"><strong>Episode:</strong> {{ log.ep_name or '–' }}</p>
                 <p class="card-text"><strong>Platform:</strong> {{ log.platform or '–' }}</p>
@@ -106,6 +112,31 @@
   <script>
   (function(){
     const csrfToken = document.querySelector('meta[name=csrf-token]').content;
+
+      // DELETE handler
+  document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const logId = btn.dataset.logId;
+      if (!confirm('Are you sure you want to delete this podcast record?')) return;
+
+      try {
+        const res = await fetch(`/podcast_log/${logId}`, {
+          method: 'DELETE',
+          headers: { 'X-CSRFToken': csrfToken }
+        });
+        const json = await res.json();
+        if (res.ok && json.success) {
+          // remove the card from the DOM
+          btn.closest('.col-md-4').remove();
+        } else {
+          alert(json.message || 'Could not delete');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Network error');
+      }
+    });
+  });
 
     // SHARE PODCAST
     document.querySelectorAll('.share-btn').forEach(btn => {

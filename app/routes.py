@@ -1169,6 +1169,23 @@ def send_podcast():
                    to_username=other.username,
                    message=payload)
 
+@bp.route('/podcast_log/<int:log_id>', methods=['DELETE'])
+@login_required
+def delete_podcast_log(log_id):
+    log = PodcastLog.query.get_or_404(log_id)
+    if log.user_id != current_user.id:
+        return jsonify(success=False, message="Forbidden"), 403
+
+    try:
+        db.session.delete(log)
+        db.session.commit()
+        return jsonify(success=True)
+    except Exception as e:
+        current_app.logger.error(f"Error deleting podcast log {log_id}: {e}")
+        db.session.rollback()
+        return jsonify(success=False, message="Server error"), 500
+
+
 
 
 
