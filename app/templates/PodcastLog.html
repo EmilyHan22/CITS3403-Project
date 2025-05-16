@@ -96,6 +96,15 @@
 				<label for="star1">★</label>
 			</div>
 		</div>
+		<div class="mb-3">
+    		<label for="review" class="form-label">Your Review</label>
+    		<textarea
+     			class="form-control"
+      			id="review"
+      			name="review"
+      			rows="3"
+     		 placeholder="Write what you thought…">{{ request.form.get('review','') }}</textarea>
+  		</div>
 
 		<button type="submit" class="btn-log">Log It!</button>
 	</form>
@@ -186,7 +195,8 @@
             platform: document.getElementById('platform').value,
             duration: document.getElementById('listenTime').value,
             genre: document.getElementById('genre').value,
-            rating: document.querySelector('input[name="rating"]:checked')?.value
+            rating: document.querySelector('input[name="rating"]:checked')?.value,
+			review:    document.getElementById('review').value
         };
         
 

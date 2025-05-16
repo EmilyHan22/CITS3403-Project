@@ -50,6 +50,9 @@
                     {% endfor %}
                   </p>
                 {% endif %}
+                {% if log.review %}
+                  <p class="card-text"><strong>Review:</strong> {{ log.review }}</p>
+                {% endif %}
 
                 {% if is_owner %}
                   <!-- Share button -->

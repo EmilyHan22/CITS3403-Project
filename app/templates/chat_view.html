@@ -40,7 +40,7 @@
 
             <!-- purple card, only bottom corners rounded -->
             <div class="card text-white bg-purple rounded-bottom d-inline-block"
-                 style="width:200px; margin-top:-1px;">
+                 style="max-width:280px; margin-top:-1px;">
               {% set log = msg.podcast_log %}
               {% if log.podcast.image_url %}
                 <img src="{{ log.podcast.image_url }}"
@@ -58,7 +58,28 @@
                   <p class="mb-1"><strong>Genre:</strong> {{ log.genre }}</p>
                 {% endif %}
                 {% if log.rating %}
-                  <p class="mb-0"><strong>Rating:</strong> {{ log.rating }}/5</p>
+                    <div class="mb-2">
+                    {# filled stars #}
+                    {% for _ in range(log.rating|int) %}
+                        <i class="bi bi-star-fill text-warning me-1"></i>
+                    {% endfor %}
+                    {# outline stars for the remainder #}
+                    {% for _ in range(5 - (log.rating|int)) %}
+                        <i class="bi bi-star text-muted me-1"></i>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+                {% if log.duration %}
+                  <p class="mb-1"><strong>Duration:</strong> {{ log.duration_min }} min</p>
+                {% endif %}
+                {% if log.platform %}
+                  <p class="mb-1"><strong>Platform:</strong> {{ log.platform }}</p>
+                {% endif %}
+                {% if log.genre %}
+                  <p class="mb-1"><strong>Genre:</strong> {{ log.genre }}</p>
+                {% endif %}
+                {% if log.review %}
+                  <p class="mb-1"><strong>Review:</strong> {{ log.review }}</p>
                 {% endif %}
               </div>
             </div>

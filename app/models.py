@@ -130,6 +130,7 @@ class PodcastLog(db.Model):
     ep_name = db.Column(db.Text)
     platform = db.Column(db.String(200))  # comma-separated tags
     genre = db.Column(db.String(64)) 
+    review = db.Column(db.Text)    
     
 
     # Relationship

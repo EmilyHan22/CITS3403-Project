@@ -474,6 +474,7 @@ def api_share_posts():
           'duration_min':    (log.duration / 60) if log.duration else None,
           'genre':           log.genre or log.podcast.genre,
           'rating':          log.rating,
+          'review':          log.review,
           'poster_username': poster.username,
           'poster_pic':      url_for('static', filename='uploads/' + poster.profile_pic),
           'likes':           total_likes,
@@ -875,7 +876,8 @@ def log_podcast():
             genre     = data.get("genre"),   
             duration  = (int(data.get("duration")) * 60)
                           if data.get("duration") else None,
-            rating    = float(data.get("rating")) if data.get("rating") else None
+            rating    = float(data.get("rating")) if data.get("rating") else None,
+            review=data.get("review") or None
  
         )
         db.session.add(log)

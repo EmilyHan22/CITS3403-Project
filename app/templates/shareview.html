@@ -62,6 +62,8 @@
                 <p class="card-text"><strong>Duration:</strong> ${log.duration_min} min</p>
                 ${ log.genre  ? `<p class="card-text"><strong>Genre:</strong> ${log.genre}</p>`  : '' }
                 ${ log.rating ? renderStars(log.rating) : '' }
+                ${ log.review ? `<p class="card-text"><strong>Review:</strong> ${log.review}</p>` : '' }
+
 
                 <div class="d-flex align-items-center mt-3">
                   <button class="btn btn-sm like-btn">
