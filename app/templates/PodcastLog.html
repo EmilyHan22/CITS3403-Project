@@ -1,238 +1,284 @@
 {% extends "base.html" %}
-
 {% block title %}Podcast Log – Podfolio{% endblock %}
 
 {% block content %}
 
 <!-- Greeting -->
 <div class="greeting">
-	<h1>👋 Welcome Back, {{ current_user.display_name }}!</h1>
-	<p>Listened to another podcast? Tell us about it!</p>
+  <h1>👋 Welcome Back, {{ current_user.display_name }}!</h1>
+  <p>Listened to another podcast? Tell us about it!</p>
 </div>
+
+<!-- Flash messages -->
+<div id="flashContainer" class="mb-3"></div>
 
 <!-- Form Centered -->
 <div class="form-container">
-	<form class="podcast-form" id="podcastLogForm">
-		<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <form class="podcast-form" id="podcastLogForm">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-		<div class="mb-3" style="position: relative;">
-			<label for="podcastName" class="form-label">Which Podcast did you listen to?</label>
-			<input type="text" class="form-control" id="podcastName" name="podcast_name"
-				placeholder="Start typing podcast name..." autocomplete="off">
-			<input type="hidden" id="selectedPodcastId" name="podcast_id">
-			<div id="podcastSuggestions" class="autocomplete-dropdown"></div>
-		</div>
+    <!-- Podcast name + suggestions -->
+    <div class="mb-3" style="position: relative;">
+      <label for="podcastName" class="form-label">Which Podcast did you listen to?</label>
+      <input type="text" class="form-control" id="podcastName" name="podcast_name"
+             placeholder="Start typing podcast name..." autocomplete="off">
+      <input type="hidden" id="selectedPodcastId" name="podcast_id">
+      <div id="podcastSuggestions" class="autocomplete-dropdown"></div>
+    </div>
 
-		<div class="mb-3">
-			<label for="podcastEp" class="form-label">Which episode?</label>
-			<input type="text" class="form-control" id="podcastEp" name="episode"
-				placeholder="Enter Podcast Episode Title">
-		</div>
+    <!-- Episode Autocomplete (STYLED to match podcast dropdown) -->
+    <div class="mb-3" style="position: relative;">
+      <label for="podcastEp" class="form-label">Which episode?</label>
+      <input type="text" class="form-control" id="podcastEp" name="episode"
+             placeholder="Start typing episode title..." autocomplete="off">
+      <input type="hidden" id="selectedEpisodeId" name="episode_id">
+      <!-- CHANGED: added same class & id pattern for styling -->
+      <div id="episodeSuggestions" class="autocomplete-dropdown"></div>
+    </div>
 
-		<div class="mb-3">
-			<label for="platform" class="form-label">Which platform did you use?</label>
-			<select class="form-select" id="platform" name="platform">
-				<option selected disabled>Select</option>
-				<option value="Spotify">Spotify</option>
-				<option value="Apple Podcasts">Apple Podcasts</option>
-				<option value="Google Podcasts">Google Podcasts</option>
-				<option value="Amazon Music">Amazon Music</option>
-				<option value="Pocket Casts">Pocket Casts</option>
-				<option value="Overcast">Overcast</option>
-				<option value="Castbox">Castbox</option>
-				<option value="Stitcher">Stitcher</option>
-				<option value="Podbean">Podbean</option>
-				<option value="Podcast Addict">Podcast Addict</option>
-				<option value="YouTube">YouTube</option>
-				<option value="TuneIn">TuneIn</option>
-				<option value="Audible">Audible</option>
-				<option value="iHeartRadio">iHeartRadio</option>
-				<option value="Other">Other</option>
-			</select>
-		</div>
+    <!-- Platform -->
+    <div class="mb-3">
+      <label for="platform" class="form-label">Which platform did you use?</label>
+      <select class="form-select" id="platform" name="platform">
+        <option selected disabled>Select</option>
+        <option value="Spotify">Spotify</option>
+        <option value="Apple Podcasts">Apple Podcasts</option>
+        <option value="Google Podcasts">Google Podcasts</option>
+        <option value="Amazon Music">Amazon Music</option>
+        <option value="Pocket Casts">Pocket Casts</option>
+        <option value="Overcast">Overcast</option>
+        <option value="Castbox">Castbox</option>
+        <option value="Stitcher">Stitcher</option>
+        <option value="Podbean">Podbean</option>
+        <option value="Podcast Addict">Podcast Addict</option>
+        <option value="YouTube">YouTube</option>
+        <option value="TuneIn">TuneIn</option>
+        <option value="Audible">Audible</option>
+        <option value="iHeartRadio">iHeartRadio</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
 
-		<div class="mb-3">
-			<label for="listenTime" class="form-label">How many minutes did you listen for?</label>
-			<input type="number" class="form-control" id="listenTime" name="duration" placeholder="E.g. 45">
-		</div>
+    <!-- Duration -->
+    <div class="mb-3">
+      <label for="listenTime" class="form-label">How many minutes did you listen for?</label>
+      <input type="number" class="form-control" id="listenTime" name="duration" placeholder="E.g. 45">
+    </div>
 
-		<div class="mb-3">
-			<label for="genre" class="form-label">What Genre is the Podcast?</label>
-			<select class="form-select" id="genre" name="genre">
-				<option selected disabled>Select</option>
-				<option value="Educational">Educational</option>
-				<option value="News">News</option>
-				<option value="Interview">Interview</option>
-				<option value="Politics">Politics</option>
-				<option value="Society and Culture">Society and Culture</option>
-				<option value="Sports">Sports</option>
-				<option value="Musical">Musical</option>
-				<option value="Comedy">Comedy</option>
-				<option value="Narrative">Narrative</option>
-				<option value="Crime and Mystery">Crime and Mystery</option>
-				<option value="Business and Economy">Business and Economy</option>
-				<option value="Lifestyle and Health">Lifestyle and Health</option>
-				<option value="Technology and Development">Technology and Development</option>
-				<option value="Other">Other</option>
-			</select>
-		</div>
+    <!-- Genre -->
+    <div class="mb-3">
+      <label for="genre" class="form-label">What Genre is the Podcast?</label>
+      <select class="form-select" id="genre" name="genre">
+        <option selected disabled>Select</option>
+        <option value="Educational">Educational</option>
+        <option value="News">News</option>
+        <option value="Interview">Interview</option>
+        <option value="Politics">Politics</option>
+        <option value="Society and Culture">Society and Culture</option>
+        <option value="Sports">Sports</option>
+        <option value="Musical">Musical</option>
+        <option value="Comedy">Comedy</option>
+        <option value="Narrative">Narrative</option>
+        <option value="Crime and Mystery">Crime and Mystery</option>
+        <option value="Business and Economy">Business and Economy</option>
+        <option value="Lifestyle and Health">Lifestyle and Health</option>
+        <option value="Technology and Development">Technology and Development</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
 
-		<div class="mb-3">
-			<label class="form-label">Rate it!</label>
-			<div class="star-rating">
-				<input type="radio" id="star5" name="rating" value="5" hidden />
-				<label for="star5">★</label>
+    <!-- Rating -->
+    <div class="mb-3">
+      <label class="form-label">Rate it!</label>
+      <div class="star-rating">
+        <input type="radio" id="star5" name="rating" value="5" hidden />
+        <label for="star5">★</label>
+        <input type="radio" id="star4" name="rating" value="4" hidden />
+        <label for="star4">★</label>
+        <input type="radio" id="star3" name="rating" value="3" hidden />
+        <label for="star3">★</label>
+        <input type="radio" id="star2" name="rating" value="2" hidden />
+        <label for="star2">★</label>
+        <input type="radio" id="star1" name="rating" value="1" hidden />
+        <label for="star1">★</label>
+      </div>
+    </div>
 
-				<input type="radio" id="star4" name="rating" value="4" hidden />
-				<label for="star4">★</label>
+    <!-- Review -->
+    <div class="mb-3">
+      <label for="review" class="form-label">Your Review</label>
+      <textarea class="form-control" id="review" name="review" rows="3"
+                placeholder="Write what you thought…">{{ request.form.get('review','') }}</textarea>
+    </div>
 
-				<input type="radio" id="star3" name="rating" value="3" hidden />
-				<label for="star3">★</label>
-
-				<input type="radio" id="star2" name="rating" value="2" hidden />
-				<label for="star2">★</label>
-
-				<input type="radio" id="star1" name="rating" value="1" hidden />
-				<label for="star1">★</label>
-			</div>
-		</div>
-		<div class="mb-3">
-    		<label for="review" class="form-label">Your Review</label>
-    		<textarea
-     			class="form-control"
-      			id="review"
-      			name="review"
-      			rows="3"
-     		 placeholder="Write what you thought…">{{ request.form.get('review','') }}</textarea>
-  		</div>
-
-		<button type="submit" class="btn-log">Log It!</button>
-	</form>
+    <button type="submit" class="btn-log">Log It!</button>
+  </form>
 </div>
 
+{% endblock %}
 
+
+{% block scripts %}
 <script>
-	const csrfToken = document.querySelector('meta[name=csrf-token]').content;
-	document.addEventListener('DOMContentLoaded', function() {
-		const podcastInput = document.getElementById('podcastName');
-		const podcastIdInput = document.getElementById('selectedPodcastId');
-		const suggestionsContainer = document.getElementById('podcastSuggestions');
-		let debounceTimer;
-	
-		podcastInput.addEventListener('input', function() {
-    clearTimeout(debounceTimer);
-    const query = this.value.trim();
-    
-    if (query.length < 2) {
-        suggestionsContainer.style.display = 'none';
-        return;
+// Helper to display flash messages above the form
+function flashMessage(msg, type = 'danger') {
+  const container = document.getElementById('flashContainer');
+  container.innerHTML = `<div class="alert alert-${type}" role="alert">${msg}</div>`;
+}
+const csrfToken = document.querySelector('meta[name=csrf-token]').content;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const podcastInput   = document.getElementById('podcastName');
+  const podcastIdInput = document.getElementById('selectedPodcastId');
+  const podSug         = document.getElementById('podcastSuggestions');
+
+  const episodeInput   = document.getElementById('podcastEp');
+  const episodeIdInput = document.getElementById('selectedEpisodeId');
+  const epSug          = document.getElementById('episodeSuggestions');
+
+  let podTimer, epList = [];
+
+  // 1) Autocomplete podcasts
+  podcastInput.addEventListener('input', () => {
+    clearTimeout(podTimer);
+    const q = podcastInput.value.trim();
+    if (q.length < 2) {
+      podSug.style.display = 'none';
+      return;
     }
-    
-    debounceTimer = setTimeout(() => {
-        fetch(`/search_spotify_podcasts?q=${encodeURIComponent(query)}`)
-            .then(response => response.json())
-            .then(podcasts => {
-                suggestionsContainer.innerHTML = '';
-                
-                if (!podcasts || podcasts.length === 0) {
-                    suggestionsContainer.innerHTML = '<div class="autocomplete-item no-results">No podcasts found</div>';
-                    suggestionsContainer.style.display = 'block';
-                    return;
-                }
-                
-                podcasts.forEach(podcast => {
-                    const item = document.createElement('div');
-                    item.className = 'autocomplete-item';
-                    
-                    // Create podcast display with image if available
-                    item.innerHTML = `
-                        <div class="d-flex align-items-center">
-                            ${podcast.image ? 
-                                `<img src="${podcast.image}" class="podcast-thumb me-2" style="width: 40px; height: 40px; border-radius: 4px;">` : 
-                                `<div class="podcast-thumb me-2" style="width: 40px; height: 40px; background: #ddd; border-radius: 4px;"></div>`}
-                            <div>
-                                <div class="fw-bold">${podcast.name}</div>
-                                <small class="text-muted">${podcast.publisher}</small>
-                            </div>
-                        </div>
-                    `;
-                    
-                    item.addEventListener('click', () => {
-                        podcastInput.value = podcast.name;
-                        podcastIdInput.value = podcast.id;  // Using Spotify ID now
-                        suggestionsContainer.style.display = 'none';
-                    });
-                    
-                    suggestionsContainer.appendChild(item);
-                });
-                
-                suggestionsContainer.style.display = 'block';
-            });
-    }, 500);  // Slightly longer debounce for API calls
-});
-	
-		// Hide dropdown when clicking outside
-		document.addEventListener('click', function(e) {
-			if (e.target !== podcastInput) {
-				suggestionsContainer.style.display = 'none';
-			}
-		});
-	
-		// Form submission remains exactly the same
-		document.getElementById('podcastLogForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Validate required fields
-        if (!document.getElementById('selectedPodcastId').value) {
-            alert('Please select a podcast from the suggestions');
-            return;
-        }
-        
-        // Get form data
-        const formData = {
-            podcast_id: document.getElementById('selectedPodcastId').value,
-            episode: document.getElementById('podcastEp').value,
-            platform: document.getElementById('platform').value,
-            duration: document.getElementById('listenTime').value,
-            genre: document.getElementById('genre').value,
-            rating: document.querySelector('input[name="rating"]:checked')?.value,
-			review:    document.getElementById('review').value
-        };
-        
+    podTimer = setTimeout(() => {
+      fetch(`/search_spotify_podcasts?q=${encodeURIComponent(q)}`)
+        .then(r => r.json())
+        .then(shows => {
+          podSug.innerHTML = '';
+          if (!shows.length) {
+            podSug.innerHTML = '<div class="autocomplete-item no-results">No podcasts found</div>';
+          }
+          shows.forEach(s => {
+            const div = document.createElement('div');
+            div.className = 'autocomplete-item';
+            div.innerHTML = `
+              <div class="d-flex align-items-center">
+                ${s.image
+                  ? `<img src="${s.image}" class="podcast-thumb me-2" style="width:40px;height:40px;border-radius:4px;">`
+                  : `<div class="podcast-thumb me-2" style="width:40px;height:40px;background:#ddd;border-radius:4px;"></div>`}
+                <div>
+                  <div class="fw-bold">${s.name}</div>
+                  <small class="text-muted">${s.publisher}</small>
+                </div>
+              </div>
+            `;
+            div.onclick = () => {
+              podcastInput.value = s.name;
+              podcastIdInput.value = s.id;
+              podSug.style.display = 'none';
 
-        
-        // Send to server
-        fetch('/log_podcast', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-				'X-CSRFToken': csrfToken
-            },
-            body: JSON.stringify(formData)
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                alert('Podcast logged successfully!');
-                // Reset form
-                this.reset();
-                document.getElementById('selectedPodcastId').value = '';
-            } else {
-                alert('Error: ' + (data.message || 'Failed to log podcast'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Failed to log podcast. Please try again.');
+              // enable episode + fetch its episodes
+              episodeInput.disabled = false;
+              fetch(`/api/spotify_shows/${s.id}/episodes`)
+                .then(r => r.json())
+                .then(list => { epList = list; });
+            };
+            podSug.appendChild(div);
+          });
+          podSug.style.display = 'block';
         });
-    });
-	});
-	</script>
+    }, 300);
+  });
 
+  // hide podcast dropdown
+  document.addEventListener('click', e => {
+    if (e.target !== podcastInput) podSug.style.display = 'none';
+  });
 
+  // Autocomplete episodes
+  episodeInput.addEventListener('input', () => {
+    const q = episodeInput.value.trim().toLowerCase();
+    if (!q || !epList.length) {
+      epSug.style.display = 'none';
+      return;
+    }
+    const filtered = epList.filter(ep => ep.name.toLowerCase().includes(q));
+    epSug.innerHTML = '';
+    if (!filtered.length) {
+      epSug.innerHTML = '<div class="autocomplete-item no-results">No episodes found</div>';
+    } else {
+      filtered.forEach(ep => {
+        const div = document.createElement('div');
+        div.className = 'autocomplete-item';
+        div.textContent = ep.name;
+        div.onclick = () => {
+          episodeInput.value = ep.name;
+          episodeIdInput.value = ep.id;
+          epSug.style.display = 'none';
+        };
+        epSug.appendChild(div);
+      });
+    }
+    epSug.style.display = 'block';
+  });
+
+  // hide episode dropdown
+  document.addEventListener('click', e => {
+    if (e.target !== episodeInput) epSug.style.display = 'none';
+  });
+
+  // 3) Submit form
+  document.getElementById('podcastLogForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (!podcastIdInput.value) {
+      return flashMessage('Please select a valid podcast from the suggestions.');
+    }
+    if (!episodeIdInput.value) {
+      return flashMessage('Please select a valid episode from the suggestions.');
+    }
+    const platform = document.getElementById('platform').value;
+    if (!platform || platform === 'Select') {
+      return flashMessage('Platform is required.');
+    }
+    const duration = document.getElementById('listenTime').value;
+    if (!duration || duration <= 0) {
+      return flashMessage('Please enter how many minutes you listened.');
+    }
+    const genre = document.getElementById('genre').value;
+    if (!genre || genre === 'Select') {
+      return flashMessage('Genre is required.');
+    }
+    const rating = document.querySelector('input[name="rating"]:checked')?.value;
+    if (!rating) {
+      return flashMessage('Please rate the podcast.');
+    }
+    const payload = {
+      podcast_id: podcastIdInput.value,
+      episode:    episodeInput.value,
+      episode_id: episodeIdInput.value,
+      platform,
+      duration,
+      genre,
+      rating,
+      review:     document.getElementById('review').value
+    };
+    fetch('/log_podcast', {
+      method: 'POST',
+      headers: {
+        'Content-Type':'application/json',
+        'X-CSRFToken': csrfToken
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(r=>r.json())
+    .then(json => {
+      if (json.success) {
+        alert('Podcast logged successfully!');
+        this.reset();
+        episodeInput.disabled = true;
+        epList = [];
+      } else {
+        alert('Error: ' + (json.message || 'Failed to log podcast'));
+      }
+    })
+    .catch(()=>alert('Failed to log podcast. Please try again.'));
+  });
+});
+</script>
 {% endblock %}
