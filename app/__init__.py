@@ -8,6 +8,8 @@ from flask_bcrypt import Bcrypt
 from flask_mail import Mail
 from itsdangerous import URLSafeTimedSerializer
 from .db import db               # relative import, NOT “from app.db”
+import pytz
+from datetime import datetime
 
 # ─── global extensions ──────────────────────────────────────
 login_mgr = LoginManager()
@@ -15,7 +17,8 @@ bcrypt    = Bcrypt()
 migrate   = Migrate()
 mail      = Mail()
 oauth     = OAuth()
-csrf      = CSRFProtect()               # ← add this
+csrf      = CSRFProtect()
+
 
 def make_serializer(app):
     return URLSafeTimedSerializer(app.config["SECRET_KEY"], salt="password-reset")
@@ -66,10 +69,21 @@ def create_app():
         client_kwargs={'scope': 'openid email profile'}
     )
 
+    @app.template_filter('to_local')
+    def to_local(utc_dt, tz_name='Australia/Perth'):
+        """Convert a UTC datetime to the given timezone."""
+        if not utc_dt:
+            return ''
+        # mark as UTC, then convert
+        utc = pytz.utc
+        target = pytz.timezone(tz_name)
+        return utc.localize(utc_dt).astimezone(target)
+
 
     # ─── CSRF protection ────────────────────────────────────
     csrf.init_app(app)
-    
+
+
     # ─── initialize the rest ───────────────────────────────
     db.init_app(app)
     mail.init_app(app)

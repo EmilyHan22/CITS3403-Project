@@ -154,3 +154,65 @@ class Comment(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     user = db.relationship('User', backref='comments')
+
+class Message(db.Model):
+    __tablename__ = 'message'
+
+    id              = db.Column(db.Integer, primary_key=True)
+    conversation_id = db.Column(db.Integer, db.ForeignKey('conversation.id'), nullable=False)
+    sender_id       = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    recipient_id    = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    podcast_log_id  = db.Column(db.Integer, db.ForeignKey('podcast_log.id'), nullable=True)
+    text            = db.Column(db.Text, nullable=True)
+    created_at      = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    read            = db.Column(db.Boolean, default=False, nullable=False)
+
+    # the other side of Conversation.messages
+    conversation = db.relationship(
+        'Conversation',
+        back_populates='messages'
+    )
+
+    # who sent it / who receives it
+    sender = db.relationship(
+        'User',
+        foreign_keys=[sender_id],
+        backref='sent_messages'
+    )
+    recipient = db.relationship(
+        'User',
+        foreign_keys=[recipient_id],
+        backref='received_messages'
+    )
+
+    # if you need the original podcast-log entry on a chat
+    podcast_log = db.relationship('PodcastLog', foreign_keys=[podcast_log_id])
+class Conversation(db.Model):
+    __tablename__ = 'conversation'
+
+    id        = db.Column(db.Integer, primary_key=True)
+    user1_id  = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user2_id  = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    __table_args__ = (
+        db.UniqueConstraint('user1_id', 'user2_id', name='uq_conversation_pair'),
+    )
+
+    # RELATIONSHIPS:
+    user1 = db.relationship(
+        'User',
+        foreign_keys=[user1_id],
+        backref=db.backref('conversations_as_user1', lazy='dynamic')
+    )
+    user2 = db.relationship(
+        'User',
+        foreign_keys=[user2_id],
+        backref=db.backref('conversations_as_user2', lazy='dynamic')
+    )
+
+    messages = db.relationship(
+        'Message',
+        back_populates='conversation',
+        cascade='all, delete-orphan',
+        order_by='Message.created_at.asc()'
+    )

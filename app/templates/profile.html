@@ -23,7 +23,6 @@
     <div class="alert alert-info">
       🔒 Profile locked: to view {{ profile_user.username }}’s podcasts you need to be friends first.
     </div>
-
   {% else %}
     {% if logs %}
       <div class="row">
@@ -44,13 +43,23 @@
                 {% if log.rating %}
                   <p class="card-text"><strong>Rating:</strong> {{ log.rating }}/5</p>
                 {% endif %}
+
                 {% if is_owner %}
-                <button
-                class="btn btn-sm btn-outline-primary mt-2 share-btn"
-                data-log-id="{{ log.id }}"
-              >
-                {% if log.shared %}Shared{% else %}Share{% endif %}
-              </button>
+                  <!-- Share button -->
+                  <button
+                    class="btn btn-sm btn-outline-primary mt-2 share-btn"
+                    data-log-id="{{ log.id }}"
+                  >
+                    {% if log.shared %}Shared{% else %}Share{% endif %}
+                  </button>
+
+                  <!-- Chat/send-to-friend button -->
+                  <button
+                    class="btn btn-sm btn-outline-secondary mt-2 ms-2 chat-btn"
+                    data-log-id="{{ log.id }}"
+                  >
+                    <i class="bi bi-send"></i>
+                  </button>
                 {% endif %}
               </div>
             </div>
@@ -62,35 +71,110 @@
     {% endif %}
   {% endif %}
 </div>
-{% endblock %}
-{% block scripts %}
-{{ super() }}
-<script>
-  // grab token from meta
-  const csrfToken = document.querySelector('meta[name=csrf-token]').content;
 
-  document.querySelectorAll('.share-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id = btn.dataset.logId;
-      fetch(`/share_podcast/${id}`, {
+<!-- Chat‐to‐friend Modal -->
+<div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="chatModalLabel">Send Podcast to a Friend</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="list-group" id="chatUserList">
+          <li class="list-group-item text-center text-muted">Loading friends…</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script>
+  (function(){
+    const csrfToken = document.querySelector('meta[name=csrf-token]').content;
+
+    // When you click the "send" icon on a log
+    document.querySelectorAll('.chat-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const logId = btn.dataset.logId;
+        const listEl = document.getElementById('chatUserList');
+        listEl.innerHTML = '<li class="list-group-item text-center text-muted">Loading friends…</li>';
+
+        fetch('/api/friends')
+          .then(r => r.json())
+          .then(json => {
+            listEl.innerHTML = '';
+            json.friends.forEach(u => {
+              const li = document.createElement('li');
+              li.className = 'list-group-item d-flex justify-content-between align-items-center';
+              li.innerHTML = `
+                <div class="d-flex align-items-center">
+                  <img src="${u.profile_pic_url}" class="rounded-circle me-2"
+                       style="width:32px;height:32px;object-fit:cover;">
+                  <span>${u.username}</span>
+                </div>
+                <button
+                  class="btn btn-sm btn-primary send-to-btn"
+                  data-log-id="${logId}"
+                  data-user-id="${u.id}"
+                >Send</button>
+              `;
+              listEl.append(li);
+            });
+            if (!json.friends.length) {
+              listEl.innerHTML = '<li class="list-group-item text-center text-muted">No friends yet.</li>';
+            }
+          })
+          .catch(() => {
+            listEl.innerHTML = '<li class="list-group-item text-danger">Failed to load friends</li>';
+          });
+
+        new bootstrap.Modal(document.getElementById('chatModal')).show();
+      });
+    });
+
+    // Delegate “Send” clicks inside the modal
+    document.getElementById('chatUserList').addEventListener('click', e => {
+      const sendBtn = e.target.closest('.send-to-btn');
+      if (!sendBtn) return;
+
+      const logId    = sendBtn.dataset.logId;
+      const recId    = sendBtn.dataset.userId;
+      console.log('📤 send_podcast payload:', { log_id: logId, recipient_id: recId });
+
+      fetch('/send_podcast', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRFToken': csrfToken
-        }
+        },
+        body: JSON.stringify({ log_id: logId, recipient_id: recId })
       })
-      .then(r => r.json())
-      .then(data => {
-        if (data.success) {
-          btn.textContent = 'Shared';
-          btn.disabled = true;
+      .then(async r => {
+        if (!r.ok) {
+          const text = await r.text();
+          console.error('🚨 /send_podcast error', r.status, text);
+          throw new Error('Server error');
+        }
+        return r.json();
+      })
+      .then(json => {
+        console.log('📬 send_podcast response:', json);
+        if (json.success) {
+          bootstrap.Modal.getInstance(document.getElementById('chatModal')).hide();
+          alert(`Sent to ${json.to_username} successfully`);
         } else {
-          alert(data.message || 'Unable to share.');
+          alert(json.message || 'Unable to send');
         }
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error('❌ send_podcast network error', err);
+        alert('Network error');
+      });
     });
-  });
-</script>
+  })();
+  </script>
 {% endblock %}
-  

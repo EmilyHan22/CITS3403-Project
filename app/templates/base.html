@@ -64,6 +64,15 @@
 					</a>
 				</li>
 				<li class="nav-item">
+					<a class="nav-link text-white" href="{{ url_for('main.chat_list') }}">
+						<i class="bi bi-chat-dots"></i>
+						Chats
+						{% if unread_conversations > 0 %}
+						<span class="badge bg-danger ms-1">{{ unread_conversations }}</span>
+						{% endif %}
+					</a>
+				</li>
+				<li class="nav-item">
 					<a class="nav-link text-white" href="{{ url_for('main.visualise') }}">
 						<i class="bi bi-speedometer2 me-2"></i>Dashboard
 					</a>
@@ -213,6 +222,13 @@
 				avatarModal.show();
 			});
 		});
+	</script>
+	<script>
+	window.addEventListener('pageshow', function(event) {
+  		if (event.persisted) {
+    		window.location.reload();
+  		}
+	});
 	</script>
 
 	{% block scripts %}{% endblock %}

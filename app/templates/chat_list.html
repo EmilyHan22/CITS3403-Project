@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Your Chats – Podfolio{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <h1 class="mb-4">Your Conversations</h1>
+
+  <div class="bg-white rounded shadow-sm p-4">
+    <ul class="p-0 m-0">
+      {% for conv in conversations %}
+        {% if conv.user1_id == current_user.id %}
+          {% set partner = conv.user2 %}
+        {% else %}
+          {% set partner = conv.user1 %}
+        {% endif %}
+        <li class="mb-3 chat-item list-unstyled">
+          <a href="{{ url_for('main.chat_view', convo_id=conv.id) }}"
+             class="chat-link d-flex align-items-center text-dark text-decoration-none">
+            <img src="{{ url_for('static', filename='uploads/' ~ partner.profile_pic) }}"
+                 alt="Avatar"
+                 class="rounded-circle me-3"
+                 style="width:40px; height:40px; object-fit:cover;">
+            <div>
+              <strong>{{ partner.display_name or partner.username }}</strong><br>
+              {% if conv.unread > 0 %}
+                <small class="badge bg-primary">
+                  {{ conv.unread if conv.unread <= 4 else '4+' }} unread
+                </small>
+              {% endif %}
+            </div>
+          </a>
+        </li>
+      {% else %}
+        <li class="list-group-item text-muted">You have no conversations yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

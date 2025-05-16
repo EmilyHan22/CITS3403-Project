@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Chat with {{ other_user.display_name or other_user.username }} – Podfolio{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <h1 class="text-center text-white mb-4">
+    Chat with {{ other_user.display_name or other_user.username }}
+  </h1>
+
+  <div id="chat-panel"
+       class="bg-white rounded shadow-sm p-4 mb-4"
+       style="max-height: 60vh; overflow-y: auto;">
+    <div id="messages" data-current-user="{{ current_user.id }}">
+
+      {# track last date to show banner once per day #}
+      {% set ns = namespace(last_date=None) %}
+
+      {% for msg in messages %}
+        {% set local_dt = msg.created_at|to_local %}
+        {% set this_day = local_dt.strftime('%Y-%m-%d') %}
+
+        {% if this_day != ns.last_date %}
+          <div class="text-center text-muted my-3">
+            {{ local_dt.strftime('%B %d, %Y') }}
+          </div>
+          {% set ns.last_date = this_day %}
+        {% endif %}
+
+        {% set is_me = (msg.sender_id == current_user.id) %}
+
+        {% if msg.podcast_log_id %}
+          {# ——— Podcast share ——— #}
+          <div class="d-flex flex-column mb-4 {% if is_me %}align-items-end{% else %}align-items-start{% endif %}">
+
+            <!-- blue top “header” bubble -->
+            <div class="d-inline-block bg-primary text-white rounded-top px-3 py-1">
+              {{ msg.sender.display_name or msg.sender.username }}
+              • {{ local_dt.strftime('%H:%M') }}
+            </div>
+
+            <!-- purple card, only bottom corners rounded -->
+            <div class="card text-white bg-purple rounded-bottom d-inline-block"
+                 style="width:200px; margin-top:-1px;">
+              {% set log = msg.podcast_log %}
+              {% if log.podcast.image_url %}
+                <img src="{{ log.podcast.image_url }}"
+                     class="card-img-top"
+                     alt="{{ log.podcast.name }}">
+              {% endif %}
+              <div class="card-body p-2 text-dark">
+                <h6 class="card-title mb-1">{{ log.podcast.name }}</h6>
+                <p class="mb-1"><strong>Episode:</strong> {{ log.ep_name or '–' }}</p>
+                <p class="mb-1"><strong>Platform:</strong> {{ log.platform or '–' }}</p>
+                <p class="mb-1"><strong>Duration:</strong>
+                  {{ (log.duration // 60) if log.duration else '–' }} min
+                </p>
+                {% if log.genre %}
+                  <p class="mb-1"><strong>Genre:</strong> {{ log.genre }}</p>
+                {% endif %}
+                {% if log.rating %}
+                  <p class="mb-0"><strong>Rating:</strong> {{ log.rating }}/5</p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+        {% else %}
+          {# ——— Text message ——— #}
+          <div class="d-flex flex-column mb-3 {% if is_me %}align-items-end{% else %}align-items-start{% endif %}">
+            <div class="d-inline-block bg-primary text-white rounded px-3 py-2"
+                 style="max-width:60%;">
+              <small class="d-block fw-bold mb-1">
+                {{ msg.sender.display_name or msg.sender.username }} • {{ local_dt.strftime('%H:%M') }}
+              </small>
+              <div>{{ msg.text }}</div>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      {% if messages|length == 0 %}
+        <div class="text-center text-muted">No messages yet.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <form id="chatForm" class="d-flex" data-convo-id="{{ conversation.id }}">
+    <input type="text" id="chatInput"
+           class="form-control me-2"
+           placeholder="Type a message…"
+           autocomplete="off">
+    <button type="submit" class="btn btn-primary">Send</button>
+    <input type="hidden" name="csrf_token"
+           value="{{ csrf_token() }}">
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function(){
+  const form     = document.getElementById('chatForm');
+  const panel    = document.getElementById('chat-panel');
+  const messages = document.getElementById('messages');
+  const current  = +messages.dataset.currentUser;
+  const input    = document.getElementById('chatInput');
+  const convoId  = form.dataset.convoId;
+
+  // Scroll to bottom on load
+  panel.scrollTop = panel.scrollHeight;
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+
+    const csrfToken = form.querySelector('[name=csrf_token]').value;
+    const res = await fetch(`/chats/${convoId}/message`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken
+      },
+      body: JSON.stringify({ text })
+    });
+    if (!res.ok) { alert('Unable to send'); return; }
+    const { success, message: m } = await res.json();
+    if (!success) { alert(m || 'Error'); return; }
+
+    // New text bubble
+    const wrap = document.createElement('div');
+    wrap.className = 'd-flex flex-column mb-3 ' +
+      (m.sender_id === current ? 'align-items-end' : 'align-items-start');
+    wrap.innerHTML = `
+      <div class="d-inline-block bg-primary text-white rounded px-3 py-2" style="max-width:60%;">
+        <small class="d-block fw-bold mb-1">
+          ${m.username} • ${m.created_at}
+        </small>
+        <div>${m.text}</div>
+      </div>
+    `;
+    messages.appendChild(wrap);
+
+    // Scroll down after append
+    panel.scrollTop = panel.scrollHeight;
+    input.value = '';
+  });
+})();
+</script>
+{% endblock %}
