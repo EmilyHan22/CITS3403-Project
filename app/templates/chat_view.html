@@ -12,7 +12,6 @@
        style="max-height: 60vh; overflow-y: auto;">
     <div id="messages" data-current-user="{{ current_user.id }}">
 
-      {# track last date to show banner once per day #}
       {% set ns = namespace(last_date=None) %}
 
       {% for msg in messages %}
@@ -29,64 +28,55 @@
         {% set is_me = (msg.sender_id == current_user.id) %}
 
         {% if msg.podcast_log_id %}
-          {# ——— Podcast share ——— #}
-          <div class="d-flex flex-column mb-4 {% if is_me %}align-items-end{% else %}align-items-start{% endif %}">
+          {% set log = msg.podcast_log %}
 
-            <!-- blue top “header” bubble -->
+          <div class="d-flex flex-column mb-4 {% if is_me %}align-items-end{% else %}align-items-start{% endif %}">
             <div class="d-inline-block bg-primary text-white rounded-top px-3 py-1">
               {{ msg.sender.display_name or msg.sender.username }}
               • {{ local_dt.strftime('%H:%M') }}
             </div>
 
-            <!-- purple card, only bottom corners rounded -->
-            <div class="card text-white bg-purple rounded-bottom d-inline-block"
-                 style="max-width:280px; margin-top:-1px;">
-              {% set log = msg.podcast_log %}
-              {% if log.podcast.image_url %}
-                <img src="{{ log.podcast.image_url }}"
-                     class="card-img-top"
-                     alt="{{ log.podcast.name }}">
-              {% endif %}
-              <div class="card-body p-2 text-dark">
-                <h6 class="card-title mb-1">{{ log.podcast.name }}</h6>
-                <p class="mb-1"><strong>Episode:</strong> {{ log.ep_name or '–' }}</p>
-                <p class="mb-1"><strong>Platform:</strong> {{ log.platform or '–' }}</p>
-                <p class="mb-1"><strong>Duration:</strong>
-                  {{ (log.duration // 60) if log.duration else '–' }} min
-                </p>
-                {% if log.genre %}
-                  <p class="mb-1"><strong>Genre:</strong> {{ log.genre }}</p>
-                {% endif %}
-                {% if log.rating %}
+            {# only render the card if we actually have a log and a podcast #}
+            {% if log and log.podcast %}
+              <div class="card bg-purple rounded-bottom d-inline-block text-white"
+                   style="max-width:280px; margin-top:-1px;">
+                <div class="card-body p-3 text-dark">
+                  <h6 class="card-title mb-2">{{ log.podcast.name }}</h6>
+
+                  <p class="mb-1"><strong>Episode:</strong> {{ log.ep_name or '–' }}</p>
+                  {% if log.platform %}
+                    <p class="mb-1"><strong>Platform:</strong> {{ log.platform }}</p>
+                  {% endif %}
+                  {% if log.duration %}
+                    <p class="mb-1"><strong>Duration:</strong> {{ (log.duration // 60) }} min</p>
+                  {% endif %}
+                  {% if log.genre %}
+                    <p class="mb-1"><strong>Genre:</strong> {{ log.genre }}</p>
+                  {% endif %}
+                  {% if log.rating %}
                     <div class="mb-2">
-                    {# filled stars #}
-                    {% for _ in range(log.rating|int) %}
+                      {% for _ in range(log.rating|int) %}
                         <i class="bi bi-star-fill text-warning me-1"></i>
-                    {% endfor %}
-                    {# outline stars for the remainder #}
-                    {% for _ in range(5 - (log.rating|int)) %}
+                      {% endfor %}
+                      {% for _ in range(5 - (log.rating|int)) %}
                         <i class="bi bi-star text-muted me-1"></i>
-                    {% endfor %}
+                      {% endfor %}
                     </div>
-                {% endif %}
-                {% if log.duration %}
-                  <p class="mb-1"><strong>Duration:</strong> {{ log.duration_min }} min</p>
-                {% endif %}
-                {% if log.platform %}
-                  <p class="mb-1"><strong>Platform:</strong> {{ log.platform }}</p>
-                {% endif %}
-                {% if log.genre %}
-                  <p class="mb-1"><strong>Genre:</strong> {{ log.genre }}</p>
-                {% endif %}
-                {% if log.review %}
-                  <p class="mb-1"><strong>Review:</strong> {{ log.review }}</p>
-                {% endif %}
+                  {% endif %}
+                  {% if log.review %}
+                    <p class="mb-1"><strong>Review:</strong> {{ log.review }}</p>
+                  {% endif %}
+                </div>
               </div>
-            </div>
+            {% else %}
+              <div class="text-muted fst-italic p-2">
+                Podcast details unavailable.
+              </div>
+            {% endif %}
           </div>
 
         {% else %}
-          {# ——— Text message ——— #}
+          {# ——— Plain text message ——— #}
           <div class="d-flex flex-column mb-3 {% if is_me %}align-items-end{% else %}align-items-start{% endif %}">
             <div class="d-inline-block bg-primary text-white rounded px-3 py-2"
                  style="max-width:60%;">
@@ -97,6 +87,7 @@
             </div>
           </div>
         {% endif %}
+
       {% endfor %}
 
       {% if messages|length == 0 %}
@@ -148,7 +139,7 @@
     const { success, message: m } = await res.json();
     if (!success) { alert(m || 'Error'); return; }
 
-    // New text bubble
+    // Render the new message bubble
     const wrap = document.createElement('div');
     wrap.className = 'd-flex flex-column mb-3 ' +
       (m.sender_id === current ? 'align-items-end' : 'align-items-start');
@@ -161,8 +152,6 @@
       </div>
     `;
     messages.appendChild(wrap);
-
-    // Scroll down after append
     panel.scrollTop = panel.scrollHeight;
     input.value = '';
   });
