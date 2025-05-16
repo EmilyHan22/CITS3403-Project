@@ -104,6 +104,11 @@ This application is designed for users to visualize the podcasts they listen to 
 - Send/accept friend requests; confirm privacy on profiles.
 - Post to the share feed; like and comment in real time.
 
+  **Running the test files:**
+- all the tests at once: python -m unittest discover -s tests
+- only unit tests: python -m unittest tests.test_models 
+- only selenium tests: python -m unittest tests.test_selenium 
+
 ## Avoid problems because of not installing Jinja Extension
 - Open your user settings JSON
 - Do this by typing Ctrl+Shift+P on Windows and ⌘ + Shift + P on Mac
