@@ -8,13 +8,17 @@
   <h1 class="text-center">Your listening insights</h1>
 
   <!-- center-wrapper ensures the grid is horizontally centered -->
-  <div class= "justify-content-center">
+  <div class= "chart-section justify-content-center">
     <div id="my-charts" class="charts-container">
       <!-- Genre Breakdown -->
-      <div id="horizontal-barchart" class="chart-box"></div>
+	  <div id="barchart-div" class='chart-box'>
+      <div id="horizontal-barchart"></div>
+	  </div>
 
       <!-- Listening Time by Week -->
-      <div id="listen-line-graph" class="chart-box"></div>
+	   <div id="linechart-div" class='chart-box'>
+      <div id="listen-line-graph"></div>
+	  </div>
 
       <!-- Top 5 Podcasts -->
       <div id="top-five-section" class="chart-box">
@@ -41,7 +45,7 @@
         <h2 class="most-loved-title text-center mb-3">MOST LOVED</h2>
 
         {% if most_loved %}
-          <div class="star-rating d-flex justify-content-center mb-3">
+          <div class="star-rating d-flex justify-content-center mb-3" style="direction:ltr;">
             {% for _ in range(most_loved.rating|int) %}
               <span class="star filled text-warning fs-2 mx-1">&#9733;</span>
             {% endfor %}
@@ -49,7 +53,7 @@
               <span class="star text-warning-50 fs-2 mx-1">&#9734;</span>
             {% endfor %}
           </div>
-          <p class="most-loved-text text-center text-muted">
+          <p class="most-loved-text text-center">
             You found <em>{{ most_loved.name }}</em><br>
             the most interesting with an average rating of <strong>{{ most_loved.rating }}</strong> stars!
           </p>

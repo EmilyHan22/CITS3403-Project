@@ -121,7 +121,7 @@ nav a:hover {
 .list-group-item {
 	background-color: transparent;
 	border: none;
-	color: #ffffff;
+	color: black;
 }
 
 /* --- Custom scrollbar for lists --- */
@@ -217,7 +217,7 @@ footer {
 .chart-box { background: rgba(255,255,255,0.2); border-radius: 1.5rem; padding: 1rem; flex: 1; max-width: 450px; margin: 0 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
 #podcast-chart-row-1, #podcast-chart-row-2 { display: flex; gap: 2rem; justify-content: center; max-width: 1200px; margin: 0 auto 2rem; }
 h1 { text-align: center; margin-bottom: 1rem; font-weight: 300; }
-#horizontal-barchart, #listen-line-graph, #top-five-section, #most-loved-section { background-color: whitesmoke; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 4px 16px rgba(0,0,0,0.15); height: 100%; }
+#barchart-div, #linechart-div, #top-five-section, #most-loved-section { background-color: whitesmoke; border-radius: 1rem; box-shadow: 0 4px 16px rgba(0,0,0,0.15); height: 100%; }
 .top5-list { list-style: none; margin: 0; padding: 0; }
 .top5-list-item { display: flex; align-items: center; justify-content: space-between; background: white; margin: 0.5rem 0; padding: 0.75rem 1rem; border-radius: 1rem; }
 .top5-rank { font-weight: bold; color: #007bff; margin-right: 1rem; }
@@ -260,6 +260,7 @@ h1 { text-align: center; margin-bottom: 1rem; font-weight: 300; }
 .autocomplete-item { padding: 8px 12px; cursor: pointer; transition: background-color 0.2s; }
 .autocomplete-item:hover { background-color: #f8f9fa; }
 .no-results { color: #6c757d; font-style: italic; }
+.chart-section{display: flex;}
 
 /* ─── Undo sidebar shift on public (landing) pages ───────────────── */
 @media (min-width: 768px) {
@@ -278,15 +279,63 @@ h1 { text-align: center; margin-bottom: 1rem; font-weight: 300; }
 	/* show the mobile top bar for both public & authed */
 	.mobile-nav { display: flex !important; }
 	/* hide both the sidebar and the public desktop bar */
-	/* .desktop-nav, .public-nav { display: none !important; } */
+	.desktop-nav, .public-nav { display: none !important; }
   
 	/* push content below the fixed mobile bar */
 	main {
 	  margin-top: 56px !important;
 	  margin-left: 0 !important;
 	}
+	#my-charts {
+		/* display: block!important; */
+		grid-template-columns: 1fr;
+        padding: 1rem;
+        gap: 1rem;
+	}
+	.chart-box {
+		/*margin: 0 0rem;*/
+		padding: 0rem;
+		color: #000000;
+		margin: 0px 10px;
+		padding: 0rem;
+        margin: 0px 4px 6px 0px;
+        text-align: center;
+	}
+	#horizontal-barchart, #listen-line-graph, #top-five-section, #most-loved-section {
+		padding: 0rem;
+	}
+	.settings-row{
+		height: 100%;
+		overflow: scroll;
+	}
+    .chart-section{
+		display: flex;
+			justify-self: center;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+		
+	}
   }
-  
+  @media (min-width: 990px) and (max-width: 1024px)   {
+  	.chart-section{
+	display: flex;
+		justify-self: center;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+	
+
+	}
+	#my-charts {
+		/* display: block!important; */
+		grid-template-columns: 1fr;
+        padding: 1rem;
+        gap: 1rem;
+	}
+	
+
+}
   /* ─── DESKTOP (992px+) ─────────────────────────────────────── */
   @media (min-width: 992px) {
 	/* hide the mobile bar */
@@ -351,7 +400,35 @@ h1 { text-align: center; margin-bottom: 1rem; font-weight: 300; }
     color: #f8f9fa;
     font-weight: 600;
 }
+.text-dark{
+	color: unset !important;
+}
 
+@media only screen
+  and (min-width: 1440px) and (max-width: 2560px)
+  and (min-height: 450px)  and (max-height: 818px) {
 
-  
+  #horizontal-barchart,
+  #listen-line-graph,
+  #top-five-section,
+  #most-loved-section {
+    background-color: whitesmoke;
+    border-radius: 1rem;
+    height: 100%;
+	max-width: unset;
+  }
 
+  #my-charts {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: minmax(250px, auto);
+    gap: 2rem;
+    max-width: unset;
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+  } 
+}
+#top-five-section,#most-loved-section{
+	color: black !important;
+}  

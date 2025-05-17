@@ -19,7 +19,7 @@
         {% set this_day = local_dt.strftime('%Y-%m-%d') %}
 
         {% if this_day != ns.last_date %}
-          <div class="text-center text-muted my-3">
+          <div class="text-center text-black my-3">
             {{ local_dt.strftime('%B %d, %Y') }}
           </div>
           {% set ns.last_date = this_day %}
