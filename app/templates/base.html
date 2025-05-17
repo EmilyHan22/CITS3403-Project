@@ -48,6 +48,7 @@
           </a>
         </li>
       {% endif %}
+	  <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('main.users') }}"><i class="bi bi-search me-2"></i>Users</a></li>
       <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('main.search') }}"><i class="bi bi-search me-2"></i>Search</a></li>
       <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('main.chat_list') }}"><i class="bi bi-chat-dots me-2"></i>Chats
         {% if unread_conversations>0 %}<span class="badge bg-danger ms-1">{{ unread_conversations }}</span>{% endif %}
@@ -74,6 +75,7 @@
     </div>
     <div class="offcanvas-body">
       <ul class="nav flex-column">
+	    <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('main.users') }}">Users</a></li>
         <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('main.search') }}">Search</a></li>
         <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('main.visualise') }}">Dashboard</a></li>
         <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('main.podcast_log') }}">Logger</a></li>

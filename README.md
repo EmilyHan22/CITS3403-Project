@@ -1,5 +1,6 @@
 # CITS3403-Project
-Repo for CITS3403 group project. 
+Repo for CITS3403 group project.
+https://github.com/EmilyHan22/CITS3403-Project 
 
 ### A description of the purpose of the application, explaining its design and use.
 **Application name:**
@@ -15,7 +16,8 @@ Podfolio
   - [2. Install dependencies](#2-install-dependencies)  
   - [3. Configure Environment](#3-configuration)  
   - [4. Database Migrations](#4-database-setup)  
-  - [5. Run the server](#5-run-the-server)
+  - [5. Seed the Database](#5-seed)
+  - [6. Run the server](#6-run-the-server)
 - [Testing & Usage](#running-tests--manual-qa)
 - [Avoid problems because of not installing Jinja Extension](#6-avoid-problems)
 - [Directory structure](#directory-structure)   
@@ -155,8 +157,11 @@ Securely sign out from any page with a single click
    flask db stamp head
    flask db upgrade
    ```
+5. **Seed the Database**
+   `venv/bin/python seed_data.py`
+   password for the dummy user - password123
 
-5. **Run the Server**  
+6. **Run the Server**  
    ```bash
    flask run
    ```
