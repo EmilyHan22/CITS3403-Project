@@ -15,7 +15,7 @@
         {% endif %}
         <li class="mb-3 chat-item list-unstyled">
           <a href="{{ url_for('main.chat_view', convo_id=conv.id) }}"
-             class="chat-link d-flex align-items-center text-dark text-decoration-none">
+             class="chat-link d-flex align-items-center text-black text-decoration-none">
             <img src="{{ url_for('static', filename='uploads/' ~ partner.profile_pic) }}"
                  alt="Avatar"
                  class="rounded-circle me-3"

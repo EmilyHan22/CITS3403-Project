@@ -26,7 +26,7 @@
       <div class="card-header">Pending Sent</div>
       <ul class="list-group list-group-flush" id="pendingSentList">
         {% for r in sent_requests %}
-        <li class="list-group-item d-flex justify-content-between">
+        <li class="list-group-item d-flex justify-content-between text-white">
           {{ r.to_user.username }}
           <span class="badge bg-warning">Pending</span>
         </li>
@@ -43,7 +43,7 @@
       <div class="card-header">Pending Received</div>
       <ul class="list-group list-group-flush" id="pendingReceivedList">
         {% for r in received_requests %}
-        <li class="list-group-item d-flex justify-content-between">
+        <li class="list-group-item d-flex justify-content-between text-white">
           {{ r.from_user.username }}
           <div>
             <button class="btn btn-sm btn-success accept-btn" data-id="{{ r.id }}">Accept</button>
@@ -63,7 +63,7 @@
       <div class="card-header">Friends</div>
       <ul class="list-group list-group-flush" id="friendsList">
         {% for u in friends %}
-        <li class="list-group-item d-flex justify-content-between">
+        <li class="list-group-item d-flex justify-content-between text-white">
           {{ u.username }}
           <button class="btn btn-sm btn-outline-danger remove-btn" data-id="{{ u.id }}">
             Remove
