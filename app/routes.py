@@ -1261,6 +1261,13 @@ def delete_podcast_log(log_id):
         db.session.rollback()
         return jsonify(success=False, message="Server error"), 500
     
+@bp.route('/users')
+@login_required
+def users():
+    # pull every user, ordered by username
+    all_users = User.query.order_by(User.username).all()
+    return render_template('users.html', users=all_users)
+
 
 
 
