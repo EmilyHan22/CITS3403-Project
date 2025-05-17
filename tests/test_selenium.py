@@ -82,7 +82,7 @@ class SeleniumTestCase(unittest.TestCase):
         self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
         time.sleep(0.5)  # allow layout to stabilize
         element.click()
-        WebDriverWait(self.driver, 10).until(EC.url_contains('/signup'))
+        WebDriverWait(self.driver, 10).until(EC.url_contains('/login'))
         self.driver.find_element(By.LINK_TEXT, 'Sign Up').click()
         WebDriverWait(self.driver, 10).until(EC.url_contains('/signup'))
 
