@@ -17,7 +17,8 @@ Podfolio
   - [4. Database Migrations](#4-database-setup)  
   - [5. Run the server](#5-run-the-server)
 - [Testing & Usage](#running-tests--manual-qa)
-- [Avoid problems because of not installing Jinja Extension](#6-avoid-problems)   
+- [Avoid problems because of not installing Jinja Extension](#6-avoid-problems)
+- [Directory structure](#directory-structure)   
 - [Group Members](#group-members)  
 
 ---
@@ -46,48 +47,57 @@ Podfolio keeps your data private by default but makes it simple to share a “fe
 
 ## Features
 
-Secure, Flexible Authentication
+- Secure, Flexible Authentication:
 
-Sign up with email/password, or use Google OAuth for one-click access. Your choice, protected by industry-standard CSRF and password hashing.
+Sign in with email/password or one-click Google OAuth
 
-Rich Podcast Logging
+CSRF-protected forms and hashed passwords
 
-For each episode you log you can capture:
+- Podcast Logging:
 
-Show title and episode name
+Log each episode with show title, episode name, listening platform, duration, genre, star rating, and optional text review
 
-Platform (Spotify, Apple, etc.)
+Instantly see new entries on your personal profile
 
-Exact duration (in minutes)
+- Social Sharing & Messaging:
 
-Genre tags
+ShareFeed: post a logged episode to your feed where friends can like and comment
 
-Star rating (1–5) and short text review
+Send to Friend: choose one or more friends to send a podcast directly into your private chat
 
-Interactive Analytics Dashboard
+Built-in chat UI shows sent podcasts inline, displays timestamps, and badges for up to 4+ unread messages
 
-Horizontal bar chart of total minutes by genre
+- Friends & Privacy Controls:
 
-Time-series plot of listening minutes per week
+Search for users by username, send and accept friend requests
 
-Top-5 list of your most-played shows this month
+Private profiles by default—only approved friends can view each other’s logs and analytics
 
-“Most Loved” highlight: the single show or episode you rated highest
+- Interactive Analytics Dashboard:
 
-Friend System & Private Profiles
+Genre Breakdown: horizontal bar chart of total listening minutes by genre
 
-Search for other users, follow them, and view their public dashboards
+Listening Trends: time-series plot of weekly minutes listened
 
-Control who can see your feed and profile details
+Top 5 Shows: list of your most-played podcasts this month
 
-Share Feed (“Reels”)
+Most Loved: highlight the single episode you rated highest
 
-A TikTok-style scrolling list of your friends’ most recent logged episodes
+- Profile & Settings:
 
-Like and comment on each other’s posts to discuss & recommend
+Click your name in the sidebar to view your profile and all logged episodes
 
-Built-in safeguards: you never see ads, there’s no algorithmic ranking—just pure podcast passion
+Settings Page: update display name, email, password, profile picture, or permanently delete your account
 
+- Global Search & Navigation:
+
+Sidebar links let you jump to Logger, Dashboard, ShareFeed, Chats, Friends, Settings, and Logout
+
+Responsive layout adapts seamlessly from mobile to desktop
+
+- One-click Logout:
+
+Securely sign out from any page with a single click
 
 
 ## Prerequisites
@@ -175,6 +185,37 @@ python -m unittest tests.test_selenium for selenium tests only
   "css.validate": false
 }
 ```
+
+# Directory Structure
+
+CITS3403-Project/
+│
+├── app/
+│ ├── init.py
+│ ├── auth.py
+│ ├── database.py
+│ ├── db.py
+│ ├── load_data.py
+│ ├── models.py
+│ ├── routes.py
+│ ├── podcast_log_dummy_data.csv
+│ ├── podcast_table_dummy_data.csv
+│ ├── static/
+│ │ └── … (CSS, JS, icons, uploads, etc.)
+│ └── templates/
+│ └── … (Jinja2 HTML templates)
+│
+├── migrations/ # Flask-Migrate migrations
+│ └── …
+│
+├── tests/
+│ └── … (unit & Selenium tests)
+│
+├── load.py # data‐loading script (standalone)
+├── run.py # app entry‐point
+├── requirements.txt
+├── README.md
+└── .gitignore
 
 ### Group 63 Members:
 
