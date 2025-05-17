@@ -3,39 +3,49 @@
 {% block title %}Visualise – Podfolio{% endblock %}
 
 {% block content %}
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-  <script src="/static/js/dashboard_charts.js"></script>
-  <h1 class="text-center">Your listening insights</h1>
+  <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+  <script src="{{ url_for('static', filename='js/dashboard_charts.js') }}"></script>
 
-  <!-- center-wrapper ensures the grid is horizontally centered -->
-  <div class= "chart-section justify-content-center">
+  <h1 class="text-center mb-5">Your listening insights</h1>
+
+  <div class="chart-section justify-content-center">
     <div id="my-charts" class="charts-container">
       <!-- Genre Breakdown -->
-	  <div id="barchart-div" class='chart-box'>
-      <div id="horizontal-barchart"></div>
-	  </div>
+      <div id="barchart-div" class="chart-box">
+        <div id="horizontal-barchart"></div>
+      </div>
 
       <!-- Listening Time by Week -->
-	   <div id="linechart-div" class='chart-box'>
-      <div id="listen-line-graph"></div>
-	  </div>
+      <div id="linechart-div" class="chart-box">
+        <div id="listen-line-graph"></div>
+      </div>
 
       <!-- Top 5 Podcasts -->
       <div id="top-five-section" class="chart-box">
-        <h2>Your Top 5 Podcasts</h2>
-        <p>Here are your top 5 podcasts of the month!</p>
+        <h2 class="mb-4">Your Top 5 Podcasts</h2>
 
-        <ul class="top5-list list-group list-group-flush">
+        <ul class="top5-list list-unstyled mb-0">
           {% if top5 %}
-            {% for name, mins in top5 %}
-              <li class="top5-list-item list-group-item d-flex align-items-center bg-white rounded-pill mb-2 shadow-sm py-2 px-3">
-                <span class="top5-rank fw-bold text-primary me-3">{{ loop.index }}.</span>
-                <span class="top5-podcast-name flex-grow-1 text-truncate">{{ name }}</span>
-                <span class="top5-duration badge bg-secondary rounded-pill ms-3">{{ mins }} min</span>
+            {% for pod in top5 %}
+              <li class="top5-list-item d-flex align-items-center bg-white rounded-pill mb-3 shadow-sm py-2 px-3">
+                <!-- Index -->
+                <span class="top5-rank me-3">{{ loop.index }}.</span>
+
+                <!-- Cover art -->
+                <img src="{{ pod.image_url }}"
+                     alt="{{ pod.name }} cover"
+                     class="top5-img rounded-circle me-3">
+
+                <!-- Name + Publisher -->
+                <div class="flex-grow-1">
+                  <div class="top5-podcast-name fw-semibold">{{ pod.name }}</div>
+                  <div class="top5-publisher">{{ pod.publisher }}</div>
+                </div>
+
               </li>
             {% endfor %}
           {% else %}
-            <li class="top5-list-item list-group-item">No listening history yet.</li>
+            <li class="text-center text-muted">No listening history yet.</li>
           {% endif %}
         </ul>
       </div>
@@ -43,7 +53,6 @@
       <!-- Most Loved Podcast -->
       <div id="most-loved-section" class="chart-box">
         <h2 class="most-loved-title text-center mb-3">MOST LOVED</h2>
-
         {% if most_loved %}
           <div class="star-rating d-flex justify-content-center mb-3" style="direction:ltr;">
             {% for _ in range(most_loved.rating|int) %}
@@ -54,11 +63,11 @@
             {% endfor %}
           </div>
           <p class="most-loved-text text-center">
-            You found <em>{{ most_loved.name }}</em><br>
-            the most interesting with an average rating of <strong>{{ most_loved.rating }}</strong> stars!
+            You found <em>{{ most_loved.name }}</em> the most interesting  
+            with an average rating of <strong>{{ most_loved.rating }}</strong> stars!
           </p>
         {% else %}
-          <p class="most-loved-text text-center">
+          <p class="most-loved-text text-center text-muted">
             You haven’t rated anything yet.
           </p>
         {% endif %}

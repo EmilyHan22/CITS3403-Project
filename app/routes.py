@@ -554,50 +554,62 @@ def post_comment(post_id):
     })
 
 
-
-
 @bp.route("/visualise")
 @login_required
 def visualise():
-    # 1) Top 5 by total listen‐time (in minutes)
+    # 1) Top 5 by total listen‐time (in minutes), now pulling image_url & publisher
     top5_q = (
         db.session
-          .query(
-             Podcast.name,
-             func.sum(PodcastLog.duration).label("total_duration")
-          )
-          .join(PodcastLog, Podcast.id == PodcastLog.podcast_id)
-          .filter(PodcastLog.user_id == current_user.id)
-          .group_by(Podcast.id)
-          .order_by(desc("total_duration"))
-          .limit(5)
-          .all()
+        .query(
+            Podcast.name,
+            Podcast.image_url,
+            Podcast.publisher,
+            func.sum(PodcastLog.duration).label("total_duration")
+        )
+        .join(PodcastLog, Podcast.id == PodcastLog.podcast_id)
+        .filter(PodcastLog.user_id == current_user.id)
+        .group_by(Podcast.id)
+        .order_by(desc("total_duration"))
+        .limit(5)
+        .all()
     )
     top5 = [
-       (name, round(total_duration/60,1))
-       for name, total_duration in top5_q
+       {
+         "name": name,
+         "mins": round(total_duration/60, 1),
+         "image_url": image_url,
+         "publisher": publisher or "Unknown Publisher"
+       }
+       for name, image_url, publisher, total_duration in top5_q
     ]
 
-    # 2) Most loved = highest average rating
+    # 2) Most loved = highest avg rating, tie‐broken by total listen‐time
     loved_q = (
         db.session
-          .query(
-             Podcast.name,
-             func.avg(PodcastLog.rating).label("avg_rating")
-          )
-          .join(PodcastLog, Podcast.id == PodcastLog.podcast_id)
-          .filter(
-             PodcastLog.user_id == current_user.id,
-             PodcastLog.rating != None
-          )
-          .group_by(Podcast.id)
-          .order_by(desc("avg_rating"))
-          .first()
+        .query(
+            Podcast.name,
+            func.avg(PodcastLog.rating).label("avg_rating"),
+            func.sum(PodcastLog.duration).label("total_duration")
+        )
+        .join(PodcastLog, Podcast.id == PodcastLog.podcast_id)
+        .filter(
+            PodcastLog.user_id == current_user.id,
+            PodcastLog.rating != None
+        )
+        .group_by(Podcast.id)
+        .order_by(
+            desc("avg_rating"),        # primary sort: average rating
+            desc("total_duration")     # secondary sort: total listen time
+        )
+        .first()
     )
+
     if loved_q:
         most_loved = {
           "name": loved_q[0],
-          "rating": round(loved_q[1],1)
+          "rating": round(loved_q[1],1),
+          # you can also pass total_minutes if you want to display it:
+          # "total_mins": round(loved_q[2]/60,1)
         }
     else:
         most_loved = None
@@ -608,6 +620,7 @@ def visualise():
       top5=top5,
       most_loved=most_loved
     )
+
 
 @bp.route("/frienddash")
 @login_required
@@ -877,7 +890,9 @@ def log_podcast():
             podcast = Podcast(
                 spotify_id=show["id"],
                 name=show["name"],
-                description=show.get("description")
+                description=show.get("description"),
+                publisher = show.get("publisher"),                
+                image_url = (show["images"][0]["url"] if show.get("images") else None),
             )
             db.session.add(podcast)
             db.session.commit()

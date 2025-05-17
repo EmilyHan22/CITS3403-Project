@@ -389,7 +389,7 @@ h1 { text-align: center; margin-bottom: 1rem; font-weight: 300; }
 .top5-list-item { display: flex; align-items: center; justify-content: space-between; background: white; margin: 0.5rem 0; padding: 0.75rem 1rem; border-radius: 1rem; }
 .top5-rank { font-weight: bold; color: #007bff; margin-right: 1rem; }
 .top5-podcast-name { color: #000; font-weight: 600; flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space:nowrap; } 
-.top5-duration { background-color: #6c757d; border-radius: 1rem; padding: 0.25rem 0.75rem; color: #fff; }
+.top5-duration { background-color: #6c757d; border-radius: 1rem; padding: 0.25rem 0.75rem; color: #fff; margin-left: auto !important;}
 .most-loved-title, .most-loved-text { color: #333; text-align: center; }
 .most-loved-text { margin: 0.5rem 0; }
 .star { display: inline-block; font-size: 1.5rem; }
@@ -599,3 +599,104 @@ h1 { text-align: center; margin-bottom: 1rem; font-weight: 300; }
 #top-five-section,#most-loved-section{
 	color: black !important;
 }  
+
+/* ─── Dashboard wrapper glow ─────────────────────────────────────────── */
+.charts-container {
+  position: relative;        /* to contain the ::before glow */
+  background: #fff;          /* keep the inner area pure white */
+  border-radius: 1rem;
+  padding: 2rem;
+  overflow: visible;         /* so the glow can escape */
+  z-index: 0;
+  margin-bottom: 80px;
+}
+
+/* moving‐gradient “ambient” glow */
+.charts-container::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  right: -8px;
+  bottom: -8px;
+  border-radius: 1.25rem;
+  background: linear-gradient(
+    90deg,
+    #7f00ff,
+    #e100ff,
+    #7f00ff
+  );
+  background-size: 200% 100%;
+  filter: blur(16px);
+  z-index: -1;               /* behind the white wrapper */
+  animation: glow 4s ease infinite;
+}
+
+/* make each chart‐box sit above that ambient glow */
+.chart-box {
+  position: relative;
+  background: #fff;          /* solid white card */
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  margin-bottom: 1.5rem;
+}
+
+/* keyframes for the moving gradient */
+@keyframes glow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ─── Top 5 Podcast Cards ───────────────────────────────────────── */
+.top5-cards {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto 2rem;
+}
+/* Number prefix */
+.top5-rank {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #350067; /* accent purple */
+}
+.top5-card {
+  background: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.top5-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+.top5-img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+.top5-card h6 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.top5-card small {
+  color: #666;
+}
+/* Publisher forced black */
+.top5-publisher {
+  font-size: 0.85rem;
+  color: #000 !important;
+}
+
+/* ensure each card really contains its children */
+.top5-list-item {
+  position: relative;   /* establish a containing block */
+  width: 100%;          /* fill its parent wrapper */
+  overflow: hidden;     /* clip anything that would spill out */
+  box-sizing: border-box;
+}
