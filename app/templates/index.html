@@ -1,99 +1,48 @@
 {% extends "base_public.html" %}
 
-{% block title %}
-Home – Podfolio
-{% endblock %}
+{% block title %}Home – Podfolio{% endblock %}
 
 {% block content %}
+<main class="landing-page">
 
-<div class="container text-center my-5">
-	<h1 class="display-4 mb-4">Welcome to Podfolio </h1>
-	<h3 class="text-center mb-5">Your very own personalized podcast portfolio!</h3>
-		<p class="lead mb-4">Track your podcast journey, visualise your listening trends and tastes, and share your
-			favorites with friends. Meet people who share your tastes or introduce new flavours! Come join us, 
-			become a pea in this big loving pod, and discover your very own community of fello pod-lovers! 🤗 </p>
+  <!-- HERO + FEATURES WRAPPER -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-blobs">
+      <span class="blob blob-1"></span>
+      <span class="blob blob-2"></span>
+      <span class="blob blob-3"></span>
+    </div>
 
-		<section class="landing-intro my-5">
-			<div class="container">
-				<div class="row g-4">
-					<!-- Log -->
-					<div class="col-md-6">
-						<div class="d-flex align-items-start p-3 h-100">
-							<div class="display-4 me-4">🎧</div>
-							<div class="text-start">
-								<h4 class="fw-bold mb-1">Log Your Pod!</h4>
-								<p class="mb-0">
-									Start building your personal podcast library — one episode at a time. With Podfolio,
-									you can effortlessly log every podcast you listen to, creating a detailed history of
-									your audio journey.
-									Whether you're catching up on true crime at midnight or listening to news on your
-									commute,
-									your habits are safely stored. The more you log, the better your insights — so hit
-									play,
-									and let Podfolio do the rest.
-								</p>
-							</div>
-						</div>
-					</div>
+    <div class="hero-content container text-center">
+      <h1 class="display-3">Podfolio</h1>
+      <p class="lead hero-tagline">Discover. Track. Share. Your Podcast Journey.</p>
+      <a href="{{ url_for('main.login') }}" class="btn btn-hero btn-lg">Get Started</a>
+    </div>
 
-					<!-- View -->
-					<div class="col-md-6">
-						<div class="d-flex align-items-start p-3 h-100">
-							<div class="display-4 me-4">📊</div>
-							<div class="text-start">
-								<h4 class="fw-bold mb-1">View Your Stats!</h4>
-								<p class="mb-0">
-									Watch your podcast data come to life. Podfolio transforms your listening
-									history into vibrant graphs, weekly trends, and digestible summaries. See your top
-									genres,
-									most-played shows, binge streaks, and even the days you listen most. It's not just
-									stats — it's
-									your unique audio fingerprint, visualized beautifully.
-								</p>
-							</div>
-						</div>
-					</div>
+    <div class="features-wrapper container">
+      <div class="feature-card">
+        <div class="icon">🎧</div>
+        <h5>Log Your Pod</h5>
+        <p>Effortlessly record every episode and build your searchable listening history.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">📊</div>
+        <h5>View Your Stats</h5>
+        <p>Transform trends into interactive charts and personalized insights.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">💡</div>
+        <h5>Learn Your Taste</h5>
+        <p>Discover your audio fingerprint—genres, binge streaks, and more to guide your next listen.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">📨</div>
+        <h5>Share Your Board</h5>
+        <p>Connect with friends, share favorites, and explore new shows together.</p>
+      </div>
+    </div>
+  </section>
 
-					<!-- Learn -->
-					<div class="col-md-6">
-						<div class="d-flex align-items-start p-3 h-100">
-							<div class="display-4 me-4">💡</div>
-							<div class="text-start">
-								<h4 class="fw-bold mb-1">Learn Your Taste!</h4>
-								<p class="mb-0">
-									Dive deep into your listening patterns and discover what truly resonates
-									with you. From genre breakdowns and show preferences to duration trends and
-									mood-based insights — Podfolio helps you recognize what keeps your ears hooked.
-									Gain a better understanding of your evolving interests and let your future
-									listens be guided by what you love most.
-								</p>
-							</div>
-						</div>
-					</div>
-
-					<!-- Share -->
-					<div class="col-md-6">
-						<div class="d-flex align-items-start p-3 h-100">
-							<div class="display-4 me-4">📨</div>
-							<div class="text-start">
-								<h4 class="fw-bold mb-1">Share Your Board!</h4>
-								<p class="mb-0">
-									Make your podcast journey social! With Podfolio, you can add friends, peek
-									into their dashboards, and share your own. Compare listening habits, get inspired by
-									new series, or bond over shared favorites. It’s a space to discover fresh
-									recommendations,
-									celebrate niche obsessions, and connect with people who vibe with your audio world.
-								</p>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</section>
-
-
-
-		<a class="btn btn-primary btn-lg mb-5" href="{{ url_for('main.login') }}" role="button">Get Started</a>
-</div>
-
+</main>
 {% endblock %}

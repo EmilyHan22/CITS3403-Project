@@ -5,6 +5,173 @@
 	box-sizing: border-box;
 }
 
+
+:root {
+  /* tweak these to match your actual fixed-header/footer heights */
+  --header-height: 56px;
+  --footer-height: 56px;
+}
+
+.public-nav {
+  display: none !important;
+}
+
+/* ─── Hero (full-width + full-height) ─────────────────────────────────────── */
+
+/* ─── HERO (full-bleed + full-height-to-footer) ──────────────── */
+.hero {
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  margin-top: calc(-1 * var(--header-height));
+  min-height: calc(100vh - var(--header-height) - var(--footer-height));
+  padding-top: 4rem;
+  padding-bottom: 6rem;
+  background: linear-gradient(135deg, #1a002a 0%, #350067 100%);
+  overflow: hidden;
+  color: #fff;
+  z-index: 0;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.25);
+  z-index: 1;
+}
+
+.hero-blobs .blob {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  animation: float 8s ease-in-out infinite;
+  z-index: 1;
+}
+.blob-1 { width:300px; height:300px; top:-50px; left:-80px; }
+.blob-2 { width:200px; height:200px; top:20%; right:-100px; animation-duration:10s; }
+.blob-3 { width:400px; height:400px; bottom:-120px; left:30%; animation-duration:12s; }
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  animation: fadeIn 1s ease-out both;
+  text-align: center;
+  margin-top: 100px;
+  margin-bottom: 200px;
+}
+.hero-tagline {
+  margin-bottom: 2rem;
+  font-size: 1.25rem;
+  opacity: 0.85;
+}
+
+.btn-hero {
+  --start: #7f00ff;
+  --end:   #e100ff;
+  background: linear-gradient(90deg, var(--start), var(--end));
+  background-size: 200% 100%;
+  border: none;
+  border-radius: 50px;
+  padding: 0.75rem 2rem;
+  color: #fff;
+  transition: background-position 0.5s, transform 0.3s;
+}
+.btn-hero:hover {
+  background-position: 100% 0;
+  transform: translateY(-3px);
+}
+
+@keyframes float {
+  0%,100% { transform: translateY(0) scale(1); }
+  50%     { transform: translateY(-30px) scale(1.05); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── FEATURES WRAPPER (white + glow) ───────────────────────── */
+.features-wrapper {
+  max-width: 1200px;
+  margin: -6rem auto 0;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
+  position: relative;
+  z-index: 3;
+}
+
+/* gradient “glow” behind the white container */
+.features-wrapper::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  bottom: -8px;
+  left: -8px;
+  border-radius: calc(1rem + 8px);
+  background: linear-gradient(135deg, #ff6ec4, #7873f5, #ff6ec4);
+  background-size: 300% 300%;
+  filter: blur(12px);
+  z-index: -1;
+  animation: gradient-glow 4s ease infinite;
+}
+
+@keyframes gradient-glow {
+  0%   { background-position:   0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position:   0% 50%; }
+}
+
+
+.feature-card {
+  flex: 1 1 calc(25% - 1.5rem);
+  min-width: 220px;
+  background-color: white;
+  backdrop-filter: blur(8px);
+  border-radius: 1rem;
+  padding: 2rem 1rem;
+  margin-top: 30px;
+  text-align: center;
+  color: #350067;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transform: translateY(-2rem);
+}
+.feature-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+.feature-card .icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+.feature-card h5 {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+.feature-card p {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #555;
+}
+
+@media (max-width: 991.98px) {
+  .feature-card { flex: 1 1 100%; max-width: 100%; }
+}
+@media (max-width: 767px) {
+  .feature-card { padding: 1.5rem; transform: translateY(0); }
+}
+
+
+
+/* --- End hero --- */
+
 /* --- Responsive Utility Overrides --- */
 img, video, .card-img-top, .podcast-thumb {
   max-width: 100%;
@@ -156,10 +323,10 @@ footer {
 	background-color: #191970;
 	color: #191970;
 	margin-top: 40px;
-  position: fixed;
-  bottom: 0px;
-  width: 100%;
-  z-index: 20;
+  	position: fixed;
+  	bottom: 0px;
+  	width: 100%;
+  	z-index: 20;
 }
 
 @keyframes gradientMove {
@@ -351,7 +518,4 @@ h1 { text-align: center; margin-bottom: 1rem; font-weight: 300; }
     color: #f8f9fa;
     font-weight: 600;
 }
-
-
-  
 
