@@ -61,7 +61,7 @@ Instantly see new entries on your personal profile
 
 - Social Sharing & Messaging:
 
-ShareFeed: post a logged episode to your feed where friends can like and comment
+ShareFeed: post a logged episode to your feed where friends or anyone can like and comment
 
 Send to Friend: choose one or more friends to send a podcast directly into your private chat
 
