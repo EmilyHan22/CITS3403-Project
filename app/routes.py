@@ -33,7 +33,7 @@ SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 
 
 def is_password_strong(pw: str) -> bool:
-    """True if pw has ≥8 chars, uppercase, lowercase, digit, and special."""
+    """True if pw  ≥8 chars, uppercase, lowercase, digit, and special."""
     return (
         len(pw) >= 8 and
         re.search(r"[A-Z]", pw) and
